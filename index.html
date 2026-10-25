@@ -1,183 +1,196 @@
 
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Raiz Ancestral | Plantas e Natureza</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f6f8f2;
-      color: #253b2c;
+<HTML língua="pt-BR">
+<caboça>
+  <meta conjunto de caracteres="UTF-8">
+  <meta nome="janela de visualização" conteúdo="largura=largura do dispositivo, escala inicial=1">
+  <título>Raiz Ancestral | Plantas e Natureza</título>
+  <estilo>
+    * { dimensionamento de caixa: caixa de fronteira; }
+    corpo {
+      margem: 0;
+      família de fontes: Arial, sem serifa;
+      fundo: #f6f8f2;
+      cor: #253b2c;
     }
-    header {
-      background: #183d2c;
-      color: white;
-      text-align: center;
-      padding: 42px 20px;
+    caboçalho {
+      fundo: #183d2c;
+      cor: branco;
+      alinhamento de texto: centro;
+      enchimento: 42px 20px;
     }
-    header h1 { font-size: 38px; margin: 0 0 12px; }
-    header p { margin: 0; color: #d4e7d7; }
-    nav {
-      background: #e2eadc;
-      padding: 16px;
-      text-align: center;
+    caboçalho h1 {tamanho da fonte: 38px; margem: 0 0 12px; }
+    caboçalho p { margem: 0; cor: #d4e7d7; }
+    navegação {
+      fundo: #e2eadc;
+      enchimento: 16px;
+      alinhamento de texto: centro;
     }
-    nav a {
-      color: #24533a;
-      margin: 0 12px;
-      text-decoration: none;
-      font-weight: bold;
+    navegação a {
+      cor: #24533a;
+      margem: 0 12px;
+      decoração de texto: nenhum;
+      peso da fonte: audacioso;
     }
-    main { max-width: 1150px; margin: auto; padding: 35px 20px; }
-    .intro { text-align: center; margin-bottom: 35px; }
+    principal { largura máxima: 1150px; margem: auto; enchimento: 35px 20px; }
+    .introdução { alinhamento de texto: centro; margem inferior: 35px; }
     .produtos {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
+      exibir: nota;
+      colunas de modelo de grau: repetir(ajuste automático, mínimo máx(240px, 1fr));
+      lacuna: 24px;
     }
     .produto {
-      background: white;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px #00000012;
+      fundo: branco;
+      raio de borda: 14px;
+      transbordar: escondido;
+      caixa-sombra: 0 4px 16px #00000012;
     }
-    .produto img {
-      width: 100%;
-      height: 230px;
-      object-fit: cover;
+    .produto imagem {
+      largura: 100%;
+      alta: 230px;
+      ajuste de objeto: cobrir;
     }
-    .conteudo { padding: 20px; }
-    .conteudo h3 { margin-top: 0; }
-    .loja { color: #6b776d; font-size: 13px; }
+    .conto { enchimento: 20px; }
+    .conto h3 { margem superior: 0; }
+    .loja { cor: #6b776d; tamanho da fonte: 13px; }
     .preco {
-      font-size: 23px;
-      color: #21643a;
-      font-weight: bold;
-      margin: 16px 0;
+      tamanho da fonte: 23px;
+      cor: #21643a;
+      peso da fonte: audacioso;
+      margem: 16px 0;
     }
     .comprar {
-      display: block;
-      padding: 13px;
-      background: #27864c;
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
+      exibir: bloquear;
+      enchimento: 13px;
+      fundo: #27864c;
+      cor: branco;
+      alinhamento de texto: centro;
+      decoração de texto: nenhum;
+      raio de borda: 8px;
+      peso da fonte: audacioso;
     }
-    .comprar:hover { background: #1a6538; }
-    footer {
-      margin-top: 55px;
-      background: #183d2c;
-      color: white;
-      padding: 28px 20px;
-      text-align: center;
-      font-size: 13px;
+    .comprar:parear { fundo: #1a6538; }
+    rodapé {
+      marca superior: 55px;
+      fundo: #183d2c;
+      cor: branco;
+      enchimento: 28px 20px;
+      alinhamento de texto: centro;
+      tamanho da fonte: 13px;
     }
-    @media (max-width: 600px) {
-      header h1 { font-size: 30px; }
-      nav a { display: inline-block; margin: 6px; }
+    @mídia (largura máxima: 600px) {
+      caboçalho h1 {tamanho da fonte: 30px; }
+      navegação a { exibir: bloco em linha; março: 6px; }
     }
-  </style>
-</head>
-<body>
-  <header>
+  </estilo>
+</caboça>
+<corpo>
+  <caboçalho>
     <h1>🌿 Raiz Ancestral</h1>
     <p>Conectando você à beleza e à sabedoria da natureza</p>
-  </header>
+  </caboçalho>
 
-  <nav>
+  <navegação>
     <a href="#inicio">Início</a>
     <a href="#catalogo">Produtos</a>
     <a href="#sobre">Sobre</a>
-  </nav>
+  </navegação>
 
-  <main id="inicio">
-    <section class="intro">
+  <principal id="inicio">
+    <sessão classe="introdução">
       <h2>Descubra o universo das plantas</h2>
       <p>Orquídeas, jardinagem, ervas e produtos naturais.</p>
-    </section>
+    </sessão>
 
-    <section id="catalogo">
+    <sessão id="catálogo">
       <h2>🌱 Nossos produtos</h2>
-      <div id="produtos" class="produtos">
-        <p>Carregando produtos...</p>
-      </div>
-    </section>
+      
+<dividir id="categorias" estilo="exibir:flexível;envoltório flexível:embrulhar;lacuna:10px;margem:20px 0;">
+  <botão tipo="botão" categoria de dados="Todos">Todos</botão>
+  <botão tipo="botão" categoria de dados="Flores">🌸 Flores</botão>
+  <botão tipo="botão" categoria de dados="Chás e Ervas">🍵 Chás e Ervas</botão>
+  <botão tipo="botão" categoria de dados="Ferramentas">🛠️ Ferramentas</botão>
+  <botão tipo="botão" categoria de dados="Jardinagem">🌱 Jardinagem</botão>
+  <botão tipo="botão" categoria de dados="Hortas e Sementes">🥬 Hortas e Sementes</botão>
+</dividir>
 
-    <section id="sobre" class="intro" style="margin-top:55px">
+      <dividir id="produtos" classe="produtos">
+        <p>Carregando produtos...</p>
+      </dividir>
+    </sessão>
+
+    <sessão id="sobre" classe="introdução" estilo="margem superior:55px">
       <h2>Sobre o Raiz Ancestral</h2>
       <p>Uma vitrine dedicada às plantas e à natureza.</p>
-    </section>
-  </main>
+    </sessão>
+  </principal>
 
-  <footer>
+  <rodapé>
     <p>Raiz Ancestral © 2026</p>
     <p>Este site contém links de afiliados. Podemos receber
     comissão por compras qualificadas, sem custo adicional
     para você.</p>
     <p>Preços e disponibilidade devem ser confirmados na loja.</p>
-  </footer>
+  </rodapé>
 
-  <script>
+  <roteiro>
     const SUPABASE_URL =
       "https://boyawtobwoqgxtvosihm.supabase.co";
 
-    const SUPABASE_KEY = "sb_publishable_MihLIyGfb0299bC9155TLA_NZ6x7gky";
+    const CHAVE_SUPABASE = "sb_publishable_MihLIyGfb0299bC9155TLA_NZ6x7gky";
 
-    const container = document.getElementById("produtos");
+    const destino = documento.obterElementoPorId("produtos");
 
-    function elemento(tag, classe, texto) {
-      const el = document.createElement(tag);
-      if (classe) el.className = classe;
-      if (texto != null) el.textContent = texto;
-      return el;
+    função elemento(etiqueta, classe, texto) {
+      const o = documento.criarElemento(etiqueta);
+      se (classe) o.nome da classe = classe;
+      se (texto!= nulo) o.textoConteúdo = texto;
+      retornar o;
     }
 
-    async function carregarProdutos() {
-      if (SUPABASE_KEY === "COLE_SUA_CHAVE_PUBLICA_AQUI") {
-        container.replaceChildren(
+    rodapé {
+      se (CHAVE_SUPABASE === "COLE_SUA_CHAVE_PUBLICA_AQUI") {
+        destino.substituirCrianças(
           elemento("p", "", "Falta configurar a chave pública.")
         );
-        return;
+        retornar;
       }
 
-      try {
-        const resposta = await fetch(
+      tentar {
+        const resposta = esperar buscar(
           SUPABASE_URL +
-          "/rest/v1/produtos?select=*&ativo=eq.true&order=id.desc",
+          "/rest/v1/produtos?seleção=*&ativo=eq.true&order=id.desc",
           {
-            headers: {
-              apikey: SUPABASE_KEY
+            Cabos: {
+              apikey- o pique- o irritar: CHAVE_SUPABASE
             }
           }
         );
 
         if (!resposta.ok) throw new Error("Falha na consulta");
-
         const produtos = await resposta.json();
-        container.replaceChildren();
+        destino.replaceChildren();
 
         if (!produtos.length) {
-          container.append(
+          destino.anexar(
             elemento("p", "", "Nenhum produto disponível.")
           );
           return;
-        }
+}
 
         produtos.forEach(produto => {
+
           const card = elemento("article", "produto");
+    
+          card.dataset.categoria = produto.categoria || "";
+
 
           if (produto.imagem_url) {
-            const img = document.createElement("img");
-            img.src = produto.imagem_url;
-            img.alt = produto.nome || "Produto";
-            img.loading = "lazy";
-            card.append(img);
+           const imagem = document.createElement("img");
+            
+            imagem.src = produto.imagem_url;
+            imagem.loading = "lazy";
+            card.append(imagem);
           }
 
           const conteudo = elemento("div", "conteudo");
@@ -191,11 +204,11 @@
             const valor = Number(produto.preco);
             if (Number.isFinite(valor)) {
               conteudo.append(
-                elemento(
+
                   "p",
                   "preco",
                   valor.toLocaleString("pt-BR", {
-                    style: "currency",
+                    style: "currency"
                     currency: "BRL"
                   })
                 )
@@ -218,8 +231,9 @@
 
           card.append(conteudo);
           container.append(card);
-        });
-      } catch (erro) {
+});
+    
+    } catch (erro) {
         container.replaceChildren(
           elemento(
             "p",
@@ -227,11 +241,27 @@
             "Não foi possível carregar os produtos."
           )
         );
-        console.error(erro);
+        console.erro(erro);
       }
     }
 
     carregarProdutos();
+    
+document.querySelectorAll("#categorias button").forEach(botao => {
+  botao.addEventListener("click", () => {
+    const categoria = botao.dataset.categoria;
+
+    document.querySelectorAll("#produtos .produto").forEach(card => {
+      const categoriaProduto = card.dataset.categoria;
+
+      card.style.display =
+        categoria === "Todos" || categoriaProduto === categoria
+          ? ""
+          : "none";
+    });
+  });
+});
+
   </script>
 </body>
 </html>
