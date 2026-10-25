@@ -1,267 +1,177 @@
-
 <!DOCTYPE html>
-<HTML língua="pt-BR">
-<caboça>
-  <meta conjunto de caracteres="UTF-8">
-  <meta nome="janela de visualização" conteúdo="largura=largura do dispositivo, escala inicial=1">
-  <título>Raiz Ancestral | Plantas e Natureza</título>
-  <estilo>
-    * { dimensionamento de caixa: caixa de fronteira; }
-    corpo {
-      margem: 0;
-      família de fontes: Arial, sem serifa;
-      fundo: #f6f8f2;
-      cor: #253b2c;
-    }
-    caboçalho {
-      fundo: #183d2c;
-      cor: branco;
-      alinhamento de texto: centro;
-      enchimento: 42px 20px;
-    }
-    caboçalho h1 {tamanho da fonte: 38px; margem: 0 0 12px; }
-    caboçalho p { margem: 0; cor: #d4e7d7; }
-    navegação {
-      fundo: #e2eadc;
-      enchimento: 16px;
-      alinhamento de texto: centro;
-    }
-    navegação a {
-      cor: #24533a;
-      margem: 0 12px;
-      decoração de texto: nenhum;
-      peso da fonte: audacioso;
-    }
-    principal { largura máxima: 1150px; margem: auto; enchimento: 35px 20px; }
-    .introdução { alinhamento de texto: centro; margem inferior: 35px; }
-    .produtos {
-      exibir: nota;
-      colunas de modelo de grau: repetir(ajuste automático, mínimo máx(240px, 1fr));
-      lacuna: 24px;
-    }
-    .produto {
-      fundo: branco;
-      raio de borda: 14px;
-      transbordar: escondido;
-      caixa-sombra: 0 4px 16px #00000012;
-    }
-    .produto imagem {
-      largura: 100%;
-      alta: 230px;
-      ajuste de objeto: cobrir;
-    }
-    .conto { enchimento: 20px; }
-    .conto h3 { margem superior: 0; }
-    .loja { cor: #6b776d; tamanho da fonte: 13px; }
-    .preco {
-      tamanho da fonte: 23px;
-      cor: #21643a;
-      peso da fonte: audacioso;
-      margem: 16px 0;
-    }
-    .comprar {
-      exibir: bloquear;
-      enchimento: 13px;
-      fundo: #27864c;
-      cor: branco;
-      alinhamento de texto: centro;
-      decoração de texto: nenhum;
-      raio de borda: 8px;
-      peso da fonte: audacioso;
-    }
-    .comprar:parear { fundo: #1a6538; }
-    rodapé {
-      marca superior: 55px;
-      fundo: #183d2c;
-      cor: branco;
-      enchimento: 28px 20px;
-      alinhamento de texto: centro;
-      tamanho da fonte: 13px;
-    }
-    @mídia (largura máxima: 600px) {
-      caboçalho h1 {tamanho da fonte: 30px; }
-      navegação a { exibir: bloco em linha; março: 6px; }
-    }
-  </estilo>
-</caboça>
-<corpo>
-  <caboçalho>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Raiz Ancestral: plantas, orquídeas, jardinagem, chás, ervas e produtos para quem ama a natureza.">
+  <title>Raiz Ancestral | Plantas e Natureza</title>
+  <style>
+    :root { color-scheme: light; --green:#183d2c; --green2:#24533a; --cream:#f6f8f2; --ink:#253b2c; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--cream); color:var(--ink); line-height:1.5; }
+    header { background:var(--green); color:white; text-align:center; padding:38px 20px; }
+    header h1 { font-size:clamp(28px,5vw,42px); margin:0 0 8px; }
+    header p { margin:0; color:#d4e7d7; }
+    nav { background:var(--green2); padding:14px; text-align:center; }
+    nav a { color:white; text-decoration:none; font-weight:bold; margin:0 12px; }
+    nav a:hover,nav a:focus-visible { text-decoration:underline; }
+    main { max-width:1150px; margin:auto; padding:35px 20px; }
+    .intro { text-align:center; margin-bottom:35px; }
+    .intro h2 { margin-bottom:8px; }
+    .filters { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 24px; }
+    .filters button { border:1px solid #b7cbb9; border-radius:999px; padding:10px 16px; background:white; color:var(--green); font-weight:bold; cursor:pointer; }
+    .filters button:hover,.filters button[aria-pressed="true"] { background:var(--green); color:white; }
+    .products { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px; }
+    .product { background:white; border-radius:14px; overflow:hidden; box-shadow:0 4px 16px #00000012; display:flex; flex-direction:column; }
+    .product img { display:block; width:100%; height:230px; object-fit:cover; background:#e9eee8; }
+    .content { padding:20px; display:flex; flex-direction:column; flex:1; }
+    .store { color:#6b776d; font-size:13px; font-weight:bold; margin:0 0 6px; }
+    .content h3 { margin:0 0 10px; font-size:20px; }
+    .description { margin:0 0 12px; }
+    .price { font-size:23px; font-weight:bold; color:#21643a; margin:8px 0 14px; }
+    .buy { display:block; margin-top:auto; padding:12px 16px; border-radius:8px; text-align:center; background:#21643a; color:white; font-weight:bold; text-decoration:none; }
+    .buy:hover,.buy:focus-visible { background:#16492a; }
+    .about { margin-top:55px; text-align:center; }
+    .message { padding:18px; background:white; border-radius:10px; }
+    footer { background:var(--green); color:white; text-align:center; padding:28px 20px; font-size:13px; }
+    footer p { margin:6px auto; max-width:780px; }
+    @media(max-width:600px) { nav a { margin:0 7px; } main { padding:26px 14px; } }
+  </style>
+</head>
+<body>
+  <header id="inicio">
     <h1>🌿 Raiz Ancestral</h1>
     <p>Conectando você à beleza e à sabedoria da natureza</p>
-  </caboçalho>
-
-  <navegação>
+  </header>
+  <nav aria-label="Navegação principal">
     <a href="#inicio">Início</a>
     <a href="#catalogo">Produtos</a>
     <a href="#sobre">Sobre</a>
-  </navegação>
-
-  <principal id="inicio">
-    <sessão classe="introdução">
-      <h2>Descubra o universo das plantas</h2>
+  </nav>
+  <main>
+    <section class="intro" aria-labelledby="titulo-intro">
+      <h2 id="titulo-intro">Descubra o universo das plantas</h2>
       <p>Orquídeas, jardinagem, ervas e produtos naturais.</p>
-    </sessão>
-
-    <sessão id="catálogo">
-      <h2>🌱 Nossos produtos</h2>
-      
-<dividir id="categorias" estilo="exibir:flexível;envoltório flexível:embrulhar;lacuna:10px;margem:20px 0;">
-  <botão tipo="botão" categoria de dados="Todos">Todos</botão>
-  <botão tipo="botão" categoria de dados="Flores">🌸 Flores</botão>
-  <botão tipo="botão" categoria de dados="Chás e Ervas">🍵 Chás e Ervas</botão>
-  <botão tipo="botão" categoria de dados="Ferramentas">🛠️ Ferramentas</botão>
-  <botão tipo="botão" categoria de dados="Jardinagem">🌱 Jardinagem</botão>
-  <botão tipo="botão" categoria de dados="Hortas e Sementes">🥬 Hortas e Sementes</botão>
-</dividir>
-
-      <dividir id="produtos" classe="produtos">
-        <p>Carregando produtos...</p>
-      </dividir>
-    </sessão>
-
-    <sessão id="sobre" classe="introdução" estilo="margem superior:55px">
+    </section>
+    <section id="catalogo" aria-labelledby="titulo-catalogo">
+      <h2 id="titulo-catalogo">🌱 Nossos produtos</h2>
+      <div id="categorias" class="filters" aria-label="Filtrar produtos por categoria">
+        <button type="button" data-categoria="Todos" aria-pressed="true">Todos</button>
+        <button type="button" data-categoria="Flores" aria-pressed="false">🌺 Flores</button>
+        <button type="button" data-categoria="Chás e Ervas" aria-pressed="false">🍵 Chás e Ervas</button>
+        <button type="button" data-categoria="Ferramentas" aria-pressed="false">🛠️ Ferramentas</button>
+        <button type="button" data-categoria="Jardinagem" aria-pressed="false">🌱 Jardinagem</button>
+        <button type="button" data-categoria="Hortas e Sementes" aria-pressed="false">🥬 Hortas e Sementes</button>
+      </div>
+      <div id="produtos" class="products" aria-live="polite"><p class="message">Carregando produtos...</p></div>
+    </section>
+    <section id="sobre" class="about">
       <h2>Sobre o Raiz Ancestral</h2>
       <p>Uma vitrine dedicada às plantas e à natureza.</p>
-    </sessão>
-  </principal>
-
-  <rodapé>
+    </section>
+  </main>
+  <footer>
     <p>Raiz Ancestral © 2026</p>
-    <p>Este site contém links de afiliados. Podemos receber
-    comissão por compras qualificadas, sem custo adicional
-    para você.</p>
+    <p>Este site contém links de afiliados. Podemos receber comissão por compras qualificadas, sem custo adicional para você.</p>
     <p>Preços e disponibilidade devem ser confirmados na loja.</p>
-  </rodapé>
+  </footer>
+  <script>
+    // Cole aqui SOMENTE a chave PUBLICÁVEL (sb_publishable_...), nunca uma chave secreta.
+    const SUPABASE_URL = "https://boyawtobwoqgxtvosihm.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_MihLIyGfb0299bC9155TLA_NZ6x7gky";
 
-  <roteiro>
-    const SUPABASE_URL =
-      "https://boyawtobwoqgxtvosihm.supabase.co";
+    const container = document.getElementById("produtos");
+    const botoes = document.querySelectorAll("#categorias button");
+    let produtos = [];
+    let categoriaAtual = "Todos";
 
-    const CHAVE_SUPABASE = "sb_publishable_MihLIyGfb0299bC9155TLA_NZ6x7gky";
-
-    const destino = documento.obterElementoPorId("produtos");
-
-    função elemento(etiqueta, classe, texto) {
-      const o = documento.criarElemento(etiqueta);
-      se (classe) o.nome da classe = classe;
-      se (texto!= nulo) o.textoConteúdo = texto;
-      retornar o;
+    function elemento(tag, classe, texto) {
+      const el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (texto !== undefined && texto !== null) el.textContent = String(texto);
+      return el;
     }
 
-    rodapé {
-      se (CHAVE_SUPABASE === "COLE_SUA_CHAVE_PUBLICA_AQUI") {
-        destino.substituirCrianças(
-          elemento("p", "", "Falta configurar a chave pública.")
-        );
-        retornar;
+    function mostrarMensagem(texto) {
+      container.replaceChildren(elemento("p", "message", texto));
+    }
+
+    function renderizarProdutos() {
+      container.replaceChildren();
+      const visiveis = produtos.filter(produto => categoriaAtual === "Todos" || produto.categoria === categoriaAtual);
+      if (!visiveis.length) {
+        mostrarMensagem("Nenhum produto disponível nesta categoria.");
+        return;
       }
-
-      tentar {
-        const resposta = esperar buscar(
-          SUPABASE_URL +
-          "/rest/v1/produtos?seleção=*&ativo=eq.true&order=id.desc",
-          {
-            Cabos: {
-              apikey- o pique- o irritar: CHAVE_SUPABASE
-            }
-          }
+      visiveis.forEach(produto => {
+        const card = elemento("article", "product produto");
+        card.dataset.categoria = produto.categoria || "";
+        if (produto.imagem_url) {
+          const imagem = document.createElement("img");
+          imagem.src = produto.imagem_url;
+          imagem.alt = produto.nome || "Imagem do produto";
+          imagem.loading = "lazy";
+          card.append(imagem);
+        }
+        const conteudo = elemento("div", "content");
+        conteudo.append(
+          elemento("p", "store", produto.loja || "Loja"),
+          elemento("h3", "", produto.nome || "Produto"),
+          elemento("p", "description", produto.descricao || "")
         );
-
-        if (!resposta.ok) throw new Error("Falha na consulta");
-        const produtos = await resposta.json();
-        destino.replaceChildren();
-
-        if (!produtos.length) {
-          destino.anexar(
-            elemento("p", "", "Nenhum produto disponível.")
-          );
-          return;
-}
-
-        produtos.forEach(produto => {
-
-          const card = elemento("article", "produto");
-    
-          card.dataset.categoria = produto.categoria || "";
-
-
-          if (produto.imagem_url) {
-           const imagem = document.createElement("img");
-            
-            imagem.src = produto.imagem_url;
-            imagem.loading = "lazy";
-            card.append(imagem);
+        if (produto.preco !== null && produto.preco !== undefined && produto.preco !== "") {
+          const valor = Number(produto.preco);
+          if (Number.isFinite(valor)) {
+            conteudo.append(elemento("p", "price", valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})));
           }
-
-          const conteudo = elemento("div", "conteudo");
-          conteudo.append(
-            elemento("p", "loja", produto.loja || "Loja"),
-            elemento("h3", "", produto.nome || "Produto"),
-            elemento("p", "", produto.descricao || "")
-          );
-
-          if (produto.preco != null) {
-            const valor = Number(produto.preco);
-            if (Number.isFinite(valor)) {
-              conteudo.append(
-
-                  "p",
-                  "preco",
-                  valor.toLocaleString("pt-BR", {
-                    style: "currency"
-                    currency: "BRL"
-                  })
-                )
-              );
+        }
+        if (produto.link_afiliado) {
+          try {
+            const url = new URL(produto.link_afiliado);
+            if (url.protocol === "https:") {
+              const botao = elemento("a", "buy", "Ver na loja");
+              botao.href = url.href;
+              botao.target = "_blank";
+              botao.rel = "sponsored noopener noreferrer";
+              conteudo.append(botao);
             }
+          } catch (erro) {
+            console.warn("Link de afiliado inválido para um produto.");
           }
+        }
+        card.append(conteudo);
+        container.append(card);
+      });
+    }
 
-          if (produto.link_afiliado) {
-            try {
-              const url = new URL(produto.link_afiliado);
-              if (url.protocol === "https:") {
-                const botao = elemento("a", "comprar", "Ver na loja");
-                botao.href = url.href;
-                botao.target = "_blank";
-                botao.rel = "sponsored noopener noreferrer";
-                conteudo.append(botao);
-              }
-            } catch (_) {}
-          }
-
-          card.append(conteudo);
-          container.append(card);
-});
-    
-    } catch (erro) {
-        container.replaceChildren(
-          elemento(
-            "p",
-            "",
-            "Não foi possível carregar os produtos."
-          )
+    async function carregarProdutos() {
+      if (SUPABASE_KEY === "COLE_SUA_CHAVE_PUBLICA_AQUI") { 
+        mostrarMensagem("Falta configurar a chave pública do Supabase.");
+        return;
+      }
+      try {
+        const resposta = await fetch(
+          SUPABASE_URL + "/rest/v1/produtos?select=*&ativo=eq.true&order=id.desc",
+          { headers: { apikey: SUPABASE_KEY } }
         );
-        console.erro(erro);
+        if (!resposta.ok) throw new Error("Erro na consulta: " + resposta.status);
+        produtos = await resposta.json();
+        renderizarProdutos();
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem("Não foi possível carregar os produtos. Tente novamente mais tarde.");
       }
     }
+
+    botoes.forEach(botao => {
+      botao.addEventListener("click", () => {
+        categoriaAtual = botao.dataset.categoria;
+        botoes.forEach(item => item.setAttribute("aria-pressed", String(item === botao)));
+        renderizarProdutos();
+      });
+    });
 
     carregarProdutos();
-    
-document.querySelectorAll("#categorias button").forEach(botao => {
-  botao.addEventListener("click", () => {
-    const categoria = botao.dataset.categoria;
-
-    document.querySelectorAll("#produtos .produto").forEach(card => {
-      const categoriaProduto = card.dataset.categoria;
-
-      card.style.display =
-        categoria === "Todos" || categoriaProduto === categoria
-          ? ""
-          : "none";
-    });
-  });
-});
-
   </script>
 </body>
 </html>
