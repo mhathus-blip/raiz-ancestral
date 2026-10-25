@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Raiz Ancestral | Plantas e Natureza</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f8f2;
+      color: #253b2c;
+    }
+    header {
+      background: #183d2c;
+      color: white;
+      text-align: center;
+      padding: 42px 20px;
+    }
+    header h1 { font-size: 38px; margin: 0 0 12px; }
+    header p { margin: 0; color: #d4e7d7; }
+    nav {
+      background: #e2eadc;
+      padding: 16px;
+      text-align: center;
+    }
+    nav a {
+      color: #24533a;
+      margin: 0 12px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    main { max-width: 1150px; margin: auto; padding: 35px 20px; }
+    .intro { text-align: center; margin-bottom: 35px; }
+    .produtos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .produto {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px #00000012;
+    }
+    .produto img {
+      width: 100%;
+      height: 230px;
+      object-fit: cover;
+    }
+    .conteudo { padding: 20px; }
+    .conteudo h3 { margin-top: 0; }
+    .loja { color: #6b776d; font-size: 13px; }
+    .preco {
+      font-size: 23px;
+      color: #21643a;
+      font-weight: bold;
+      margin: 16px 0;
+    }
+    .comprar {
+      display: block;
+      padding: 13px;
+      background: #27864c;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .comprar:hover { background: #1a6538; }
+    footer {
+      margin-top: 55px;
+      background: #183d2c;
+      color: white;
+      padding: 28px 20px;
+      text-align: center;
+      font-size: 13px;
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 30px; }
+      nav a { display: inline-block; margin: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌿 Raiz Ancestral</h1>
+    <p>Conectando você à beleza e à sabedoria da natureza</p>
+  </header>
+
+  <nav>
+    <a href="#inicio">Início</a>
+    <a href="#catalogo">Produtos</a>
+    <a href="#sobre">Sobre</a>
+  </nav>
+
+  <main id="inicio">
+    <section class="intro">
+      <h2>Descubra o universo das plantas</h2>
+      <p>Orquídeas, jardinagem, ervas e produtos naturais.</p>
+    </section>
+
+    <section id="catalogo">
+      <h2>🌱 Nossos produtos</h2>
+      <div id="produtos" class="produtos">
+        <p>Carregando produtos...</p>
+      </div>
+    </section>
+
+    <section id="sobre" class="intro" style="margin-top:55px">
+      <h2>Sobre o Raiz Ancestral</h2>
+      <p>Uma vitrine dedicada às plantas e à natureza.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Raiz Ancestral © 2026</p>
+    <p>Este site contém links de afiliados. Podemos receber
+    comissão por compras qualificadas, sem custo adicional
+    para você.</p>
+    <p>Preços e disponibilidade devem ser confirmados na loja.</p>
+  </footer>
+
+  <script>
+    const SUPABASE_URL =
+      "https://boyawtobwoqgxtvosihm.supabase.co";
+
+    const SUPABASE_KEY = "COLE_SUA_CHAVE_PUBLICA_AQUI";
+
+    const container = document.getElementById("produtos");
+
+    function elemento(tag, classe, texto) {
+      const el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (texto != null) el.textContent = texto;
+      return el;
+    }
+
+    async function carregarProdutos() {
+      if (SUPABASE_KEY === "COLE_SUA_CHAVE_PUBLICA_AQUI") {
+        container.replaceChildren(
+          elemento("p", "", "Falta configurar a chave pública.")
+        );
+        return;
+      }
+
+      try {
+        const resposta = await fetch(
+          SUPABASE_URL +
+          "/rest/v1/produtos?select=*&ativo=eq.true&order=id.desc",
+          {
+            headers: {
+              apikey: SUPABASE_KEY
+            }
+          }
+        );
+
+        if (!resposta.ok) throw new Error("Falha na consulta");
+
+        const produtos = await resposta.json();
+        container.replaceChildren();
+
+        if (!produtos.length) {
+          container.append(
+            elemento("p", "", "Nenhum produto disponível.")
+          );
+          return;
+        }
+
+        produtos.forEach(produto => {
+          const card = elemento("article", "produto");
+
+          if (produto.imagem_url) {
+            const img = document.createElement("img");
+            img.src = produto.imagem_url;
+            img.alt = produto.nome || "Produto";
+            img.loading = "lazy";
+            card.append(img);
+          }
+
+          const conteudo = elemento("div", "conteudo");
+          conteudo.append(
+            elemento("p", "loja", produto.loja || "Loja"),
+            elemento("h3", "", produto.nome || "Produto"),
+            elemento("p", "", produto.descricao || "")
+          );
+
+          if (produto.preco != null) {
+            const valor = Number(produto.preco);
+            if (Number.isFinite(valor)) {
+              conteudo.append(
+                elemento(
+                  "p",
+                  "preco",
+                  valor.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL"
+                  })
+                )
+              );
+            }
+          }
+
+          if (produto.link_afiliado) {
+            try {
+              const url = new URL(produto.link_afiliado);
+              if (url.protocol === "https:") {
+                const botao = elemento("a", "comprar", "Ver na loja");
+                botao.href = url.href;
+                botao.target = "_blank";
+                botao.rel = "sponsored noopener noreferrer";
+                conteudo.append(botao);
+              }
+            } catch (_) {}
+          }
+
+          card.append(conteudo);
+          container.append(card);
+        });
+      } catch (erro) {
+        container.replaceChildren(
+          elemento(
+            "p",
+            "",
+            "Não foi possível carregar os produtos."
+          )
+        );
+        console.error(erro);
+      }
+    }
+
+    carregarProdutos();
+  </script>
+</body>
+</html>
