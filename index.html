@@ -247,12 +247,7 @@ const visiveis = produtos.filter(produto => {
           elemento("h3", "", produto.nome || "Produto"),
           elemento("p", "description", produto.descricao || "")
         );
-        if (produto.preco !== null && produto.preco !== undefined && produto.preco !== "") {
-          const valor = Number(produto.preco);
-          if (Number.isFinite(valor)) {
-            conteudo.append(elemento("p", "price", valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})));
-          }
-        }
+        conteudo.append(elemento("p", "price", "Consultar preço na loja"));
         if (produto.link_afiliado) {
           try {
             const url = new URL(produto.link_afiliado);
