@@ -196,6 +196,9 @@ main.wrap::after{
   ordemAtual = this.value;
   renderizarProdutos();
 });
+ document.getElementById("busca-produtos").addEventListener("input", function () {
+  renderizarProdutos();
+});
 
     function elemento(tag, classe, texto) {
       const el = document.createElement(tag);
@@ -210,7 +213,15 @@ main.wrap::after{
 
     function renderizarProdutos() {
       container.replaceChildren();
-      const visiveis = produtos.filter(produto => categoriaAtual === "Todos" || produto.categoria === categoriaAtual);
+      const termo = document.getElementById("busca-produtos").value.toLowerCase().trim();
+
+const visiveis = produtos.filter(produto => {
+  const categoriaCorreta = categoriaAtual === "Todos" || produto.categoria === categoriaAtual;
+
+  const textoProduto = `${produto.nome || ""} ${produto.descricao || ""} ${produto.categoria || ""}`.toLowerCase();
+
+  return categoriaCorreta && textoProduto.includes(termo);
+});
      if (ordemAtual === "menor") {
   visiveis.sort((a, b) => Number(a.preco) - Number(b.preco));
 } else if (ordemAtual === "maior") {
