@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://raiz-ancestral.pages.dev/sitemap.xml
