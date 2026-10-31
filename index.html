@@ -271,12 +271,25 @@ const visiveis = produtos.filter(produto => {
           elemento("h3", "", produto.nome || "Produto"),
           elemento("p", "description", produto.descricao || "")
         );
-        conteudo.append(elemento("p", "price", "Consultar preço na loja"));
+        const precoValido = Number.isFinite(produto.preco) && produto.preco > 0;
+
+const textoPreco = produto.loja === "Shopee" && precoValido
+  ? produto.preco.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    })
+  : "Consultar preço na loja";
+
+conteudo.append(elemento("p", "price", textoPreco));
         if (produto.link_afiliado) {
           try {
             const url = new URL(produto.link_afiliado);
             if (url.protocol === "https:") {
-              const botao = elemento("a", "buy", "Ver na loja ↗");
+              const textoBotao = produto.loja === "Shopee"
+  ? "Ver na Shopee ↗"
+  : "Visitar loja ↗";
+
+const botao = elemento("a", "buy", textoBotao);
               botao.href = url.href;
               botao.target = "_blank";
               botao.rel = "sponsored noopener noreferrer";
@@ -302,7 +315,66 @@ const visiveis = produtos.filter(produto => {
           { headers: { apikey: SUPABASE_KEY } }
         );
         if (!resposta.ok) throw new Error("Erro na consulta: " + resposta.status);
-        produtos = await resposta.json();
+        const produtosSupabase = await resposta.json();
+produtos = produtosSupabase;
+       try {
+  const respostaShopee = await fetch("/api/shopee");
+
+  if (!respostaShopee.ok) {
+    throw new Error("Erro na API Shopee: " + respostaShopee.status);
+  }
+
+  const dadosShopee = await respostaShopee.json();
+
+  console.log("Shopee conectada:", dadosShopee);
+        const ofertasShopee = dadosShopee?.dados?.data?.productOfferV2?.nodes || [];
+
+console.log("Produtos recebidos da Shopee:", ofertasShopee.length);
+        const produtosShopee = ofertasShopee.map(oferta => ({
+  nome: oferta.productName,
+  descricao: "",
+  loja: "Shopee",
+  imagem_url: oferta.imageUrl,
+  preco: Number(oferta.priceMin),
+  link_afiliado: oferta.offerLink,
+  categoria: /chá|erva|camomila|hortelã|hibisco|infusão/i.test(oferta.productName || "")
+  ? "Chás e Ervas"
+  : /semente|muda|horta|cultivo/i.test(oferta.productName || "")
+  ? "Hortas e Sementes"
+  : /tesoura|pá|enxada|regador|ferramenta/i.test(oferta.productName || "")
+  ? "Ferramentas para Jardinagem"
+  : /flor|orquídea|rosa|lírio/i.test(oferta.productName || "")
+  ? "Flores"
+  : /farinha|alimento|orgânico|grão/i.test(oferta.productName || "")
+  ? "Alimentos Naturais"
+  : "Jardinagem"
+}));
+const palavrasPermitidas = [
+  "planta", "semente", "muda", "erva",
+  "chá", "natural", "orgânico",
+  "jardinagem", "horta", "vaso",
+  "substrato", "adubo", "cultivo"
+];
+
+const produtosFiltrados = produtosShopee.filter(produto => {
+  const nome = (produto.nome || "").toLowerCase();
+
+  const produtoValido =
+  produto.nome &&
+  produto.imagem_url &&
+  produto.link_afiliado &&
+  Number.isFinite(produto.preco) &&
+  produto.preco > 0;
+
+return Boolean(produtoValido) && palavrasPermitidas.some(palavra =>
+  nome.includes(palavra)
+);
+  );
+});
+        produtos = [...produtosSupabase, ...produtosFiltrados];
+} catch (erroShopee) {
+  console.warn("Shopee indisponível:", erroShopee);
+}
         renderizarProdutos();
       } catch (erro) {
         console.error(erro);
