@@ -3,8 +3,9 @@ const SHOPEE_API = "https://open-api.affiliate.shopee.com.br/graphql";
 
 export async function onRequestGet({ env }) {
   try {
-    const appId = env.SHOPEE_APP_ID;
-    const secret = env.SHOPEE_APP_SECRET;
+    const appId = String(env.SHOPEE_APP_ID || "").trim();
+    const secret = String(env.SHOPEE_APP_SECRET || "").trim();
+    
 
     if (!appId || !secret) {
       return Response.json(
