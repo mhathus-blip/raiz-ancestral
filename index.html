@@ -240,8 +240,7 @@ main.wrap::after{
       const termo = document.getElementById("busca-produtos").value.toLowerCase().trim();
 
 const visiveis = produtos.filter(produto => {
-  const categoriaCorreta = categoriaAtual === "Todos" || produto.categoria === categoriaAtual;
-
+  const categoriaCorreta = categoriaAtual === "Todos" || String(produto.categoria || "").trim() === categoriaAtual;
   const textoProduto = `${produto.nome || ""} ${produto.descricao || ""} ${produto.categoria || ""}`.toLowerCase();
 
   return categoriaCorreta && textoProduto.includes(termo);
