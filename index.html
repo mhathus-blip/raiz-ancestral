@@ -369,7 +369,7 @@ const produtosFiltrados = produtosShopee.filter(produto => {
 return Boolean(produtoValido) && palavrasPermitidas.some(palavra =>
   nome.includes(palavra)
 );
-  );
+  
 });
         produtos = [...produtosSupabase, ...produtosFiltrados];
 } catch (erroShopee) {
