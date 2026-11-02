@@ -15,7 +15,7 @@ export async function onRequestGet({ env }) {
     }
 
     const query = `query {
-      productOfferV2 {
+      productOfferV2(keyword: "plantas") {
         nodes {
           itemId
           productName
