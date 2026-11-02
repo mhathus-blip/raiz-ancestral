@@ -336,7 +336,9 @@ console.log("Produtos recebidos da Shopee:", ofertasShopee.length);
   imagem_url: oferta.imageUrl,
   preco: Number(oferta.priceMin),
   link_afiliado: oferta.offerLink,
-  categoria: /chá|erva|camomila|hortelã|hibisco|infusão/i.test(oferta.productName || "")
+  categoria: /quadro|decorativo|decoração|moldura|estante|suporte para vaso/i.test(oferta.productName || "")
+  ? "Decoração Natural"
+  : /chá|erva|camomila|hortelã|hibisco|infusão/i.test(oferta.productName || "")
   ? "Chás e Ervas"
   : /semente|muda|horta|cultivo/i.test(oferta.productName || "")
   ? "Hortas e Sementes"
