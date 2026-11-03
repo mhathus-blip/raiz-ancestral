@@ -245,10 +245,31 @@ const visiveis = produtos.filter(produto => {
 
   return categoriaCorreta && textoProduto.includes(termo);
 });
-     if (ordemAtual === "menor") {
-  visiveis.sort((a, b) => Number(a.preco) - Number(b.preco));
-} else if (ordemAtual === "maior") {
-  visiveis.sort((a, b) => Number(b.preco) - Number(a.preco));
+     const precoOrdenacao = produto => {
+  if (produto.preco === null ||
+      produto.preco === undefined ||
+      produto.preco === "") {
+    return null;
+  }
+
+  const valor = Number(produto.preco);
+  return Number.isFinite(valor) && valor > 0
+    ? valor
+    : null;
+};
+
+if (ordemAtual === "menor" || ordemAtual === "maior") {
+  visiveis.sort((a, b) => {
+    const precoA = precoOrdenacao(a);
+    const precoB = precoOrdenacao(b);
+
+    if (precoA === null) return precoB === null ? 0 : 1;
+    if (precoB === null) return -1;
+
+    return ordemAtual === "menor"
+      ? precoA - precoB
+      : precoB - precoA;
+  });
 }
       if (!visiveis.length) {
         mostrarMensagem("Nenhum produto disponível nesta categoria.");
