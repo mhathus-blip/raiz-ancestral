@@ -246,6 +246,9 @@ const visiveis = produtos.filter(produto => {
   return categoriaCorreta && textoProduto.includes(termo);
 });
      const precoOrdenacao = produto => {
+      if (String(produto.loja || "").trim().toLowerCase() === "amazon") {
+  return null;
+}
   if (produto.preco === null ||
       produto.preco === undefined ||
       produto.preco === "") {
