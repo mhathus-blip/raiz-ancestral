@@ -304,6 +304,12 @@ if (ordemAtual === "menor" || ordemAtual === "maior") {
           imagem.src = produto.imagem_url;
           imagem.alt = produto.nome || "Imagem do produto";
           imagem.loading = "lazy";
+          imagem.decoding = "async";
+          imagem.referrerPolicy = "no-referrer";
+          imagem.addEventListener("error", () => {
+            imagem.removeAttribute("src");
+            imagem.alt = "Imagem indisponível";
+          }, { once: true });
           card.append(imagem);
         }
         const conteudo = elemento("div", "content");
@@ -312,10 +318,12 @@ if (ordemAtual === "menor" || ordemAtual === "maior") {
           elemento("h3", "", produto.nome || "Produto"),
           elemento("p", "description", produto.descricao || "")
         );
-        const precoValido = Number.isFinite(produto.preco) && produto.preco > 0;
+        const precoNumero = produto.preco === null || produto.preco === undefined || produto.preco === ""
+          ? NaN : Number(produto.preco);
+        const precoValido = Number.isFinite(precoNumero) && precoNumero > 0;
 
-const textoPreco = produto.loja === "Shopee" && precoValido
-  ? produto.preco.toLocaleString("pt-BR", {
+const textoPreco = String(produto.loja || "").trim().toLowerCase() === "shopee" && precoValido
+  ? precoNumero.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL"
     })
@@ -351,77 +359,33 @@ const botao = elemento("a", "buy", textoBotao);
         return;
       }
       try {
-        const resposta = await fetch(
-          SUPABASE_URL + "/rest/v1/produtos?select=*&ativo=eq.true&order=id.desc",
-          { headers: { apikey: SUPABASE_KEY } }
-        );
+        const endpoint = SUPABASE_URL + "/rest/v1/produtos?select=id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado&ativo=eq.true&order=id.desc&limit=1000";
+        async function buscarCatalogo() {
+          const controlador = new AbortController();
+          const limite = setTimeout(() => controlador.abort(), 12000);
+          try {
+            return await fetch(endpoint, {
+              headers: { apikey: SUPABASE_KEY },
+              signal: controlador.signal,
+              cache: "no-store"
+            });
+          } finally {
+            clearTimeout(limite);
+          }
+        }
+        let resposta;
+        try {
+          resposta = await buscarCatalogo();
+          if (!resposta.ok && resposta.status >= 500) resposta = await buscarCatalogo();
+        } catch (primeiroErro) {
+          resposta = await buscarCatalogo();
+        }
         if (!resposta.ok) throw new Error("Erro na consulta: " + resposta.status);
         const produtosSupabase = await resposta.json();
-produtos = produtosSupabase;
-       try {
-  const respostaShopee = await fetch("/api/shopee");
-
-  if (!respostaShopee.ok) {
-    throw new Error("Erro na API Shopee: " + respostaShopee.status);
-  }
-
-  const dadosShopee = await respostaShopee.json();
-
-  console.log("Shopee conectada:", dadosShopee);
-        const ofertasShopee = dadosShopee?.dados?.data?.productOfferV2?.nodes || [];
-
-console.log("Produtos recebidos da Shopee:", ofertasShopee.length);
-        const produtosShopee = ofertasShopee.map(oferta => ({
-  nome: oferta.productName,
-  descricao: "",
-  loja: "Shopee",
-  imagem_url: oferta.imageUrl,
-  preco: Number(oferta.priceMin),
-  link_afiliado: oferta.offerLink,
-  categoria: /quadro|decorativo|decoração|moldura|estante|suporte para vaso/i.test(oferta.productName || "")
-  ? "Decoração Natural"
-  : /chá|erva|camomila|hortelã|hibisco|infusão/i.test(oferta.productName || "")
-  ? "Chás e Ervas"
-  : /semente|muda|horta|cultivo/i.test(oferta.productName || "")
-  ? "Hortas e Sementes"
-  : /tesoura|pá|enxada|regador|ferramenta/i.test(oferta.productName || "")
-  ? "Ferramentas para Jardinagem"
-  : /flor|orquídea|rosa|lírio/i.test(oferta.productName || "")
-  ? "Flores"
-  : /farinha|alimento|orgânico|grão/i.test(oferta.productName || "")
-  ? "Alimentos Naturais"
-  : "Jardinagem e Fertilizantes"
-}));
-const palavrasPermitidas = [
-  "planta", "semente", "muda", "erva",
-  "chá", "orgânico", "jardinagem", "horta",
-  "vaso", "substrato", "adubo", "cultivo",
-  "fertilizante", "fertilizantes", "composto",
-  "húmus", "quadro botânico", "quadro decorativo",
-  "decoração botânica", "jardineira", "flor",
-  "orquídea", "regador", "tesoura de poda",
-  "suporte para vaso"
-];
-
-const produtosFiltrados = produtosShopee.filter(produto => {
-  const nome = (produto.nome || "").toLowerCase();
-
-  const produtoValido =
-  produto.nome &&
-  produto.imagem_url &&
-  produto.link_afiliado &&
-  Number.isFinite(produto.preco) &&
-  produto.preco > 0;
-
-return Boolean(produtoValido) && palavrasPermitidas.some(palavra =>
-  nome.includes(palavra)
-);
-  
-});
-        produtos = [...produtosSupabase, ...produtosFiltrados];
-} catch (erroShopee) {
-  console.warn("Shopee indisponível:", erroShopee);
-}
+        if (!Array.isArray(produtosSupabase)) throw new Error("Resposta inválida do catálogo");
+        produtos = produtosSupabase;
+        // Vitrine pública: apenas produtos aprovados no Supabase.
+        // A prévia Shopee é uma função administrativa separada e não altera esta lista.
         renderizarProdutos();
       } catch (erro) {
         console.error(erro);
