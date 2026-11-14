@@ -1,13 +1,21 @@
 // Cloudflare Pages Function: functions/api/shopee-preview.js
 // Consulta de teste: NÃO grava, altera ou exclui produtos.
+// V2: busca prioritária de chás, suplementos e alimentos naturais.
+// Os candidatos exigem revisão de preço, categoria e procedência antes de importar.
 const API = 'https://open-api.affiliate.shopee.com.br/graphql';
 const GRUPOS = [
-  { categoria: 'Jardinagem e Fertilizantes', quantidade: 4, termos: ['adubo organico', 'substrato plantas'] },
-  { categoria: 'Hortas e Sementes', quantidade: 4, termos: ['sementes horta', 'sementes hortaliças'] },
-  { categoria: 'Flores', quantidade: 3, termos: ['orquidea muda', 'flores jardim'] },
-  { categoria: 'Chás e Ervas', quantidade: 3, termos: ['cha ervas', 'ervas para cha'] },
-  { categoria: 'Alimentos Naturais', quantidade: 3, termos: ['farinha natural', 'graos naturais'] },
-  { categoria: 'Ferramentas para Jardinagem', quantidade: 3, termos: ['ferramentas jardinagem', 'tesoura poda'] }
+  { categoria: 'Chás e Ervas', quantidade: 12, termos: [
+    'cha camomila', 'cha hibisco', 'cha hortela', 'cha erva cidreira',
+    'cha capim limao', 'cha erva doce', 'cha verde', 'cha de ervas'
+  ] },
+  { categoria: 'Suplementos Naturais', quantidade: 10, termos: [
+    'psyllium fibra', 'spirulina', 'chlorella', 'fibra alimentar',
+    'suplemento natural', 'suplemento fibras'
+  ] },
+  { categoria: 'Alimentos Naturais', quantidade: 8, termos: [
+    'mel puro', 'aveia em flocos', 'semente de chia', 'linhaça',
+    'castanhas naturais', 'curcuma em po'
+  ] }
 ];
 const normalizar = v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const json = (body, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -73,6 +81,6 @@ export async function onRequestGet({ request, env }) {
       contagens[grupo.categoria] = adicionados;
       if (adicionados < grupo.quantidade) avisos.push(`Categoria ${grupo.categoria}: ${adicionados}/${grupo.quantidade} candidatos. Necessária revisão ou nova busca.`);
     }
-    return json({ modo: 'PREVIA_SEM_GRAVACAO', total: selecionados.length, meta: 20, contagens, avisos, produtos: selecionados });
+    return json({ modo: 'PREVIA_SEM_GRAVACAO', total: selecionados.length, meta: GRUPOS.reduce((total, grupo) => total + grupo.quantidade, 0), contagens, avisos, produtos: selecionados });
   } catch (e) { return json({ erro: 'Não foi possível gerar a prévia.', detalhe: String(e.message || e) }, 502); }
 }
