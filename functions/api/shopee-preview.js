@@ -1,6 +1,6 @@
 // Cloudflare Pages Function: functions/api/shopee-preview.js
 // Consulta de teste: NÃO grava, altera ou exclui produtos.
-// V4: filtros por categoria, diversidade e diagnóstico; repetição de erros temporários.
+// V5: filtros de uso real, diversidade, diagnostico e verificacao de codificacao.
 // Os candidatos exigem revisão de preço, categoria e procedência antes de importar.
 const API = 'https://open-api.affiliate.shopee.com.br/graphql';
 // Cada subgrupo tem limite proprio para evitar uma vitrine dominada por um so ingrediente.
@@ -25,10 +25,10 @@ const GRUPOS = [
 // Acentos podem chegar incorretos em alguns terminais/exports: preservar nomes da API.
 // Filtragem de nomes e categorias usa normalizacao, mas NAO reescreve titulos comerciais.
 const contem = (s, re) => re.test(normalizar(s));
-const PROIBIDOS_GERAIS = /(?:creme para pentear|shampoo|condicionador|sabonete|perfume|hidratante|mascara capilar|oleo corporal|cosmetico|racao|pet shop|semente para plantar|muda de planta|vaso de planta|fertilizante|adubo|defensivo|inseticida|brinde|amostra gratis)/;
-const PROIBIDOS_CHA = /(?:colageno|capsulas?|termogenic|emagre|detox|seca barriga|retencao de liquidos|diuretico|laxante|sene|senna|kombucha|soluvel|suplemento)/;
+const PROIBIDOS_GERAIS = /(?:creme para pentear|shampoo|condicionador|sabonete|perfume|hidratante|mascara capilar|oleo corporal|cosmetico|racao|pet shop|semente para plantar|muda de planta|vaso de planta|fertilizante|adubo|defensivo|inseticida|brinde|amostra gratis|difusor|home spray|aromatizador|essencia para ambiente|vela aromatica|odorizador|incenso|sache perfumado|agua perfumada|limpador|desinfetante|umectacao capilar|uso capilar|para cabelo|para cabelos|para pele|cachos|crespos|uso externo|uso topico)/;
+const PROIBIDOS_CHA = /(?:colageno|capsulas?|termogenic|emagre|detox|seca barriga|retencao de liquidos|diuretico|laxante|sene|senna|kombucha|soluvel|suplemento|cha branco aroma|sabor cha|perfuma|fragrancia|oleo essencial|vela|spray|difusor|aromatiz)/;
 const PROIBIDOS_SUP = /(?:emagre|termogenic|seca barriga|milagre|cura|tratamento|remedio|anabol|hormonal|testosterona|quitosana|cromo|combo|kit [0-9]+x)/;
-const PROIBIDOS_ALIMENTO = /(?:capsulas?|softgel|suplemento|omega [369]|creme para pentear|cosmetico|shampoo|condicionador|oleo essencial|oleo corporal|uso topico|uso externo)/;
+const PROIBIDOS_ALIMENTO = /(?:capsulas?|softgel|suplemento|omega [369]|creme para pentear|cosmetico|shampoo|condicionador|oleo essencial|oleo corporal|uso topico|uso externo|prensado a frio.*(?:cabelo|pele|capilar)|umectacao|aromaterapia|oleo para massagem)/;
 const ALVOS = {
   'camomila': /camomila/, 'hibisco': /hibisco/, 'hortela': /hortela/,
   'cidreira': /cidreira|melissa/, 'capim': /capim limao|capim santo|capim cidreira/,
@@ -45,9 +45,9 @@ const ALVOS = {
 function adequado(nome, grupo, familia) {
   const n = normalizar(nome);
   if (!n || PROIBIDOS_GERAIS.test(n) || !ALVOS[familia].test(n)) return false;
-  if (grupo === 'Chás e Ervas') return !PROIBIDOS_CHA.test(n) && /cha|erva|infusao|flor|folha|camomila|hibisco|hortela|cidreira|capim|funcho/.test(n);
+  if (grupo === 'Chás e Ervas') return !PROIBIDOS_CHA.test(n) && /\b(cha|ervas?|infusao|flores?|folhas?|camomila|hibisco|hortela|cidreira|capim|funcho)\b/.test(n);
   if (grupo === 'Suplementos Naturais') return !PROIBIDOS_SUP.test(n);
-  if (grupo === 'Alimentos Naturais') return !PROIBIDOS_ALIMENTO.test(n);
+  if (grupo === 'Alimentos Naturais') return !PROIBIDOS_ALIMENTO.test(n) && !(/\boleo\b/.test(n) && !/\b(comestivel|alimenticio|culinario|cozinha)\b/.test(n));
   return false;
 }
 // Limita kits de tamanhos diferentes da mesma marca/ingrediente, sem prometer deduplicacao perfeita.
@@ -57,7 +57,9 @@ function assinaturaProduto(nome, familia) {
     .replace(/\b(?:kit|combo|pacote|pote|frasco|original|natural|premium|puro|100|porcento)\b/g, ' ')
     .replace(/\s+/g, ' ').trim().slice(0, 110);
 }
+// Somente normaliza para comparar; nao modifica nomes comerciais retornados pela API.
 const normalizar = v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const textoSuspeito = v => /(?:Ã.|Â.| )/.test(String(v || ''));
 const json = (body, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
 const aguardar = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -115,6 +117,7 @@ export async function onRequestGet({ request, env }) {
     const avisos = [];
     const diagnostico = [];
     const rejeicoes = { categoria: 0, repetido: 0, dados: 0 };
+    const codificacao = { nomesSuspeitos: 0, exemplos: [] };
     for (const grupo of GRUPOS) {
       let adicionados = 0;
       const porFamilia = {};
@@ -135,6 +138,7 @@ export async function onRequestGet({ request, env }) {
           if (adicionados >= grupo.quantidade || (porFamilia[familia] || 0) >= limite) break;
           const id = String(p.itemId || '').trim();
           const nome = String(p.productName || '').trim();
+          if (textoSuspeito(nome)) { codificacao.nomesSuspeitos++; if (codificacao.exemplos.length < 3) codificacao.exemplos.push(nome.slice(0, 90)); }
           const link = String(p.offerLink || '').trim();
           const imagem = String(p.imageUrl || '').trim();
           const preco = Number(p.priceMin);
@@ -153,6 +157,6 @@ export async function onRequestGet({ request, env }) {
       diagnostico.push({ categoria: grupo.categoria, status: 'resumo', porFamilia });
       if (adicionados < grupo.quantidade) avisos.push(`Categoria ${grupo.categoria}: ${adicionados}/${grupo.quantidade} candidatos. Melhor menos itens relevantes do que completar com produtos inadequados.`);
     }
-    return json({ modo: 'PREVIA_SEM_GRAVACAO', versao: 'V4', total: selecionados.length, meta: GRUPOS.reduce((total, grupo) => total + grupo.quantidade, 0), contagens, rejeicoes, avisos, diagnostico, produtos: selecionados });
+    return json({ modo: 'PREVIA_SEM_GRAVACAO', versao: 'V5', codificacao, total: selecionados.length, meta: GRUPOS.reduce((total, grupo) => total + grupo.quantidade, 0), contagens, rejeicoes, avisos, diagnostico, produtos: selecionados });
   } catch (e) { return json({ erro: 'Não foi possível gerar a prévia.', detalhe: String(e.message || e) }, 502); }
 }
