@@ -30,7 +30,7 @@ async function pesquisar(appId, secret, keyword) {
       const signature = [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
       const resposta = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json',Authorization:`SHA256 Credential=${appId}, Timestamp=${timestamp}, Signature=${signature}`}, body});
       const dados = await resposta.json();
-      if (resposta.ok && !dados.errors?.length) return {nodes: dados.data?.productOfferV2?.nodes || [], tentativas};
+      if (resposta.ok && !dados.errors?.length) return {nodes: dados.data?.productOfferV2?.nodes || [], tentativas: tentativa};
       ultimaFalha = `HTTP ${resposta.status}: ${JSON.stringify(dados.errors || []).slice(0,250)}`;
       if (resposta.status !== 429 && resposta.status < 500 && !/10000|System Error/i.test(ultimaFalha)) break;
     } catch (erro) { ultimaFalha = String(erro.message || erro).slice(0,250); }
@@ -62,5 +62,5 @@ export async function onRequestGet({request,env}) {
     if(!item) return {itemId,termo,status:'NAO_ENCONTRADO_NOS_20_RESULTADOS',observacao:'Não significa anúncio indisponível'};
     return {itemId,termo,status:'ENCONTRADO_NA_BUSCA',nome:item.productName,imagem_url:item.imageUrl,preco_min:Number(item.priceMin),preco_max:Number(item.priceMax),link_afiliado:item.offerLink,comissao:item.commissionRate};
   });
-  return responder({modo:'SOMENTE_LEITURA',versao:'VERIFICACAO_V1',metodo:'Busca por palavra-chave e comparação exata de itemId; não confirma estoque, reputação ou preço final',total_alvos:ALVOS.length,encontrados:produtos.filter(p=>p.status==='ENCONTRADO_NA_BUSCA').length,consultas:termos.map(termo=>({termo,status:resultados[termo].erro?'erro':'ok',quantidade:resultados[termo].nodes?.length ?? null})),avisos,produtos});
+  return responder({modo:'SOMENTE_LEITURA',versao:'VERIFICACAO_V2',metodo:'Busca por palavra-chave e comparação exata de itemId; não confirma estoque, reputação ou preço final',total_alvos:ALVOS.length,encontrados:produtos.filter(p=>p.status==='ENCONTRADO_NA_BUSCA').length,consultas:termos.map(termo=>({termo,status:resultados[termo].erro?'erro':'ok',quantidade:resultados[termo].nodes?.length ?? null})),avisos,produtos});
 }
