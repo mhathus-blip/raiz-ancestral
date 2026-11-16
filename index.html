@@ -342,6 +342,19 @@ main.wrap::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:100
 main.wrap::after{display:none!important;content:none!important}
 main.wrap > *{position:relative;z-index:1}
 @media(max-width:760px){main.wrap::before{background-size:100% 750px,100% 100%}}
+
+/* RAIZ ANCESTRAL — CENTRALIZACAO DOS CARTOES NA ULTIMA LINHA
+   Mantem o tamanho dos cards e centraliza automaticamente as sobras. */
+@media (min-width: 1200px) {
+  .products { display: flex; flex-wrap: wrap; justify-content: center; }
+  .products > .product { flex: 0 0 calc((100% - 88px) / 5); min-width: 0; }
+  .products > .message { flex: 1 1 100%; }
+}
+@media (min-width: 761px) and (max-width: 1199px) {
+  .products { display: flex; flex-wrap: wrap; justify-content: center; }
+  .products > .product { flex: 0 0 calc((100% - 44px) / 3); min-width: 0; }
+  .products > .message { flex: 1 1 100%; }
+}
 </style>
 </head>
 <body>
