@@ -1,23 +1,62 @@
 // Cloudflare Pages Function: functions/api/shopee-preview.js
 // Consulta de teste: NÃO grava, altera ou exclui produtos.
-// V3: consultas com diagnóstico e uma repetição para erros temporários.
+// V4: filtros por categoria, diversidade e diagnóstico; repetição de erros temporários.
 // Os candidatos exigem revisão de preço, categoria e procedência antes de importar.
 const API = 'https://open-api.affiliate.shopee.com.br/graphql';
+// Cada subgrupo tem limite proprio para evitar uma vitrine dominada por um so ingrediente.
 const GRUPOS = [
-  { categoria: 'Chás e Ervas', quantidade: 12, termos: [
-    'cha camomila', 'cha hibisco', 'cha hortela', 'cha erva cidreira',
-    'cha capim limao', 'cha erva doce', 'cha verde', 'cha de ervas',
-    'camomila', 'hibisco', 'hortela', 'erva cidreira', 'cha natural'
+  { categoria: 'Chás e Ervas', quantidade: 12, buscas: [
+    ['camomila', 'cha camomila', 2], ['hibisco', 'cha hibisco', 2],
+    ['hortela', 'cha hortela', 2], ['cidreira', 'cha erva cidreira', 2],
+    ['capim', 'cha capim limao', 2], ['erva doce', 'cha erva doce', 2],
+    ['verde', 'cha verde', 2], ['mix', 'cha de ervas', 2]
   ] },
-  { categoria: 'Suplementos Naturais', quantidade: 10, termos: [
-    'psyllium fibra', 'spirulina', 'chlorella', 'fibra alimentar',
-    'suplemento natural', 'suplemento fibras', 'inulina', 'farelo de aveia'
+  { categoria: 'Suplementos Naturais', quantidade: 10, buscas: [
+    ['psyllium', 'psyllium fibra', 2], ['spirulina', 'spirulina', 2],
+    ['chlorella', 'chlorella', 2], ['inulina', 'inulina fibra', 2],
+    ['fibra', 'fibra alimentar', 2], ['proteina', 'proteina vegetal', 2]
   ] },
-  { categoria: 'Alimentos Naturais', quantidade: 8, termos: [
-    'mel puro', 'aveia em flocos', 'semente de chia', 'linhaça',
-    'castanhas naturais', 'curcuma em po', 'chia', 'linhaça dourada', 'aveia', 'mel' 
+  { categoria: 'Alimentos Naturais', quantidade: 8, buscas: [
+    ['mel', 'mel puro', 2], ['aveia', 'aveia em flocos', 2],
+    ['chia', 'semente de chia', 2], ['linhaca', 'linhaça dourada', 2],
+    ['castanhas', 'castanhas naturais', 2], ['curcuma', 'curcuma em po', 2]
   ] }
 ];
+// Acentos podem chegar incorretos em alguns terminais/exports: preservar nomes da API.
+// Filtragem de nomes e categorias usa normalizacao, mas NAO reescreve titulos comerciais.
+const contem = (s, re) => re.test(normalizar(s));
+const PROIBIDOS_GERAIS = /(?:creme para pentear|shampoo|condicionador|sabonete|perfume|hidratante|mascara capilar|oleo corporal|cosmetico|racao|pet shop|semente para plantar|muda de planta|vaso de planta|fertilizante|adubo|defensivo|inseticida|brinde|amostra gratis)/;
+const PROIBIDOS_CHA = /(?:colageno|capsulas?|termogenic|emagre|detox|seca barriga|retencao de liquidos|diuretico|laxante|sene|senna|kombucha|soluvel|suplemento)/;
+const PROIBIDOS_SUP = /(?:emagre|termogenic|seca barriga|milagre|cura|tratamento|remedio|anabol|hormonal|testosterona|quitosana|cromo|combo|kit [0-9]+x)/;
+const PROIBIDOS_ALIMENTO = /(?:capsulas?|softgel|suplemento|omega [369]|creme para pentear|cosmetico|shampoo|condicionador|oleo essencial|oleo corporal|uso topico|uso externo)/;
+const ALVOS = {
+  'camomila': /camomila/, 'hibisco': /hibisco/, 'hortela': /hortela/,
+  'cidreira': /cidreira|melissa/, 'capim': /capim limao|capim santo|capim cidreira/,
+  'erva doce': /erva doce|funcho/, 'verde': /cha verde/, 'mix': /cha|ervas|infusao/,
+  'psyllium': /psyllium|psilio|pissilio/, 'spirulina': /spirulina/,
+  'chlorella': /chlorella|clorela/, 'inulina': /inulina/,
+  'fibra': /fibra alimentar|blend de fibras|mix de fibras/, 'proteina': /proteina vegetal|proteina de ervilha/,
+  'mel': /mel puro|mel de abelha|mel silvestre/, 'aveia': /aveia em flocos|farelo de aveia/,
+  'chia': /semente de chia|chia em graos|chia graos/,
+  'linhaca': /linhaca dourada|semente de linhaca|linhaca marrom/,
+  'castanhas': /castanha de caju|castanha do para|mix de castanhas/,
+  'curcuma': /curcuma em po|acafrao da terra em po/
+};
+function adequado(nome, grupo, familia) {
+  const n = normalizar(nome);
+  if (!n || PROIBIDOS_GERAIS.test(n) || !ALVOS[familia].test(n)) return false;
+  if (grupo === 'Chás e Ervas') return !PROIBIDOS_CHA.test(n) && /cha|erva|infusao|flor|folha|camomila|hibisco|hortela|cidreira|capim|funcho/.test(n);
+  if (grupo === 'Suplementos Naturais') return !PROIBIDOS_SUP.test(n);
+  if (grupo === 'Alimentos Naturais') return !PROIBIDOS_ALIMENTO.test(n);
+  return false;
+}
+// Limita kits de tamanhos diferentes da mesma marca/ingrediente, sem prometer deduplicacao perfeita.
+function assinaturaProduto(nome, familia) {
+  return familia + ':' + normalizar(nome)
+    .replace(/\b(?:[0-9]+\s*(?:g|kg|ml|l|mg|capsulas|caps|unidades|unid|x))\b/g, ' ')
+    .replace(/\b(?:kit|combo|pacote|pote|frasco|original|natural|premium|puro|100|porcento)\b/g, ' ')
+    .replace(/\s+/g, ' ').trim().slice(0, 110);
+}
 const normalizar = v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const json = (body, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
@@ -70,42 +109,50 @@ export async function onRequestGet({ request, env }) {
     const nomes = new Set(existentes.map(p => normalizar(p.nome)));
     const links = new Set(existentes.map(p => String(p.link_afiliado || '').trim()).filter(Boolean));
     const ids = new Set();
+    const assinaturas = new Set();
     const selecionados = [];
     const contagens = {};
     const avisos = [];
     const diagnostico = [];
+    const rejeicoes = { categoria: 0, repetido: 0, dados: 0 };
     for (const grupo of GRUPOS) {
       let adicionados = 0;
-      for (const termo of grupo.termos) {
+      const porFamilia = {};
+      // Uma passagem por familia garante variedade antes de preencher os limites.
+      for (const [familia, termo, limite] of grupo.buscas) {
         if (adicionados >= grupo.quantidade) break;
         let ofertas;
         try {
           const resultado = await consultarShopee(appId, secret, termo);
           ofertas = resultado.ofertas;
-          diagnostico.push({ categoria: grupo.categoria, termo, status: 'ok', ofertas: ofertas.length, tentativas: resultado.tentativas });
+          diagnostico.push({ categoria: grupo.categoria, familia, termo, status: 'ok', ofertas: ofertas.length, tentativas: resultado.tentativas });
         } catch (e) {
           avisos.push(e.message);
-          diagnostico.push({ categoria: grupo.categoria, termo, status: 'erro' });
+          diagnostico.push({ categoria: grupo.categoria, familia, termo, status: 'erro' });
           continue;
         }
         for (const p of ofertas) {
-          if (adicionados >= grupo.quantidade) break;
+          if (adicionados >= grupo.quantidade || (porFamilia[familia] || 0) >= limite) break;
           const id = String(p.itemId || '').trim();
           const nome = String(p.productName || '').trim();
           const link = String(p.offerLink || '').trim();
           const imagem = String(p.imageUrl || '').trim();
           const preco = Number(p.priceMin);
-          if (!id || !nome || !/^https:\/\//.test(link) || !/^https:\/\//.test(imagem) || !Number.isFinite(preco) || preco <= 0) continue;
+          if (!id || !nome || !/^https:\/\//.test(link) || !/^https:\/\//.test(imagem) || !Number.isFinite(preco) || preco <= 0) { rejeicoes.dados++; continue; }
+          if (!adequado(nome, grupo.categoria, familia)) { rejeicoes.categoria++; continue; }
           const nomeNormal = normalizar(nome);
-          if (ids.has(id) || nomes.has(nomeNormal) || links.has(link)) continue;
-          ids.add(id); nomes.add(nomeNormal); links.add(link);
+          const assinatura = assinaturaProduto(nome, familia);
+          if (ids.has(id) || nomes.has(nomeNormal) || links.has(link) || assinaturas.has(assinatura)) { rejeicoes.repetido++; continue; }
+          ids.add(id); nomes.add(nomeNormal); links.add(link); assinaturas.add(assinatura);
           selecionados.push({ itemId: id, nome, descricao: '', loja: 'Shopee', imagem_url: imagem, preco, categoria: grupo.categoria, link_afiliado: link, ativo: true, destaque: false });
+          porFamilia[familia] = (porFamilia[familia] || 0) + 1;
           adicionados++;
         }
       }
       contagens[grupo.categoria] = adicionados;
-      if (adicionados < grupo.quantidade) avisos.push(`Categoria ${grupo.categoria}: ${adicionados}/${grupo.quantidade} candidatos. Necessária revisão ou nova busca.`);
+      diagnostico.push({ categoria: grupo.categoria, status: 'resumo', porFamilia });
+      if (adicionados < grupo.quantidade) avisos.push(`Categoria ${grupo.categoria}: ${adicionados}/${grupo.quantidade} candidatos. Melhor menos itens relevantes do que completar com produtos inadequados.`);
     }
-    return json({ modo: 'PREVIA_SEM_GRAVACAO', total: selecionados.length, meta: GRUPOS.reduce((total, grupo) => total + grupo.quantidade, 0), contagens, avisos, diagnostico, produtos: selecionados });
+    return json({ modo: 'PREVIA_SEM_GRAVACAO', versao: 'V4', total: selecionados.length, meta: GRUPOS.reduce((total, grupo) => total + grupo.quantidade, 0), contagens, rejeicoes, avisos, diagnostico, produtos: selecionados });
   } catch (e) { return json({ erro: 'Não foi possível gerar a prévia.', detalhe: String(e.message || e) }, 502); }
 }
