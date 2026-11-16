@@ -460,10 +460,17 @@ main.wrap > *{position:relative;z-index:1}
     const detalhesConteudo = document.getElementById("detalhes-conteudo");
     const fecharDetalhes = document.getElementById("fechar-detalhes");
     let focoAntesDetalhes = null;
-    function precoProduto(produto) {
+    // Preços mínimos de anúncios com variações confirmadas manualmente.
+    // IDs 82 e 85: manter este controle explícito para não rotular preços fixos como variáveis.
+    const IDS_PRECO_VARIAVEL = new Set([82, 85]);
+    function precoComVariacao(produto) {
       const numero = produto.preco == null || produto.preco === "" ? NaN : Number(produto.preco);
-      return normalizarBusca(produto.loja) === "shopee" && Number.isFinite(numero) && numero > 0
-        ? numero.toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : "Consultar preço na loja";
+      if (normalizarBusca(produto.loja) !== "shopee" || !Number.isFinite(numero) || numero <= 0) return "Consultar preço na loja";
+      const valor = numero.toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+      return IDS_PRECO_VARIAVEL.has(Number(produto.id)) ? "A partir de " + valor : valor;
+    }
+    function precoProduto(produto) {
+      return precoComVariacao(produto);
     }
     function linkSeguro(produto) {
       try { const url = new URL(produto.link_afiliado); return url.protocol === "https:" ? url.href : null; }
@@ -726,12 +733,7 @@ if (ordemAtual === "nome") {
           ? NaN : Number(produto.preco);
         const precoValido = Number.isFinite(precoNumero) && precoNumero > 0;
 
-const textoPreco = String(produto.loja || "").trim().toLowerCase() === "shopee" && precoValido
-  ? precoNumero.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    })
-  : "Consultar preço na loja";
+const textoPreco = precoComVariacao(produto);
 
 conteudo.append(elemento("p", "price", textoPreco));
         if (produto.link_afiliado) {
