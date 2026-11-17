@@ -385,6 +385,16 @@ main.wrap > *{position:relative;z-index:1}
 /* LOGOMARCA CENTRAL — CORRECAO PONTUAL */
 .header-logo-image{display:block;width:76px;height:76px;object-fit:contain;border-radius:50%;} 
 @media(max-width:760px){.header-logo-image{width:68px;height:68px}}
+
+/* V11.1 — decoração natalina isolada: ativa somente no modo Natal */
+body[data-season="christmas"] .season-banner{background:radial-gradient(circle at 50% 0%,rgba(255,232,173,.14),transparent 55%),linear-gradient(115deg,#123d2d 0%,#20553a 52%,#772d36 100%);border-bottom-color:#d9bd80}
+body[data-season="christmas"] .season-banner::after{content:"🎄  ✨  🎁  ✨  🎄";display:block;position:relative;margin:18px auto 0;font-size:24px;letter-spacing:16px;opacity:.9;pointer-events:none}
+body[data-season="christmas"] .season-banner .season-decor.left{font-size:0;opacity:.8}
+body[data-season="christmas"] .season-banner .season-decor.left::after{content:"❄";font-size:70px;color:#f9e8c7}
+body[data-season="christmas"] .season-banner .season-decor.right{font-size:0;opacity:.9}
+body[data-season="christmas"] .season-banner .season-decor.right::after{content:"✦";font-size:78px;color:#f4d48a}
+body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231,179,.65);background:rgba(22,52,37,.65);color:#ffe3a4}
+@media(max-width:600px){body[data-season="christmas"] .season-banner::after{font-size:17px;letter-spacing:6px}body[data-season="christmas"] .season-banner .season-decor.left::after,body[data-season="christmas"] .season-banner .season-decor.right::after{font-size:40px}}
 </style>
 </head>
 <body>
@@ -900,39 +910,54 @@ const botao = elemento("a", "buy", textoBotao);
   </script>
 <script>
 (function(){
+  // V11.1: apenas campanha sazonal. Catálogo, filtros e integrações permanecem intactos.
   const selector=document.getElementById('season-mode');
   document.querySelectorAll('[data-garimpo-category]').forEach(btn=>btn.addEventListener('click',()=>{const category=btn.dataset.garimpoCategory;const filter=[...document.querySelectorAll('[data-categoria]')].find(el=>el.dataset.categoria===category);if(filter)filter.click();document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});}));
-  const now=new Date();const m=now.getMonth()+1,d=now.getDate();
-  // Novembro: campanha Black Friday; dezembro: Natal. Fora desses meses, tema original.
-  const automatic=m===11?'black':m===12?'christmas':'normal';
   const content={
     black:{kicker:'🌿 Temporada especial • Novembro',title:'Black Friday Raiz Ancestral',description:'Chás, ervas e suplementos em uma vitrine pensada para facilitar sua pesquisa. Compare opções e confira os preços e condições diretamente nas lojas parceiras.',link:'Conhecer produtos naturais'},
-    christmas:{kicker:'✨ Temporada de Natal',title:'Um Natal mais natural e cheio de carinho',description:'Descubra chás, produtos naturais e ideias de presentes para compartilhar momentos especiais. Consulte preços e disponibilidade nas lojas parceiras.',link:'Explorar presentes e produtos'}
+    christmas:{kicker:'🎄 Temporada especial • Dezembro',title:'Um Natal mais natural e cheio de carinho',description:'Descubra chás, produtos naturais e ideias de presentes para compartilhar momentos especiais. Consulte preços e disponibilidade nas lojas parceiras.',link:'Explorar presentes e produtos'}
   };
-  function apply(value){
-    const season=value==='auto'?automatic:value;
-    document.body.dataset.season=season;
-    const cfg=content[season];
-    document.getElementById('season-indicator').textContent=value==='auto'?'':'Prévia manual';
-    if(cfg){document.getElementById('season-kicker').textContent=cfg.kicker;document.getElementById('season-title').textContent=cfg.title;document.getElementById('season-description').textContent=cfg.description;document.getElementById('season-link').textContent=cfg.link;}
+  const countdown=document.getElementById('season-countdown');
+  const label=document.getElementById('countdown-label');
+  const pad=n=>String(n).padStart(2,'0');
+  let lastSeason='';
+  function automaticSeason(now){const m=now.getMonth(),d=now.getDate();return m===10?'black':m===11&&d<=25?'christmas':'normal';}
+  function apply(value,now=new Date()){
+    const season=value==='auto'?automaticSeason(now):value;
+    if(season!==lastSeason){
+      document.body.dataset.season=season;
+      const cfg=content[season];
+      document.getElementById('season-indicator').textContent=value==='auto'?'':'Prévia manual';
+      if(cfg){document.getElementById('season-kicker').textContent=cfg.kicker;document.getElementById('season-title').textContent=cfg.title;document.getElementById('season-description').textContent=cfg.description;document.getElementById('season-link').textContent=cfg.link;}
+      lastSeason=season;
+    }
+    return season;
   }
-  const blackFriday=new Date(2026,10,27,0,0,0);
-  const blackFridayEnd=new Date(2026,10,28,0,0,0);
   function updateCountdown(){
-    const now=new Date();const label=document.getElementById('countdown-label');
-    const countdown=document.getElementById('season-countdown');
-    if(now>=blackFridayEnd || document.body.dataset.season!=="black"){countdown.style.display='none';return;}
-    if(now>=blackFriday){label.textContent='Black Friday chegou!';['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>document.getElementById(id).textContent='00');return;}
-    label.textContent='Faltam';
-    let remaining=Math.max(0,Math.floor((blackFriday-now)/1000));
+    const now=new Date();const season=apply(selector.value,now);
+    let target;
+    if(season==='black'){
+      target=new Date(now.getFullYear(),10,27,0,0,0);
+      const end=new Date(now.getFullYear(),10,28,0,0,0);
+      if(now>=end){countdown.style.display='none';return;}
+      if(now>=target){label.textContent='Black Friday chegou!';['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>document.getElementById(id).textContent='00');countdown.style.display='flex';return;}
+      label.textContent='Faltam para a Black Friday';
+      countdown.setAttribute('aria-label','Contagem regressiva para a Black Friday');
+    }else if(season==='christmas'){
+      target=new Date(now.getFullYear(),11,25,0,0,0);
+      if(now>=target){countdown.style.display='none';return;}
+      label.textContent='Faltam para o Natal';
+      countdown.setAttribute('aria-label','Contagem regressiva para o Natal');
+    }else{countdown.style.display='none';return;}
+    countdown.style.display='flex';
+    let remaining=Math.max(0,Math.floor((target-now)/1000));
     const days=Math.floor(remaining/86400);remaining%=86400;
     const hours=Math.floor(remaining/3600);remaining%=3600;
     const mins=Math.floor(remaining/60),secs=remaining%60;
-    [['cd-days',days],['cd-hours',hours],['cd-mins',mins],['cd-secs',secs]].forEach(([id,n])=>document.getElementById(id).textContent=String(n).padStart(2,'0'));
+    [['cd-days',days],['cd-hours',hours],['cd-mins',mins],['cd-secs',secs]].forEach(([id,n])=>document.getElementById(id).textContent=pad(n));
   }
+  selector.addEventListener('change',()=>{lastSeason='';updateCountdown();});
   updateCountdown();setInterval(updateCountdown,1000);
-  selector.addEventListener('change',()=>apply(selector.value));
-  apply('auto');
 })();
 </script>
 </body></html>
