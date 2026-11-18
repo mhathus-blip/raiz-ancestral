@@ -971,7 +971,7 @@ const botao = elemento("a", "buy", textoBotao);
     if(season!==lastSeason){
       document.body.dataset.season=season;
       const cfg=content[season];
-      document.getElementById('season-indicator').textContent=value==='auto'?'':'Prévia manual';
+      const indicador=document.getElementById('season-indicator');if(indicador)indicador.textContent=value==='auto'?'':'Prévia manual';
       if(cfg){document.getElementById('season-kicker').textContent=cfg.kicker;document.getElementById('season-title').textContent=cfg.title;document.getElementById('season-description').textContent=cfg.description;document.getElementById('season-link').textContent=cfg.link;}
       lastSeason=season;
     }
