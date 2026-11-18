@@ -395,6 +395,19 @@ body[data-season="christmas"] .season-banner .season-decor.right{font-size:0;opa
 body[data-season="christmas"] .season-banner .season-decor.right::after{content:"✦";font-size:78px;color:#f4d48a}
 body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231,179,.65);background:rgba(22,52,37,.65);color:#ffe3a4}
 @media(max-width:600px){body[data-season="christmas"] .season-banner::after{font-size:17px;letter-spacing:6px}body[data-season="christmas"] .season-banner .season-decor.left::after,body[data-season="christmas"] .season-banner .season-decor.right::after{font-size:40px}}
+
+/* V12 etapa 4: acesso administrativo discreto; não altera o visual público. */
+.raiz-admin-open{background:none;border:0;color:#e8e5d7;text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.raiz-admin-modal[hidden]{display:none!important}
+.raiz-admin-modal{position:fixed;inset:0;z-index:10000;background:rgba(10,24,15,.78);display:flex;align-items:center;justify-content:center;padding:16px}
+.raiz-admin-panel{position:relative;width:min(420px,100%);max-height:95vh;overflow:auto;background:#fffaf1;color:#243c2c;border-radius:18px;padding:25px;box-shadow:0 12px 45px #0005}
+.raiz-admin-panel h2{font:700 25px Georgia,serif;margin:0 28px 18px 0}
+.raiz-admin-panel label{display:block;margin:12px 0 5px;font-size:13px;font-weight:bold}
+.raiz-admin-panel input{width:100%;padding:11px;border-radius:8px;border:1px solid #bbb3a3;font:inherit}
+.raiz-admin-panel button[type=submit]{margin-top:16px;background:#244c36;border:0;color:white;padding:12px 16px;border-radius:9px;cursor:pointer;font-weight:bold}
+.raiz-admin-close{position:absolute;top:10px;right:12px;border:0;background:none;font-size:28px;cursor:pointer}
+.raiz-admin-status{font-size:13px;margin:12px 0 0;min-height:20px}
+.raiz-test-exit{background:#643c30!important;color:white!important}
 </style>
 </head>
 <body>
@@ -422,7 +435,7 @@ body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231
 <a href="https://k.kwai.com/u/@raizancestral/CCG0qF7t" target="_blank" rel="noopener noreferrer" aria-label="Kwai do Raiz Ancestral" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="6"/><circle cx="9" cy="9" r="1.4"/><circle cx="15" cy="9" r="1.4"/><circle cx="12" cy="14" r="2.2"/><path d="M10 17.5h4"/></svg></a>
 <a href="https://www.tiktok.com/@raiz.ancestral8" target="_blank" rel="noopener noreferrer" aria-label="TikTok do Raiz Ancestral" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2v12.3a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14 2c.4 3.6 2.6 5.6 6 5.8v3.3c-2.4 0-4.5-.8-6-2.3"/></svg></a>
 <a href="https://www.facebook.com/profile.php?id=61595295473291&amp;locale=pt_BR" target="_blank" rel="noopener noreferrer" aria-label="Facebook do Raiz Ancestral" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3H13a4 4 0 0 0-4 4v3H6v4h3v8h4v-8h3l.6-4H13V7c0-.6.4-1 1-1h1.5z"/></svg></a>
-</div></div></div><div class="legal"><p>© 2026 Raiz Ancestral.</p><p>Este site contém links de afiliados. Podemos receber comissão por compras qualificadas, sem custo adicional para você.</p><p>Preços, disponibilidade e condições devem ser confirmados na loja parceira.</p></div></div></footer>
+</div></div></div><div class="legal"><p>© 2026 Raiz Ancestral. <button type="button" id="raiz-admin-open" class="raiz-admin-open" aria-haspopup="dialog">Área administrativa</button></p><p>Este site contém links de afiliados. Podemos receber comissão por compras qualificadas, sem custo adicional para você.</p><p>Preços, disponibilidade e condições devem ser confirmados na loja parceira.</p></div></div></footer>
 <div id="detalhes-produto" class="detail-overlay" hidden aria-hidden="true"><section class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-heading"><button id="fechar-detalhes" class="detail-close" type="button" aria-label="Fechar detalhes">×</button><div id="detalhes-conteudo"></div></section></div>
 <script>
     // Cole aqui SOMENTE a chave PUBLICÁVEL (sb_publishable_...), nunca uma chave secreta.
@@ -939,13 +952,85 @@ const botao = elemento("a", "buy", textoBotao);
 
     carregarProdutos();
   </script>
+<div id="raiz-admin-modal" class="raiz-admin-modal" role="dialog" aria-modal="true" aria-labelledby="raiz-admin-title" hidden>
+  <section class="raiz-admin-panel">
+    <button type="button" id="raiz-admin-close" class="raiz-admin-close" aria-label="Fechar acesso administrativo">×</button>
+    <h2 id="raiz-admin-title">🌿 Acesso administrativo</h2>
+    <form id="raiz-admin-form" autocomplete="on">
+      <label for="raiz-admin-email">E-mail do administrador</label>
+      <input id="raiz-admin-email" type="email" required autocomplete="username" />
+      <label for="raiz-admin-password">Senha</label>
+      <input id="raiz-admin-password" type="password" required autocomplete="current-password" />
+      <button type="submit" id="raiz-admin-submit">Entrar para testar</button>
+      <p id="raiz-admin-status" class="raiz-admin-status" role="status" aria-live="polite"></p>
+    </form>
+    <p style="font-size:12px;color:#69665b">Acesso permitido somente a contas autorizadas no Supabase. Testes alteram apenas esta tela.</p>
+  </section>
+</div>
+<script>
+/* V12 etapa 4: autenticação via Supabase Auth e autorização por RPC controlada no banco.
+   Nunca usar o login da vitrine como proteção de escritas no Supabase: as políticas RLS
+   de cada tabela continuam obrigatórias. Nenhuma credencial é armazenada neste HTML. */
+(function(){
+  const open=document.getElementById('raiz-admin-open');
+  const modal=document.getElementById('raiz-admin-modal');
+  const close=document.getElementById('raiz-admin-close');
+  const form=document.getElementById('raiz-admin-form');
+  const status=document.getElementById('raiz-admin-status');
+  const submit=document.getElementById('raiz-admin-submit');
+  if(!open||!modal||!form)return;
+  function setModal(visible){
+    modal.hidden=!visible;
+    if(visible)document.getElementById('raiz-admin-email').focus();
+    else{form.reset();status.textContent='';open.focus();}
+  }
+  open.addEventListener('click',()=>setModal(true));
+  close.addEventListener('click',()=>setModal(false));
+  modal.addEventListener('click',e=>{if(e.target===modal)setModal(false)});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)setModal(false)});
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();submit.disabled=true;status.textContent='Verificando acesso...';
+    const email=document.getElementById('raiz-admin-email').value.trim();
+    const password=document.getElementById('raiz-admin-password').value;
+    const apiKey=SUPABASE_KEY;
+    const base=SUPABASE_URL;
+    const timeout=AbortSignal.timeout(15000);
+    try{
+      // Sign-in uses only the project publishable key. Never embed a secret/service-role key.
+      const auth=await fetch(base+'/auth/v1/token?grant_type=password',{
+        method:'POST',headers:{'apikey':apiKey,'Content-Type':'application/json'},
+        body:JSON.stringify({email,password}),signal:timeout,cache:'no-store'
+      });
+      if(!auth.ok)throw new Error('Usuário, senha ou acesso não autorizado.');
+      const result=await auth.json();
+      if(typeof result.access_token!=='string')throw new Error('Login inválido.');
+      // Authorization is checked by Postgres using auth.uid(), not a client-side email list.
+      const verify=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{
+        method:'POST',headers:{apikey:apiKey,Authorization:'Bearer '+result.access_token,'Content-Type':'application/json'},
+        body:'{}',signal:timeout,cache:'no-store'
+      });
+      if(!verify.ok)throw new Error('Verificação de administrador indisponível. Configure a função segura no Supabase.');
+      if(await verify.json()!==true)throw new Error('Esta conta não está autorizada como administradora.');
+      window.dispatchEvent(new CustomEvent('raiz:admin-tests-unlocked'));
+      setModal(false);
+    }catch(err){status.textContent=err.message||'Não foi possível autorizar o acesso.'}
+    finally{submit.disabled=false;document.getElementById('raiz-admin-password').value=''}
+  });
+})();
+</script>
 <script>
 (function(){
   // V11.1: apenas campanha sazonal. Catálogo, filtros e integrações permanecem intactos.
   const selector=document.getElementById('season-mode');
-  // V12: botão temporário de testes, disponível somente na cópia local do arquivo.
-  // Não modifica campanhas reais, banco de dados ou produtos.
-  if (location.protocol === 'file:' && selector) {
+  // V12: simulador no arquivo local OU após autorização do administrador.
+  // Nunca escreve no banco nem altera campanhas para outros visitantes.
+  let adminTestsUnlocked = location.protocol === 'file:';
+  let controlsInstalled=false;
+  function activateTests(){
+    if(!adminTestsUnlocked || controlsInstalled || !selector)return;
+    controlsInstalled=true;
+    const isPublished = location.protocol !== 'file:';
+    document.body.dataset.previewAdmin='true';
     const barraTeste = document.querySelector('.season-toolbar');
     if (barraTeste) {
       barraTeste.style.setProperty('display', 'flex', 'important');
@@ -975,7 +1060,7 @@ const botao = elemento("a", "buy", textoBotao);
       limparData.textContent = 'Usar data atual';
       limparData.style.cssText = botaoTeste.style.cssText;
       const avisoTeste = document.createElement('span');
-      avisoTeste.textContent = 'Prévia local — sem salvar alterações';
+      avisoTeste.textContent = 'Prévia apenas neste navegador — sem salvar alterações';
       avisoTeste.style.cssText = 'font-size:11px;color:#705c41';
       barraTeste.append(rotuloData, entradaData, limparData, avisoTeste);
       entradaData.addEventListener('change', () => {
@@ -986,8 +1071,23 @@ const botao = elemento("a", "buy", textoBotao);
         entradaData.value = '';
         selector.dispatchEvent(new Event('change', { bubbles: true }));
       });
+      if (isPublished) {
+        const sair = document.createElement('button');
+        sair.type='button';sair.textContent='Encerrar testes';sair.className='raiz-test-exit';
+        sair.style.cssText=botaoTeste.style.cssText;
+        barraTeste.append(sair);
+        sair.addEventListener('click',()=>{
+          adminTestsUnlocked=false;controlsInstalled=false;
+          barraTeste.style.removeProperty('display');
+          [botaoTeste,rotuloData,entradaData,limparData,avisoTeste,sair].forEach(n=>n.remove());
+          selector.value='auto';selector.dispatchEvent(new Event('change',{bubbles:true}));
+          document.body.removeAttribute('data-preview-admin');
+        });
+      }
     }
   }
+  if(adminTestsUnlocked)activateTests();
+  window.addEventListener('raiz:admin-tests-unlocked',()=>{adminTestsUnlocked=true;activateTests()});
   document.querySelectorAll('[data-garimpo-category]').forEach(btn=>btn.addEventListener('click',()=>{const category=btn.dataset.garimpoCategory;const filter=[...document.querySelectorAll('[data-categoria]')].find(el=>el.dataset.categoria===category);if(filter)filter.click();document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});}));
   const content={
     black:{kicker:'🌿 Temporada especial • Novembro',title:'Black Friday Raiz Ancestral',description:'Chás, ervas e suplementos em uma vitrine pensada para facilitar sua pesquisa. Compare opções e confira os preços e condições diretamente nas lojas parceiras.',link:'Conhecer produtos naturais'},
@@ -1010,9 +1110,9 @@ const botao = elemento("a", "buy", textoBotao);
     return season;
   }
   function dataDaPrevia(){
-    // Somente arquivo local pode usar uma data simulada. Interpretar como data local,
+    // Somente a sessão local ou administrativa autorizada pode simular uma data.
     // evitando mudança involuntária de dia por conversão de fuso horário.
-    if (location.protocol === 'file:') {
+    if (adminTestsUnlocked) {
       const campo = document.getElementById('season-test-date');
       if (campo && /^\d{4}-\d{2}-\d{2}$/.test(campo.value)) {
         const [ano,mes,dia] = campo.value.split('-').map(Number);
