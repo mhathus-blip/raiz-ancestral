@@ -915,6 +915,16 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 #raiz-reconciliacao-tabela th,#raiz-reconciliacao-tabela td{border:1px solid #ded7c7;padding:8px;vertical-align:top;text-align:left}
 #raiz-reconciliacao-tabela th{position:sticky;top:0;background:#f0e6d1}
 #raiz-reconciliacao-precos .raiz-reconciliacao-nota{font-size:12px;color:#796a55}
+/* Etapa 17 — Consulta de preços Shopee, sem gravação */
+#raiz-shopee-api-preview[hidden]{display:none!important}
+#raiz-shopee-api-preview{max-width:1100px;margin:20px auto 26px;padding:24px;background:#fffaf0;border:1px solid #dacba9;border-radius:18px;color:#264332}
+#raiz-shopee-api-preview h2{font:700 clamp(21px,3vw,28px) Georgia,serif;margin:0 0 12px}
+#raiz-shopee-api-preview p{line-height:1.5}
+#raiz-shopee-api-preview button{background:#315b3c;color:#fff;border:0;border-radius:22px;padding:11px 18px;font-weight:700;cursor:pointer}
+#raiz-shopee-api-preview button:disabled{opacity:.5;cursor:not-allowed}
+#raiz-shopee-api-preview table{width:100%;border-collapse:collapse;background:white;font:13px Arial,sans-serif}
+#raiz-shopee-api-preview th,#raiz-shopee-api-preview td{padding:9px;border-bottom:1px solid #e0d8c8;text-align:left}
+#raiz-shopee-api-preview .scroll{max-width:100%;overflow:auto}
 </style>
 </head>
 <body>
@@ -949,6 +959,15 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
  <button id="raiz-reconciliacao-limpar" type="button">Limpar conferência</button>
  <div id="raiz-reconciliacao-tabela"></div>
  <p class="raiz-reconciliacao-nota">Segurança: nenhuma atualização é enviada ao Supabase. A prévia só inclui produtos Shopee existentes no catálogo carregado, com ID e link exatamente correspondentes. Produtos não carregados (além do limite atual de 1.000) não são aceitos nesta conferência.</p>
+</section>
+<section id="raiz-shopee-api-preview" aria-labelledby="raiz-shopee-preview-title" hidden>
+ <h2 id="raiz-shopee-preview-title">🔄 Consulta dos preços antigos na API Shopee</h2>
+ <p>Busca identificadores dos anúncios e consulta os preços na API autorizada. <strong>Modo somente leitura:</strong> não salva nem modifica produtos.</p>
+ <p id="raiz-shopee-api-count" role="status">Aguardando catálogo e acesso administrativo.</p>
+ <button type="button" id="raiz-shopee-api-start" disabled>Consultar os 16 anúncios em lotes</button>
+ <p id="raiz-shopee-api-state" role="status" aria-live="polite">Nenhuma consulta realizada.</p>
+ <div class="scroll"><table id="raiz-shopee-api-table" hidden><thead><tr><th>ID</th><th>Produto</th><th>Resultado</th><th>Preço mínimo</th><th>Preço máximo</th></tr></thead><tbody></tbody></table></div>
+ <p style="font-size:12px;color:#766955">Links encurtados podem não revelar o ID do anúncio; nesse caso não será atribuído preço. Confira o anúncio antes de qualquer atualização futura.</p>
 </section>
 <section id="catalogo" class="section" aria-labelledby="titulo-catalogo"><div class="section-head"><div><h2 id="titulo-catalogo">🍃 Produtos selecionados</h2><p class="section-sub">Confira nossas indicações e visite as lojas parceiras.</p></div></div><div class="busca-produtos" style="margin:20px 0;">
   <label for="busca-produtos">🔎 Encontre o que procura</label>
@@ -1547,7 +1566,7 @@ const botao = elemento("a", "buy", textoBotao);
       });
       if(!verify.ok)throw new Error('Verificação de administrador indisponível. Configure a função segura no Supabase.');
       if(await verify.json()!==true)throw new Error('Esta conta não está autorizada como administradora.');
-      window.dispatchEvent(new CustomEvent('raiz:admin-tests-unlocked'));
+      window.dispatchEvent(new CustomEvent('raiz:admin-tests-unlocked',{detail:{accessToken:result.access_token}}));
       setModal(false);
     }catch(err){status.textContent=err.message||'Não foi possível autorizar o acesso.'}
     finally{submit.disabled=false;document.getElementById('raiz-admin-password').value=''}
@@ -1991,6 +2010,55 @@ const botao = elemento("a", "buy", textoBotao);
  download.addEventListener('click',()=>{
   if(!unlocked||!approved.length)return;
   downloadCsv([['id','nome','link_afiliado','preco_confirmado','status'],...approved.map(r=>[r.id,r.nome,r.link,r.price.toFixed(2),'AGUARDANDO_API_E_APROVACAO'])],'raiz-ancestral-previa-precos-validada.csv');
+ });
+})();
+</script>
+<script>
+/* Etapa 17: diagnóstico da API, sem escrita no Supabase. */
+(function(){
+ 'use strict';
+ const root=document.getElementById('raiz-shopee-api-preview');
+ const start=document.getElementById('raiz-shopee-api-start');
+ const count=document.getElementById('raiz-shopee-api-count');
+ const state=document.getElementById('raiz-shopee-api-state');
+ const table=document.getElementById('raiz-shopee-api-table');
+ if(!root||!start||!count||!state||!table)return;
+ let accessToken='',loaded=false,products=[],running=false;
+ const targetIds=[41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,16];
+ function available(){
+  if(!accessToken)return;
+  root.hidden=false;
+  if(!loaded){count.textContent='Aguardando catálogo.';return;}
+  const missing=products.filter(p=>targetIds.includes(Number(p.id))&&String(p.loja||'').toLowerCase()==='shopee'&&!(Number(p.preco)>0));
+  count.textContent=`${missing.length} dos 16 IDs da auditoria continuam sem preço no catálogo carregado.`;
+  start.disabled=running||missing.length===0;
+ }
+ window.addEventListener('raiz:catalogo-carregado',e=>{products=Array.isArray(e.detail?.produtos)?e.detail.produtos:[];loaded=true;available();});
+ window.addEventListener('raiz:admin-tests-unlocked',e=>{accessToken=String(e.detail?.accessToken||'');available();});
+ const labels={NAO_ENCONTRADO:'Não localizado no catálogo',OUTRA_LOJA:'Não é Shopee',JA_POSSUI_PRECO:'Já tem preço',URL_INVALIDA:'Link inválido',LINK_SEM_ID_EXPLICITO:'Link não revelou o ID',LINK_NAO_RESOLVIDO:'Link encurtado não resolvido',REDIRECIONAMENTO_EXTERNO:'Redirecionamento externo',REDIRECIONAMENTO_INVALIDO:'Redirecionamento inválido',ITEM_IDENTIFICADO:'ID identificado',ID_INVALIDO:'ID inválido',NAO_ENCONTRADO_NA_API:'ID ausente na API',PRECO_INVALIDO:'Preço inválido',CONSULTA_API_FALHOU:'Consulta da Shopee falhou',PRECO_CONSULTADO:'Preço retornado (verificar anúncio)'};
+ const money=n=>Number.isFinite(Number(n))&&Number(n)>0?Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—';
+ start.addEventListener('click',async()=>{
+  if(!accessToken||running||!loaded)return;
+  running=true;start.disabled=true;table.hidden=false;const tbody=table.querySelector('tbody');tbody.replaceChildren();
+  const ids=targetIds.filter(id=>products.some(p=>Number(p.id)===id&&String(p.loja||'').toLowerCase()==='shopee'&&!(Number(p.preco)>0)));
+  let completed=0,found=0;
+  try{
+   for(let i=0;i<ids.length;i+=4){
+    state.textContent=`Consultando ${Math.min(i+4,ids.length)} de ${ids.length} anúncios...`;
+    const r=await fetch('/api/shopee-precos-preview',{method:'POST',headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({ids:ids.slice(i,i+4)}),cache:'no-store',signal:AbortSignal.timeout(45000)});
+    const data=await r.json();
+    if(!r.ok)throw Error(data.erro||`Falha HTTP ${r.status}`);
+    if(data.modo!=='SOMENTE_LEITURA'||!Array.isArray(data.resultados))throw Error('Resposta inesperada da API.');
+    for(const item of data.resultados){
+     completed++;if(item.status==='PRECO_CONSULTADO')found++;
+     const tr=document.createElement('tr');
+     const values=[String(item.id),String(item.nome||products.find(p=>Number(p.id)===Number(item.id))?.nome||''),labels[item.status]||item.status,money(item.preco_min),money(item.preco_max)];
+     for(const val of values){const cell=document.createElement('td');cell.textContent=val;tr.append(cell);}tbody.append(tr);
+    }
+   }
+   state.textContent=`Concluído: ${completed} anúncios analisados; ${found} ofertas com preço retornado pela API. Nenhuma gravação.`;
+  }catch(e){state.textContent=`Consulta interrompida após ${completed} registros: ${e.message}. Nenhum dado foi alterado.`;}
+  finally{running=false;available();}
  });
 })();
 </script>
