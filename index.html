@@ -551,6 +551,20 @@ body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231
     function precoProduto(produto) {
       return precoComVariacao(produto);
     }
+    // V12: apresentação genérica de lojas, sem depender de uma lista fixa.
+    // APIs e preços de outras lojas só serão ativados mediante integração autorizada.
+    function nomeLojaParceira(produto) {
+      const nome = String(produto.loja || "").trim().replace(/\s+/g, " ");
+      return nome.slice(0, 55) || "loja parceira";
+    }
+    function textoLinkParceiro(produto) {
+      const nome = nomeLojaParceira(produto);
+      const identificador = normalizarBusca(nome);
+      if (identificador === "shopee") return "Ver na Shopee ↗";
+      if (identificador === "amazon") return "Consultar preço na Amazon ↗";
+      if (identificador === "magalu" || identificador === "magazine luiza") return "Consultar preço no Magalu ↗";
+      return "Consultar preço na loja ↗";
+    }
     function linkSeguro(produto) {
       try { const url = new URL(produto.link_afiliado); return url.protocol === "https:" ? url.href : null; }
       catch { return null; }
@@ -642,7 +656,7 @@ body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231
         elemento("p", "detail-price", precoProduto(produto)));
       const link = linkSeguro(produto);
       if (link) {
-        const comprar = elemento("a", "primary", normalizarBusca(produto.loja) === "shopee" ? "Ver na Shopee ↗" : "Visitar loja ↗");
+        const comprar = elemento("a", "primary", textoLinkParceiro(produto));
         comprar.href = link; comprar.target = "_blank"; comprar.rel = "sponsored noopener noreferrer";
         info.append(comprar);
       }
@@ -709,8 +723,8 @@ body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231
    return categoriaCorreta && lojaCorreta && pontuacaoBusca(produto,termos) >= 0 && (!somenteFavoritos || favoritos.has(String(produto.id)));
  });
      const precoOrdenacao = produto => {
-      if (String(produto.loja || "").trim().toLowerCase() === "amazon") {
-  return null;
+      if (normalizarBusca(produto.loja) !== "shopee") {
+  return null; // Sem preço autorizado visível: não incluir na ordenação por preço.
 }
   if (produto.preco === null ||
       produto.preco === undefined ||
@@ -827,9 +841,7 @@ conteudo.append(elemento("p", "price", textoPreco));
           try {
             const url = new URL(produto.link_afiliado);
             if (url.protocol === "https:") {
-              const textoBotao = normalizarBusca(produto.loja) === "shopee"
-  ? "Ver na Shopee ↗"
-  : "Visitar loja ↗";
+              const textoBotao = textoLinkParceiro(produto);
 
 const botao = elemento("a", "buy", textoBotao);
               botao.href = url.href;
