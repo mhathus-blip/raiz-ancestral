@@ -1,6 +1,6 @@
 /* Raiz Ancestral V12 — Admin produtos, Etapa 19.
  * Somente admin verificado via JWT + RPC is_raiz_admin.
- * A chave service role jamais chega ao cliente.
+ * Usa RLS do Supabase com token pessoal de administrador; sem service role.
  * GET lista, POST cadastra, PATCH edita/ativa/desativa. Sem DELETE.
  */
 const json=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Vary':'Authorization'}});
@@ -40,13 +40,12 @@ async function auth(request,env){
  if(!token||token.length>6000)return {error:'Entre como administrador.',status:401};
  const base=String(env.SUPABASE_URL||'').replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
  const key=String(env.SUPABASE_PUBLISHABLE_KEY||env.SUPABASE_ANON_KEY||'').trim();
- const service=String(env.SUPABASE_SERVICE_ROLE_KEY||'').trim();
- if(!/^https:\/\/[^/]+\.supabase\.co$/.test(base)||!key||!service)return {error:'Configuração administrativa indisponível.',status:503};
+ if(!/^https:\/\/[^/]+\.supabase\.co$/.test(base)||!key)return {error:'Conexão administrativa não configurada.',status:503};
  try{
   const r=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(7000)});
   if(!r.ok||await r.json()!==true)return {error:'Acesso restrito ao administrador.',status:403};
  }catch{return {error:'Falha ao validar administrador.',status:502}}
- return {base,headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json','Prefer':'return=representation'}};
+ return {base,headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'}};
 }
 async function db(ctx,path,{method='GET',body,prefer}={}){
  const headers={...ctx.headers};if(prefer)headers.Prefer=prefer;
