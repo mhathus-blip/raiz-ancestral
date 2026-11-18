@@ -408,6 +408,56 @@ body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231
 .raiz-admin-close{position:absolute;top:10px;right:12px;border:0;background:none;font-size:28px;cursor:pointer}
 .raiz-admin-status{font-size:13px;margin:12px 0 0;min-height:20px}
 .raiz-test-exit{background:#643c30!important;color:white!important}
+
+/* V12 ETAPA 7 — ornamentação de campanhas. Isolada na faixa sazonal.
+   Não altera ondas, topo, catálogo ou identidade visual original. */
+body[data-season="christmas"] .season-banner {
+  background:radial-gradient(ellipse at 50% -15%,#6e69443d,transparent 55%),
+    linear-gradient(115deg,#103c2c 0%,#22533a 51%,#622f38 100%);
+  border-bottom:5px solid #cfb47c;
+  padding:54px 32px 42px;
+}
+body[data-season="christmas"] .season-banner::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.95;
+  background:
+    radial-gradient(circle at 6% 15%,#f3d18e 0 3px,transparent 4px),
+    radial-gradient(circle at 13% 35%,#ffe5ae 0 2px,transparent 3px),
+    radial-gradient(circle at 23% 9%,#e6c67a 0 2px,transparent 3px),
+    radial-gradient(circle at 77% 10%,#fff0c9 0 2px,transparent 3px),
+    radial-gradient(circle at 89% 28%,#f3d18e 0 3px,transparent 4px),
+    radial-gradient(circle at 96% 68%,#fff0c9 0 2px,transparent 3px),
+    linear-gradient(180deg,#f9ddb426,transparent 22%);
+}
+body[data-season="christmas"] .season-banner::after{
+  content:"🌲  ✨  🎀  ✨  🎁  ✨  🌲";display:block;position:relative;
+  margin:23px auto 0;letter-spacing:11px;font-size:24px;opacity:1;
+}
+body[data-season="christmas"] .season-inner::before,
+body[data-season="christmas"] .season-inner::after{
+  content:"🌲  🍃  ✨  🔴  🍃";position:absolute;top:0;
+  font-size:25px;letter-spacing:7px;pointer-events:none;
+  writing-mode:vertical-rl;opacity:.92;
+}
+body[data-season="christmas"] .season-inner::before{left:-135px}
+body[data-season="christmas"] .season-inner::after{right:-135px;transform:rotate(180deg)}
+body[data-season="christmas"] .season-banner .season-decor.left::after{content:"❄";font-size:78px;color:#fff2d5}
+body[data-season="christmas"] .season-banner .season-decor.right::after{content:"✦";font-size:85px;color:#f5d598}
+body[data-season="christmas"] .season-banner .season-kicker{color:#ffe0a1}
+body[data-season="christmas"] .season-banner h2{text-shadow:0 3px 16px #0b201d70}
+body[data-season="christmas"] .season-countdown strong{background:#153926cd;border:1px solid #e4c489aa;box-shadow:0 2px 15px #0b221d60;color:#ffe1a4}
+body[data-season="christmas"] .season-banner a{background:#f8e9c7;color:#24412e}
+body[data-season="valentine"] .season-banner{display:block;background:linear-gradient(115deg,#5c293b,#ad6274 55%,#533b40);border-bottom:4px solid #e9bbac}
+body[data-season="valentine"] .season-banner::after{content:"🌹  ♡  🌿  ♡  🌹";display:block;margin:18px auto 0;position:relative;font-size:25px;letter-spacing:12px}
+body[data-season="valentine"] .season-banner a{background:#ffe8df;color:#603344}
+body[data-season="junina"] .season-banner{display:block;background:linear-gradient(110deg,#244c39,#5e5d36 60%,#8e5034);border-bottom:4px solid #edc781}
+body[data-season="junina"] .season-banner::after{content:"🌽  🎏  🌻  🎏  🌽";display:block;margin:18px auto 0;position:relative;font-size:25px;letter-spacing:11px}
+body[data-season="junina"] .season-banner a{background:#f8db9c;color:#3b3825}
+body[data-season="birthday"] .season-banner{display:block;background:linear-gradient(115deg,#091e18,#193429 58%,#26372c);border-bottom:4px solid #bda06c}
+body[data-season="birthday"] .season-banner::after{content:"🍃  ✧  🌿  ✧  🍃";display:block;margin:18px auto 0;position:relative;font-size:24px;letter-spacing:11px;color:#d4c48e}
+body[data-season="birthday"] .season-banner a{background:#e7ddba;color:#1c372a}
+body[data-season="birthday"] .season-banner .season-kicker{color:#d7c38c}
+@media(max-width:900px){body[data-season="christmas"] .season-inner::before,body[data-season="christmas"] .season-inner::after{display:none}}
+@media(max-width:600px){body[data-season="christmas"] .season-banner{padding:32px 18px 31px}body[data-season="christmas"] .season-banner::after,body[data-season="valentine"] .season-banner::after,body[data-season="junina"] .season-banner::after,body[data-season="birthday"] .season-banner::after{font-size:18px;letter-spacing:4px}}
 </style>
 </head>
 <body>
@@ -959,13 +1009,27 @@ const botao = elemento("a", "buy", textoBotao);
   document.querySelectorAll('[data-garimpo-category]').forEach(btn=>btn.addEventListener('click',()=>{const category=btn.dataset.garimpoCategory;const filter=[...document.querySelectorAll('[data-categoria]')].find(el=>el.dataset.categoria===category);if(filter)filter.click();document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});}));
   const content={
     black:{kicker:'🌿 Temporada especial • Novembro',title:'Black Friday Raiz Ancestral',description:'Chás, ervas e suplementos em uma vitrine pensada para facilitar sua pesquisa. Compare opções e confira os preços e condições diretamente nas lojas parceiras.',link:'Conhecer produtos naturais'},
-    christmas:{kicker:'🎄 Temporada especial • Dezembro',title:'Um Natal mais natural e cheio de carinho',description:'Descubra chás, produtos naturais e ideias de presentes para compartilhar momentos especiais. Consulte preços e disponibilidade nas lojas parceiras.',link:'Explorar presentes e produtos'}
+    christmas:{kicker:'🎄 Temporada especial • Dezembro',title:'Um Natal mais natural e cheio de carinho',description:'Descubra chás, produtos naturais e ideias de presentes para compartilhar momentos especiais. Consulte preços e disponibilidade nas lojas parceiras.',link:'Explorar presentes e produtos'},
+    valentine:{kicker:'🌹 Especial • Dia dos Namorados',title:'Cultive carinho e bons momentos',description:'Flores, jardins e sugestões naturais para demonstrar afeto. Confira as condições na loja parceira.',link:'Descobrir sugestões naturais'},
+    junina:{kicker:'🌽 Especial • Festa Junina',title:'Tradição, flores e sabores da terra',description:'Inspirações de jardinagem, ingredientes naturais e um clima junino aconchegante.',link:'Explorar os garimpos'},
+    birthday:{kicker:'🌿 Aniversário • Raiz Ancestral',title:'Celebrando nossas raízes',description:'Um momento especial para agradecer a quem compartilha o amor pela natureza.',link:'Conhecer nossa vitrine'},
   };
   const countdown=document.getElementById('season-countdown');
   const label=document.getElementById('countdown-label');
   const pad=n=>String(n).padStart(2,'0');
   let lastSeason='';
-  function automaticSeason(now){const m=now.getMonth(),d=now.getDate();return m===10?'black':m===11&&d<=25?'christmas':'normal';}
+  // A V11 mantém suas janelas originais de Black Friday (novembro) e Natal (dezembro até 25).
+  // As três campanhas novas começam dez dias antes e terminam ao final da própria data.
+  function automaticSeason(now){
+    const m=now.getMonth(),d=now.getDate();
+    if(m===10)return 'black';
+    if(m===11&&d<=25)return 'christmas';
+    const janela=(mes,dia)=>{const inicio=new Date(now.getFullYear(),mes,dia-10,0,0,0);const fim=new Date(now.getFullYear(),mes,dia+1,0,0,0);return now>=inicio&&now<fim;};
+    if(janela(5,12))return 'valentine';
+    if(janela(5,24))return 'junina';
+    if(janela(9,25))return 'birthday';
+    return 'normal';
+  }
   function apply(value,now=new Date()){
     const season=value==='auto'?automaticSeason(now):value;
     if(season!==lastSeason){
@@ -992,6 +1056,13 @@ const botao = elemento("a", "buy", textoBotao);
       if(now>=target){countdown.style.display='none';return;}
       label.textContent='Faltam para o Natal';
       countdown.setAttribute('aria-label','Contagem regressiva para o Natal');
+    }else if(season==='valentine'||season==='junina'||season==='birthday'){
+      const eventos={valentine:{mes:5,dia:12,rotulo:'o Dia dos Namorados'},junina:{mes:5,dia:24,rotulo:'a Festa Junina'},birthday:{mes:9,dia:25,rotulo:'o aniversário do Raiz Ancestral'}};
+      const evento=eventos[season];
+      target=new Date(now.getFullYear(),evento.mes,evento.dia,0,0,0);
+      if(now>=target){countdown.style.display='none';return;}
+      label.textContent='Faltam para '+evento.rotulo;
+      countdown.setAttribute('aria-label','Contagem regressiva para '+evento.rotulo);
     }else{countdown.style.display='none';return;}
     countdown.style.display='flex';
     let remaining=Math.max(0,Math.floor((target-now)/1000));
