@@ -901,6 +901,20 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 .raiz-auditoria-precos button{border:0;border-radius:22px;background:#315b3c;color:#fff;font:700 13px Arial,sans-serif;padding:12px 18px;cursor:pointer}
 .raiz-auditoria-precos button:disabled{opacity:.55;cursor:not-allowed}
 .raiz-auditoria-precos .raiz-auditoria-resumo{font-weight:700}
+
+/* ETAPA 16 — conferência de preços por CSV, exclusiva do admin após autenticação. */
+#raiz-reconciliacao-precos[hidden]{display:none!important}
+#raiz-reconciliacao-precos{max-width:1100px;margin:20px auto 26px;padding:24px;background:#fffaf0;border:1px solid #dacba9;border-radius:18px;color:#264332}
+#raiz-reconciliacao-precos h2{font:700 clamp(21px,3vw,28px) Georgia,serif;margin:0 0 12px}
+#raiz-reconciliacao-precos p{line-height:1.55}
+#raiz-reconciliacao-precos input[type=file]{display:block;max-width:100%;margin:14px 0;padding:9px;border:1px solid #c9bc9d;border-radius:9px;background:white}
+#raiz-reconciliacao-precos button{background:#315b3c;color:#fff;border:0;border-radius:22px;padding:11px 18px;font-weight:700;cursor:pointer;margin:4px 8px 4px 0}
+#raiz-reconciliacao-precos button:disabled{opacity:.45;cursor:not-allowed}
+#raiz-reconciliacao-tabela{overflow:auto;max-height:340px;margin-top:12px}
+#raiz-reconciliacao-tabela table{border-collapse:collapse;width:100%;font:13px/1.4 Arial,sans-serif}
+#raiz-reconciliacao-tabela th,#raiz-reconciliacao-tabela td{border:1px solid #ded7c7;padding:8px;vertical-align:top;text-align:left}
+#raiz-reconciliacao-tabela th{position:sticky;top:0;background:#f0e6d1}
+#raiz-reconciliacao-precos .raiz-reconciliacao-nota{font-size:12px;color:#796a55}
 </style>
 </head>
 <body>
@@ -923,6 +937,18 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
  <p id="raiz-auditoria-resumo" class="raiz-auditoria-resumo" role="status">Aguardando catálogo.</p>
  <button id="raiz-auditoria-exportar" type="button" disabled>Baixar CSV dos produtos sem preço</button>
  <p style="font-size:12px;color:#766955">A auditoria cobre somente os produtos carregados pelo catálogo (limite atual: 1.000). O CSV é para conferência e futura sincronização com a API autorizada; não contém senhas nem credenciais.</p>
+</section>
+
+<section id="raiz-reconciliacao-precos" aria-labelledby="raiz-reconciliacao-titulo" hidden>
+ <h2 id="raiz-reconciliacao-titulo">🧾 Conferência de preços Shopee — sem alterar o banco</h2>
+ <p>Baixe o CSV na auditoria acima, preencha <strong>preco_confirmado</strong> somente com valores verificados para o anúncio correto e selecione o arquivo aqui. O sistema valida o ID, o link e o preço antes de preparar uma prévia. Ele <strong>não</strong> consulta a API nem salva alterações.</p>
+ <label for="raiz-reconciliacao-arquivo"><strong>Arquivo CSV para conferência</strong></label>
+ <input id="raiz-reconciliacao-arquivo" type="file" accept=".csv,text/csv" aria-describedby="raiz-reconciliacao-status">
+ <p id="raiz-reconciliacao-status" role="status" aria-live="polite">Aguardando arquivo. Limite: 1 MB.</p>
+ <button id="raiz-reconciliacao-baixar" type="button" disabled>Baixar prévia validada (CSV)</button>
+ <button id="raiz-reconciliacao-limpar" type="button">Limpar conferência</button>
+ <div id="raiz-reconciliacao-tabela"></div>
+ <p class="raiz-reconciliacao-nota">Segurança: nenhuma atualização é enviada ao Supabase. A prévia só inclui produtos Shopee existentes no catálogo carregado, com ID e link exatamente correspondentes. Produtos não carregados (além do limite atual de 1.000) não são aceitos nesta conferência.</p>
 </section>
 <section id="catalogo" class="section" aria-labelledby="titulo-catalogo"><div class="section-head"><div><h2 id="titulo-catalogo">🍃 Produtos selecionados</h2><p class="section-sub">Confira nossas indicações e visite as lojas parceiras.</p></div></div><div class="busca-produtos" style="margin:20px 0;">
   <label for="busca-produtos">🔎 Encontre o que procura</label>
@@ -1859,11 +1885,112 @@ const botao = elemento("a", "buy", textoBotao);
  exportButton.addEventListener('click',()=>{
   if(!authorized||!loaded||!missing.length)return;
   const safe=v=>{const raw=String(v??'').replace(/\r?\n/g,' ').trim();return '"'+(/^[=+@-]/.test(raw)?"'":"")+raw.replace(/"/g,'""')+'"'};
-  const rows=[['id','nome','loja','preco_atual','link_afiliado','status'],...missing.map(p=>[p.id,p.nome,p.loja,p.preco,p.link_afiliado,'SEM_PRECO'])];
+  const rows=[['id','nome','loja','preco_atual','link_afiliado','status','preco_confirmado'],...missing.map(p=>[p.id,p.nome,p.loja,p.preco,p.link_afiliado,'SEM_PRECO',''])];
   const content='\uFEFF'+rows.map(row=>row.map(safe).join(';')).join('\r\n');
   const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
   const a=document.createElement('a');a.href=url;a.download='raiz-ancestral-shopee-sem-preco.csv';document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),2000);
+ });
+})();
+</script>
+
+<script>
+/* V12 ETAPA 16 — conciliação LOCAL CSV com identidade exata, sem operações de escrita. */
+(function(){
+ 'use strict';
+ const root=document.getElementById('raiz-reconciliacao-precos');
+ const fileInput=document.getElementById('raiz-reconciliacao-arquivo');
+ const status=document.getElementById('raiz-reconciliacao-status');
+ const table=document.getElementById('raiz-reconciliacao-tabela');
+ const download=document.getElementById('raiz-reconciliacao-baixar');
+ const clear=document.getElementById('raiz-reconciliacao-limpar');
+ if(!root||!fileInput||!status||!table||!download||!clear)return;
+ let unlocked=false,loaded=false,items=[],approved=[],bad=[];
+ const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+ window.addEventListener('raiz:catalogo-carregado',e=>{items=Array.isArray(e.detail?.produtos)?e.detail.produtos:[];loaded=true;reset();});
+ window.addEventListener('raiz:admin-tests-unlocked',()=>{unlocked=true;root.hidden=false;});
+ function reset(){approved=[];bad=[];table.replaceChildren();download.disabled=true;status.textContent='Aguardando arquivo CSV. Nenhum dado foi alterado.';}
+ clear.addEventListener('click',()=>{fileInput.value='';reset();});
+ // RFC-style quotes with doubled quotes, CRLF/LF, semicolon or comma separator.
+ function parseCSV(input){
+  let text=input.replace(/^\uFEFF/,'');
+  const headerLine=text.slice(0,Math.max(text.indexOf('\n'),0));
+  const sep=headerLine.includes(';')?';':',';
+  const rows=[];let row=[],field='',quoted=false;
+  for(let i=0;i<text.length;i++){
+   const ch=text[i];
+   if(ch==='"'){
+    if(quoted&&text[i+1]==='"'){field+='"';i++;}else{quoted=!quoted;}
+   }else if(ch===sep&&!quoted){row.push(field);field='';}
+   else if((ch==='\r'||ch==='\n')&&!quoted){
+    if(ch==='\r'&&text[i+1]==='\n')i++;
+    row.push(field);field='';if(row.some(x=>x.trim()!==''))rows.push(row);row=[];
+   }else{field+=ch;}
+  }
+  if(quoted)throw new Error('CSV com aspas não fechadas.');
+  row.push(field);if(row.some(x=>x.trim()!==''))rows.push(row);
+  if(rows.length<2)throw new Error('CSV sem linhas de produtos.');
+  return rows;
+ }
+ function priceNumber(raw){
+  let s=String(raw??'').trim().replace(/^R\$\s*/,'').replace(/\s/g,'');
+  if(!s)return null;
+  // Somente valores decimais sem milhares, ou milhar BR usando ponto.
+  if(/^\d{1,3}(\.\d{3})+,\d{1,2}$/.test(s))s=s.replace(/\./g,'').replace(',','.');
+  else if(/^\d+(,\d{1,2})$/.test(s))s=s.replace(',','.');
+  else if(!/^\d+(\.\d{1,2})?$/.test(s))return null;
+  const n=Number(s);
+  return Number.isFinite(n)&&n>0&&n<=100000?Math.round(n*100)/100:null;
+ }
+ const csvSafe=v=>{const s=String(v??'').replace(/[\r\n]+/g,' ').trim();return '"'+(/^[=+@-]/.test(s)?"'":"")+s.replace(/"/g,'""')+'"';};
+ function downloadCsv(rows,name){
+  const content='\uFEFF'+rows.map(r=>r.map(csvSafe).join(';')).join('\r\n');
+  const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ }
+ function cell(tr,text,header=false){const el=document.createElement(header?'th':'td');el.textContent=String(text??'');tr.append(el);}
+ function render(){
+  table.replaceChildren(); const t=document.createElement('table');
+  const head=document.createElement('tr');['ID','Produto','Preço confirmado','Status'].forEach(v=>cell(head,v,true));t.append(head);
+  [...approved.map(x=>({...x,result:'Validado — prévia'})),...bad].slice(0,100).forEach(r=>{
+   const tr=document.createElement('tr');
+   [r.id,r.nome, r.price==null?'—':r.price.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),r.result].forEach(v=>cell(tr,v));t.append(tr);
+  });
+  table.append(t);
+ }
+ fileInput.addEventListener('change',async()=>{
+  reset();if(!unlocked||!loaded){status.textContent='Faça login e aguarde o catálogo carregar.';return;}
+  const file=fileInput.files?.[0];if(!file)return;
+  if(file.size>1048576){status.textContent='Arquivo acima de 1 MB; divida o CSV em lotes menores.';return;}
+  try{
+   const rows=parseCSV(await file.text());const header=rows.shift().map(s=>norm(s));
+   const index=k=>header.indexOf(k);
+   const idxId=index('id'),idxLink=index('link_afiliado'),idxPrice=index('preco_confirmado');
+   if([idxId,idxLink,idxPrice].includes(-1))throw new Error('Cabeçalhos obrigatórios: id, link_afiliado, preco_confirmado. Baixe o CSV atualizado da auditoria.');
+   const byId=new Map(items.map(p=>[String(p.id),p]));const used=new Set();
+   for(const values of rows){
+    const id=(values[idxId]??'').trim(),link=(values[idxLink]??'').trim(),raw=(values[idxPrice]??'').trim();
+    if(!raw)continue; // Linhas não preenchidas não participam da prévia.
+    const p=byId.get(id),price=priceNumber(raw);let reason='';
+    if(!/^\d+$/.test(id))reason='ID inválido';
+    else if(used.has(id))reason='ID duplicado';
+    else if(!p)reason='Produto não encontrado no catálogo carregado';
+    else if(norm(p.loja)!=='shopee')reason='Produto não pertence à Shopee';
+    else if(link!==String(p.link_afiliado??'').trim())reason='Link não corresponde ao cadastro atual';
+    else if(price===null)reason='Preço inválido';
+    else if(p.preco!==null&&p.preco!==undefined&&p.preco!==''&&Number(p.preco)>0)reason='Produto já possui preço; revisão manual necessária';
+    used.add(id);
+    if(reason)bad.push({id,nome:p?.nome??'',price,result:reason});
+    else approved.push({id,nome:String(p.nome??''),link,price});
+   }
+   download.disabled=approved.length===0;
+   status.textContent=`Prévia pronta: ${approved.length} preço(s) validado(s), ${bad.length} linha(s) rejeitada(s). Nenhum preço foi salvo no banco.`;
+   render();
+  }catch(err){status.textContent='Erro ao ler CSV: '+(err?.message??String(err));}
+ });
+ download.addEventListener('click',()=>{
+  if(!unlocked||!approved.length)return;
+  downloadCsv([['id','nome','link_afiliado','preco_confirmado','status'],...approved.map(r=>[r.id,r.nome,r.link,r.price.toFixed(2),'AGUARDANDO_API_E_APROVACAO'])],'raiz-ancestral-previa-precos-validada.csv');
  });
 })();
 </script>
