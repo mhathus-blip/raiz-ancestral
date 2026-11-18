@@ -806,6 +806,40 @@ body[data-season="birthday"] .season-banner .raiz-gold-wave,body[data-season="ch
  body[data-season="birthday"] .season-banner .raiz-gold-wave,body[data-season="christmas"] .season-banner .raiz-gold-wave{height:31px}
 }
 
+
+/* V12 ETAPA 11 — imagens proporcionais, sem distorção.
+   Padronização do enquadramento SEM afetar ondas originais e catálogo. */
+body[data-season="newyear"] .season-banner,
+body[data-season="easter"] .season-banner,
+body[data-season="mothers"] .season-banner,
+body[data-season="fathers"] .season-banner,
+body[data-season="valentine"] .season-banner,
+body[data-season="junina"] .season-banner,
+body[data-season="tree"] .season-banner,
+body[data-season="spring"] .season-banner,
+body[data-season="birthday"] .season-banner,
+body[data-season="christmas"] .season-banner {
+  background-size: cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+}
+/* Títulos HTML sempre à frente dos detalhes fotográficos. */
+body[data-season="valentine"] .season-banner .season-inner,
+body[data-season="birthday"] .season-banner .season-inner,
+body[data-season="tree"] .season-banner .season-inner{position:relative;z-index:1}
+@media(min-width:1100px){
+ body[data-season="newyear"] .season-banner,
+ body[data-season="easter"] .season-banner,
+ body[data-season="mothers"] .season-banner,
+ body[data-season="fathers"] .season-banner,
+ body[data-season="valentine"] .season-banner,
+ body[data-season="junina"] .season-banner,
+ body[data-season="tree"] .season-banner,
+ body[data-season="spring"] .season-banner,
+ body[data-season="birthday"] .season-banner,
+ body[data-season="christmas"] .season-banner {background-size:cover}
+}
+
 </style>
 </head>
 <body>
