@@ -74,7 +74,7 @@ export async function onRequestPost({request,env}){
   if(raw.length>5000)return reply({erro:'Solicitação grande demais.'},413);
   const ids=JSON.parse(raw)?.ids;
   if(!Array.isArray(ids)||ids.length<1||ids.length>4||new Set(ids.map(String)).size!==ids.length||!ids.every(x=>Number.isSafeInteger(x)&&x>0))return reply({erro:'Informe de 1 a 4 IDs únicos e positivos.'},400);
-  const data=await fetch(`${base}/rest/v1/produtos?select=id,nome,loja,preco,link_afiliado&id=in.(${ids.join(',')})`,{headers:{apikey:key,Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(6000)});
+  const data=await fetch(`${base}/rest/v1/produtos?select=id,nome,loja,preco,link_afiliado,shopee_product_id&id=in.(${ids.join(',')})`,{headers:{apikey:key,Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(6000)});
   if(!data.ok)return reply({erro:'Falha ao consultar catálogo autorizado.'},502);
   const products=await data.json();
   const appId=String(env.SHOPEE_APP_ID||'').trim(),secret=String(env.SHOPEE_APP_SECRET||'').trim();
@@ -85,9 +85,11 @@ export async function onRequestPost({request,env}){
    if(!p){output.push({id,status:'NAO_ENCONTRADO'});continue}
    if(String(p.loja||'').trim().toLowerCase()!=='shopee'){output.push({id,status:'OUTRA_LOJA'});continue}
    if(p.preco!==null&&p.preco!==''&&Number.isFinite(Number(p.preco))&&Number(p.preco)>0){output.push({id,status:'JA_POSSUI_PRECO'});continue}
-   const resolved=await resolveLink(String(p.link_afiliado||''));
+   // Preferir o itemId confirmado e armazenado no Supabase; links encurtados nem sempre expõem o ID.
+   const storedId=String(p.shopee_product_id||'').trim();
+   const resolved=/^\d{3,20}$/.test(storedId)?{status:'ITEM_IDENTIFICADO',itemId:storedId,fonte:'ID_CADASTRADO'}:await resolveLink(String(p.link_afiliado||''));
    if(resolved.status!=='ITEM_IDENTIFICADO'){output.push({id,nome:p.nome,status:resolved.status});continue}
-   output.push({id,nome:p.nome,...await queryShopee(appId,secret,resolved.itemId)});
+   output.push({id,nome:p.nome,fonte_id:resolved.fonte||'LINK',...await queryShopee(appId,secret,resolved.itemId)});
   }
   return reply({modo:'SOMENTE_LEITURA',total:output.length,resultados:output,observacao:'Nenhum registro foi alterado. Preços são indicativos da API e precisam de conferência.'});
  }catch{return reply({erro:'Falha na consulta; nenhuma alteração foi realizada.'},502)}
