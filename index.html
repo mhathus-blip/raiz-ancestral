@@ -1468,10 +1468,12 @@ const botao = elemento("a", "buy", textoBotao);
       const end=new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
       return today>=start&&today<end;
     };
+    // Virada do ano: 26-31 de dezembro e preparação para 1º de janeiro.
+    if(m===11&&d>=26)return 'newyear';
     if(inWindow(dates.newyear)||inWindow(newyearNext)||inWindow(newyearPrev))return 'newyear';
-    // Dia da Árvore e Primavera se sobrepõem: Dia da Árvore até 21/9, Primavera a partir de 22/9.
-    if(inWindow(dates.tree))return 'tree';
-    if(inWindow(dates.spring))return 'spring';
+    // Sem sobreposição: Dia da Árvore até 21/9 e Primavera de 22/9 em diante.
+    if(m===8&&d>=12&&d<=21)return 'tree';
+    if(m===8&&d>=22&&d<=23)return 'spring';
     const order=['easter','mothers','valentine','junina','fathers','birthday'];
     for(const key of order){if(inWindow(dates[key]))return key;}
     return 'normal';
