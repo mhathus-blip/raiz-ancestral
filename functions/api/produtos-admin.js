@@ -59,6 +59,11 @@ export async function onRequest({request,env}){
  const ctx=await auth(request,env);if(ctx.error)return json({erro:ctx.error},ctx.status);
  if(request.method==='GET'){
   const url=new URL(request.url);
+  if(url.searchParams.get('categories')==='1'){
+   const r=await db(ctx,'produtos?select=categoria&order=categoria.asc&limit=1000');
+   if(r.error)return json({erro:r.error},r.status);
+   return json({categorias:[...new Set((r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
+  }
   const page=Number(url.searchParams.get('page')||1);
   const term=String(url.searchParams.get('q')||'').trim();
   if(!Number.isSafeInteger(page)||page<1||page>100000||term.length>100)return json({erro:'Filtro inválido.'},400);
@@ -76,6 +81,13 @@ export async function onRequest({request,env}){
  if(request.method==='POST'){
   const checked=validate(input);
   if(checked.error)return json({erro:checked.error},400);
+  // Evita inserção duplicada por link ou nome. A pesquisa é feita sob a RLS do administrador.
+  const existing=await db(ctx,'produtos?select=id,nome,link_afiliado,loja&limit=1000');
+  if(existing.error)return json({erro:existing.error},existing.status);
+  const norm=v=>String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const duplicado=(existing.data||[]).find(p=>String(p.link_afiliado||'').trim()===checked.value.link_afiliado||
+    (String(p.loja||'').toLowerCase()===String(checked.value.loja||'').toLowerCase()&&norm(p.nome)===norm(checked.value.nome)));
+  if(duplicado)return json({erro:'Já existe um anúncio semelhante no catálogo (ID '+duplicado.id+'). Revise antes de cadastrar.',produto_existente:duplicado.id},409);
   const product={...checked.value,ativo:false,destaque:false};
   const r=await db(ctx,'produtos',{method:'POST',body:product});
   if(r.error)return json({erro:r.error},r.status);
