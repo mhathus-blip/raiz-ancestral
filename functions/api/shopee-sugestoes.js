@@ -1,49 +1,85 @@
-/* Etapa 20 — sugestões da API Shopee, nunca grava produtos e não substitui o link afiliado original.
- * Não pesquisa páginas arbitrárias e não presume que a oferta encontrada é o anúncio do usuário.
+/* Raiz Ancestral V12 — Etapa 21: diagnóstico de ofertas Shopee, somente leitura.
+ * Consulta autenticada por administrador; NUNCA troca link afiliado ou grava preço.
+ * Dados de ofertas são sugestões, não prova de identidade do anúncio.
  */
-const respond=(x,status=200)=>Response.json(x,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
-const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-function secureUrl(raw){
- try{const u=new URL(raw);return u.protocol==='https:'&&!u.username&&!u.password}catch{return false}
+const reply=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const validHttps=v=>{try{let u=new URL(v);return u.protocol==='https:'&&!u.username&&!u.password&&!!u.hostname}catch{return false}};
+const words=s=>[...new Set(normalize(s).split(' ').filter(v=>v.length>=3&&!['com','sem','para','kit','unidades','unidade','pacote','produto','natural'].includes(v)))];
+const codes=s=>(normalize(s).match(/\b\d+(?:g|kg|ml|l|un|und|unid|unidades|unidade|pcs)\b/g)||[]);
+function nameScore(a,b){
+ const aw=words(a),bn=normalize(b);
+ const hits=aw.filter(w=>bn.includes(w)).length;
+ const ac=codes(a),bc=codes(b);
+ const conflicting=ac.length&&bc.length&&!ac.some(v=>bc.includes(v));
+ return {score:aw.length?Math.round(100*hits/aw.length):0,conflicting:!!conflicting};
+}
+function queryTerms(name){
+ const cleaned=normalize(name);
+ const arr=[String(name).trim().slice(0,100)];
+ // Shopee pesquisa por relevância, nomes exatos longos frequentemente não retornam resultados.
+ const terms=words(name).filter(x=>!/^\d/.test(x));
+ if(terms.length>=2)arr.push(terms.slice(0,4).join(' ').slice(0,75));
+ if(terms.length>=3)arr.push(terms.slice(0,3).join(' ').slice(0,55));
+ return [...new Set(arr.map(x=>x.trim()).filter(x=>x.length>=5))].slice(0,3);
+}
+async function offers(appId,secret,term){
+ const query='query { productOfferV2(keyword: '+JSON.stringify(term)+') { nodes { itemId productName imageUrl priceMin priceMax offerLink } } }';
+ const payload=JSON.stringify({query}), timestamp=Math.floor(Date.now()/1000);
+ const data=new TextEncoder().encode(appId+timestamp+payload+secret);
+ const hash=await crypto.subtle.digest('SHA-256',data);
+ const signature=[...new Uint8Array(hash)].map(v=>v.toString(16).padStart(2,'0')).join('');
+ let r;
+ try{r=await fetch('https://open-api.affiliate.shopee.com.br/graphql',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'SHA256 Credential='+appId+', Timestamp='+timestamp+', Signature='+signature},body:payload,signal:AbortSignal.timeout(11000)})}
+ catch{return {ok:false,code:'ERRO_REDE',detail:'Tempo de resposta excedido ou comunicação indisponível.'}}
+ let j;
+ try{j=await r.json()}catch{return {ok:false,code:'RESPOSTA_INVALIDA',detail:'API retornou resposta não reconhecida.'}}
+ if(!r.ok||j.errors?.length){
+  const err=Array.isArray(j.errors)?j.errors[0]||{}:{};
+  const graphCode=String(err.extensions?.code||err.code||'').slice(0,60).replace(/[^A-Za-z0-9_-]/g,'');
+  // Não devolver mensagens da API, que podem conter identificadores e informações internas.
+  return {ok:false,code:'API_REJEITOU_CONSULTA',http:r.status,graphCode};
+ }
+ return {ok:true,nodes:Array.isArray(j.data?.productOfferV2?.nodes)?j.data.productOfferV2.nodes:[]};
 }
 export async function onRequestPost({request,env}){
+ if(!String(request.headers.get('content-type')||'').includes('application/json'))return reply({erro:'Envie JSON.'},415);
  const token=String(request.headers.get('authorization')||'').match(/^Bearer\s+(.+)$/i)?.[1];
- if(!token||token.length>6000)return respond({erro:'Faça login de administrador.'},401);
- if(!String(request.headers.get('content-type')||'').includes('application/json'))return respond({erro:'Envie JSON.'},415);
+ if(!token||token.length>6000)return reply({erro:'Faça login de administrador.'},401);
  const base=String(env.SUPABASE_URL||'').replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
  const key=String(env.SUPABASE_PUBLISHABLE_KEY||env.SUPABASE_ANON_KEY||'').trim();
- if(!/^https:\/\/[^/]+\.supabase\.co$/.test(base)||!key)return respond({erro:'Supabase indisponível.'},503);
+ if(!/^https:\/\/[^/]+\.supabase\.co$/.test(base)||!key)return reply({erro:'Configuração de autenticação indisponível.',diagnostico:'SUPABASE_CONFIG'},503);
  try{
-  const check=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(6500)});
-  if(!check.ok||await check.json()!==true)return respond({erro:'Acesso restrito.'},403);
-  const raw=await request.text();
-  if(raw.length>1800)return respond({erro:'Consulta muito longa.'},413);
-  const data=JSON.parse(raw);
-  const term=String(data?.nome||'').trim().slice(0,140);
-  if(term.length<6||term.length>140)return respond({erro:'Informe pelo menos 6 caracteres do nome do produto.'},400);
-  const appId=String(env.SHOPEE_APP_ID||'').trim(),secret=String(env.SHOPEE_APP_SECRET||'').trim();
-  if(!appId||!secret)return respond({erro:'Credenciais da API Shopee não configuradas.'},503);
-  const query='query { productOfferV2(keyword: '+JSON.stringify(term)+') { nodes { itemId productName imageUrl priceMin priceMax offerLink } } }';
-  const payload=JSON.stringify({query});
-  const timestamp=Math.floor(Date.now()/1000);
-  const bytes=new TextEncoder().encode(appId+timestamp+payload+secret);
-  const digest=await crypto.subtle.digest('SHA-256',bytes);
-  const signature=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
-  const r=await fetch('https://open-api.affiliate.shopee.com.br/graphql',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'SHA256 Credential='+appId+', Timestamp='+timestamp+', Signature='+signature},body:payload,signal:AbortSignal.timeout(12000)});
-  const result=await r.json();
-  if(!r.ok||result.errors?.length)return respond({erro:'A Shopee não retornou ofertas válidas nesta consulta.'},502);
-  const words=norm(term).split(' ').filter(w=>w.length>2);
-  const matches=(result.data?.productOfferV2?.nodes||[])
-   .filter(p=>p?.itemId&&p?.productName&&secureUrl(p?.imageUrl)&&secureUrl(p?.offerLink))
-   .map(p=>{
-    const n=norm(p.productName),hits=words.filter(w=>n.includes(w)).length;
-    const price=Number(p.priceMin);
-    return {itemId:String(p.itemId),nome:String(p.productName).slice(0,250),imagem_url:String(p.imageUrl),preco:Number.isFinite(price)&&price>0?Number(price.toFixed(2)):null,correspondencia:words.length?Math.round(100*hits/words.length):0};
-   })
-   .filter(p=>p.correspondencia>=35)
-   .sort((a,b)=>b.correspondencia-a.correspondencia)
-   .slice(0,6);
-  return respond({modo:'SUGESTOES_SEM_GRAVACAO',sugestoes:matches,observacao:'Resultados aproximados. Confira marca, sabor, peso e quantidade antes de aplicar. O link afiliado informado não é substituído.'});
- }catch{return respond({erro:'Não foi possível obter sugestões da Shopee.'},502)}
+  const chk=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(6500)});
+  if(!chk.ok||await chk.json()!==true)return reply({erro:'Acesso restrito ao administrador.'},403);
+ }catch{return reply({erro:'Falha ao confirmar acesso administrativo.'},502)}
+ let body;
+ try{const raw=await request.text();if(raw.length>1800)return reply({erro:'Consulta grande demais.'},413);body=JSON.parse(raw)}
+ catch{return reply({erro:'Dados inválidos.'},400)}
+ const name=String(body?.nome||'').trim();
+ if(name.length<6||name.length>140)return reply({erro:'Informe nome entre 6 e 140 caracteres.'},400);
+ const appId=String(env.SHOPEE_APP_ID||'').trim(),secret=String(env.SHOPEE_APP_SECRET||'').trim();
+ if(!appId||!secret)return reply({erro:'Integração de afiliados da Shopee não está configurada.',diagnostico:'SHOPEE_CREDENCIAIS_AUSENTES'},503);
+ const terms=queryTerms(name),attempts=[],seen=new Map();
+ for(const term of terms){
+  const result=await offers(appId,secret,term);
+  attempts.push({tipo:term===terms[0]?'nome_completo':'busca_resumida',status:result.ok?'OK':result.code,recebidas:result.nodes?.length||0,...(!result.ok?{http:result.http||null,codigo_api:result.graphCode||null}:{})});
+  if(!result.ok){
+   // Falha na assinatura ou API não será resolvida por tentativas com outros termos.
+   return reply({erro:result.code==='ERRO_REDE'?'A Shopee não respondeu à consulta.':'A API Shopee rejeitou a consulta. Confira o diagnóstico abaixo.',diagnostico:result.code,tentativas:attempts,observacao:'Nenhum produto foi cadastrado ou alterado.'},502);
+  }
+  for(const p of result.nodes){
+   if(!p?.itemId||!p?.productName)continue;
+   const sc=nameScore(name,p.productName);
+   if(sc.score<40||sc.conflicting)continue;
+   const id=String(p.itemId);
+   const price=Number(p.priceMin);
+   const value={itemId:id,nome:String(p.productName).slice(0,250),imagem_url:validHttps(p.imageUrl)?String(p.imageUrl):'',preco:Number.isFinite(price)&&price>0?Number(price.toFixed(2)):null,correspondencia:sc.score,quantidade_compativel:!sc.conflicting};
+   const prev=seen.get(id);if(!prev||value.correspondencia>prev.correspondencia)seen.set(id,value);
+  }
+  if(seen.size>=6)break;
+ }
+ const sugestoes=[...seen.values()].sort((a,b)=>b.correspondencia-a.correspondencia).slice(0,6);
+ return reply({modo:'SOMENTE_LEITURA',sugestoes,diagnostico:sugestoes.length?'SUGESTOES_ENCONTRADAS':'SEM_CORRESPONDENCIA',tentativas:attempts,observacao:'A API não confirmou a identidade do link afiliado. Confira produto, sabor, marca, peso e quantidade; valores são apenas referência.'});
 }
-export function onRequestGet(){return respond({erro:'Use POST autenticado.'},405)}
+export function onRequestGet(){return reply({erro:'Use POST autenticado.'},405)}
