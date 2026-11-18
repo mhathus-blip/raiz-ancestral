@@ -668,6 +668,144 @@ body[data-season="black"] .season-banner .raiz-gold-wave{
  .hero:before{opacity:.48;background-position:70% center}
 }
 
+
+/* V12 ETAPA 10 — 11 campanhas com fotografias decorativas e textos vivos no HTML. */
+body[data-season="newyear"] .season-banner,
+body[data-season="easter"] .season-banner,
+body[data-season="mothers"] .season-banner,
+body[data-season="fathers"] .season-banner,
+body[data-season="valentine"] .season-banner,
+body[data-season="junina"] .season-banner,
+body[data-season="tree"] .season-banner,
+body[data-season="spring"] .season-banner,
+body[data-season="birthday"] .season-banner,
+body[data-season="christmas"] .season-banner{
+ display:block;min-height:440px;padding:48px 24px 78px;
+ background-color:#133d2c;background-repeat:no-repeat;background-size:100% 100%;
+ position:relative;isolation:isolate;border-bottom:0;
+}
+body[data-season="newyear"] .season-banner{background-image:url("./assets/campanha-newyear.webp")}
+body[data-season="easter"] .season-banner{background-image:url("./assets/campanha-easter.webp")}
+body[data-season="mothers"] .season-banner{background-image:url("./assets/campanha-mothers.webp")}
+body[data-season="fathers"] .season-banner{background-image:url("./assets/campanha-fathers.webp")}
+body[data-season="valentine"] .season-banner{background-image:url("./assets/campanha-valentine.webp")}
+body[data-season="junina"] .season-banner{background-image:url("./assets/campanha-junina.webp")}
+body[data-season="tree"] .season-banner{background-image:url("./assets/campanha-tree.webp")}
+body[data-season="spring"] .season-banner{background-image:url("./assets/campanha-spring.webp")}
+body[data-season="birthday"] .season-banner{background-image:url("./assets/campanha-birthday.webp")}
+body[data-season="christmas"] .season-banner{background-image:url("./assets/campanha-christmas.webp")}
+body[data-season="newyear"] .season-banner::before,
+body[data-season="easter"] .season-banner::before,
+body[data-season="mothers"] .season-banner::before,
+body[data-season="fathers"] .season-banner::before,
+body[data-season="valentine"] .season-banner::before,
+body[data-season="junina"] .season-banner::before,
+body[data-season="tree"] .season-banner::before,
+body[data-season="spring"] .season-banner::before,
+body[data-season="birthday"] .season-banner::before,
+body[data-season="christmas"] .season-banner::before{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 43%,rgba(0,0,0,.19),transparent 55%);
+ opacity:1;
+}
+body[data-season="newyear"] .season-banner::after,
+body[data-season="easter"] .season-banner::after,
+body[data-season="mothers"] .season-banner::after,
+body[data-season="fathers"] .season-banner::after,
+body[data-season="valentine"] .season-banner::after,
+body[data-season="junina"] .season-banner::after,
+body[data-season="tree"] .season-banner::after,
+body[data-season="spring"] .season-banner::after,
+body[data-season="birthday"] .season-banner::after,
+body[data-season="christmas"] .season-banner::after{content:"";display:none}
+body[data-season="newyear"] .season-inner,
+body[data-season="easter"] .season-inner,
+body[data-season="mothers"] .season-inner,
+body[data-season="fathers"] .season-inner,
+body[data-season="valentine"] .season-inner,
+body[data-season="junina"] .season-inner,
+body[data-season="tree"] .season-inner,
+body[data-season="spring"] .season-inner,
+body[data-season="birthday"] .season-inner,
+body[data-season="christmas"] .season-inner{
+ position:relative;max-width:760px;padding:12px 22px 0;
+ background:transparent;border:0;box-shadow:none;
+}
+body[data-season="newyear"] .season-inner::before,body[data-season="newyear"] .season-inner::after,
+body[data-season="easter"] .season-inner::before,body[data-season="easter"] .season-inner::after,
+body[data-season="mothers"] .season-inner::before,body[data-season="mothers"] .season-inner::after,
+body[data-season="fathers"] .season-inner::before,body[data-season="fathers"] .season-inner::after,
+body[data-season="valentine"] .season-inner::before,body[data-season="valentine"] .season-inner::after,
+body[data-season="junina"] .season-inner::before,body[data-season="junina"] .season-inner::after,
+body[data-season="tree"] .season-inner::before,body[data-season="tree"] .season-inner::after,
+body[data-season="spring"] .season-inner::before,body[data-season="spring"] .season-inner::after,
+body[data-season="birthday"] .season-inner::before,body[data-season="birthday"] .season-inner::after,
+body[data-season="christmas"] .season-inner::before,body[data-season="christmas"] .season-inner::after{content:none;display:none}
+body[data-season="newyear"] .season-banner .season-decor,body[data-season="easter"] .season-banner .season-decor,
+body[data-season="mothers"] .season-banner .season-decor,body[data-season="fathers"] .season-banner .season-decor,
+body[data-season="valentine"] .season-banner .season-decor,body[data-season="junina"] .season-banner .season-decor,
+body[data-season="tree"] .season-banner .season-decor,body[data-season="spring"] .season-banner .season-decor,
+body[data-season="birthday"] .season-banner .season-decor,body[data-season="christmas"] .season-banner .season-decor{display:none}
+body[data-season="newyear"] .season-banner h2,body[data-season="easter"] .season-banner h2,
+body[data-season="mothers"] .season-banner h2,body[data-season="fathers"] .season-banner h2,
+body[data-season="valentine"] .season-banner h2,body[data-season="junina"] .season-banner h2,
+body[data-season="tree"] .season-banner h2,body[data-season="spring"] .season-banner h2,
+body[data-season="birthday"] .season-banner h2,body[data-season="christmas"] .season-banner h2{
+ color:#f8e5ae;font:700 clamp(35px,5vw,65px)/1.06 Georgia,serif;
+ text-shadow:0 4px 15px rgba(0,0,0,.65);margin:16px 0;
+}
+body[data-season="newyear"] .season-banner p,body[data-season="easter"] .season-banner p,
+body[data-season="mothers"] .season-banner p,body[data-season="fathers"] .season-banner p,
+body[data-season="valentine"] .season-banner p,body[data-season="junina"] .season-banner p,
+body[data-season="tree"] .season-banner p,body[data-season="spring"] .season-banner p,
+body[data-season="birthday"] .season-banner p,body[data-season="christmas"] .season-banner p{
+ color:#fff8e6;text-shadow:0 2px 10px #000;max-width:650px;font-size:16px;
+}
+body[data-season="newyear"] .season-banner a,body[data-season="easter"] .season-banner a,
+body[data-season="mothers"] .season-banner a,body[data-season="fathers"] .season-banner a,
+body[data-season="valentine"] .season-banner a,body[data-season="junina"] .season-banner a,
+body[data-season="tree"] .season-banner a,body[data-season="spring"] .season-banner a,
+body[data-season="birthday"] .season-banner a,body[data-season="christmas"] .season-banner a{
+ background:linear-gradient(#fff1bd,#e5bc69);color:#16251b;
+ border:1px solid #e5c275;box-shadow:0 4px 18px #0007;
+}
+body[data-season="newyear"] .season-countdown strong,body[data-season="easter"] .season-countdown strong,
+body[data-season="mothers"] .season-countdown strong,body[data-season="fathers"] .season-countdown strong,
+body[data-season="valentine"] .season-countdown strong,body[data-season="junina"] .season-countdown strong,
+body[data-season="tree"] .season-countdown strong,body[data-season="spring"] .season-countdown strong,
+body[data-season="birthday"] .season-countdown strong,body[data-season="christmas"] .season-countdown strong{
+ background:rgba(6,24,19,.74);border:1px solid #d6b570;color:#f7d486;
+ box-shadow:0 3px 14px #0006;
+}
+body[data-season="newyear"] .season-banner .raiz-gold-wave,body[data-season="easter"] .season-banner .raiz-gold-wave,
+body[data-season="mothers"] .season-banner .raiz-gold-wave,body[data-season="fathers"] .season-banner .raiz-gold-wave,
+body[data-season="valentine"] .season-banner .raiz-gold-wave,body[data-season="junina"] .season-banner .raiz-gold-wave,
+body[data-season="tree"] .season-banner .raiz-gold-wave,body[data-season="spring"] .season-banner .raiz-gold-wave,
+body[data-season="birthday"] .season-banner .raiz-gold-wave,body[data-season="christmas"] .season-banner .raiz-gold-wave{
+ display:block;position:absolute;bottom:-1px;left:0;right:0;height:46px;
+ background:url("./assets/onda-dourada.svg") center bottom / 100% 100% no-repeat;
+ pointer-events:none;z-index:2;
+}
+@media(max-width:650px){
+ body[data-season="newyear"] .season-banner,body[data-season="easter"] .season-banner,
+ body[data-season="mothers"] .season-banner,body[data-season="fathers"] .season-banner,
+ body[data-season="valentine"] .season-banner,body[data-season="junina"] .season-banner,
+ body[data-season="tree"] .season-banner,body[data-season="spring"] .season-banner,
+ body[data-season="birthday"] .season-banner,body[data-season="christmas"] .season-banner{
+  padding:33px 12px 65px;min-height:430px;background-size:cover;background-position:center;
+ }
+ body[data-season="newyear"] .season-banner h2,body[data-season="easter"] .season-banner h2,
+ body[data-season="mothers"] .season-banner h2,body[data-season="fathers"] .season-banner h2,
+ body[data-season="valentine"] .season-banner h2,body[data-season="junina"] .season-banner h2,
+ body[data-season="tree"] .season-banner h2,body[data-season="spring"] .season-banner h2,
+ body[data-season="birthday"] .season-banner h2,body[data-season="christmas"] .season-banner h2{font-size:35px}
+ body[data-season="newyear"] .season-banner .raiz-gold-wave,body[data-season="easter"] .season-banner .raiz-gold-wave,
+ body[data-season="mothers"] .season-banner .raiz-gold-wave,body[data-season="fathers"] .season-banner .raiz-gold-wave,
+ body[data-season="valentine"] .season-banner .raiz-gold-wave,body[data-season="junina"] .season-banner .raiz-gold-wave,
+ body[data-season="tree"] .season-banner .raiz-gold-wave,body[data-season="spring"] .season-banner .raiz-gold-wave,
+ body[data-season="birthday"] .season-banner .raiz-gold-wave,body[data-season="christmas"] .season-banner .raiz-gold-wave{height:31px}
+}
+
 </style>
 </head>
 <body>
@@ -1218,6 +1356,12 @@ const botao = elemento("a", "buy", textoBotao);
   const selector=document.getElementById('season-mode');
   document.querySelectorAll('[data-garimpo-category]').forEach(btn=>btn.addEventListener('click',()=>{const category=btn.dataset.garimpoCategory;const filter=[...document.querySelectorAll('[data-categoria]')].find(el=>el.dataset.categoria===category);if(filter)filter.click();document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});}));
   const content={
+    newyear:{kicker:'✨ Especial • Ano-Novo',title:'Novos começos, novas raízes',description:'Celebre o novo ano com natureza, chás e ideias para cultivar bem-estar.',link:'Explorar produtos naturais'},
+    easter:{kicker:'🐰 Especial • Páscoa',title:'Uma Páscoa com carinho e natureza',description:'Flores, presentes e pequenos momentos de aconchego para celebrar a vida.',link:'Conhecer sugestões naturais'},
+    mothers:{kicker:'🌷 Especial • Dia das Mães',title:'Todo carinho floresce',description:'Flores, chás e presentes para homenagear quem cuida com amor.',link:'Descobrir presentes especiais'},
+    fathers:{kicker:'🌿 Especial • Dia dos Pais',title:'Cultivando bons momentos juntos',description:'Presentes, jardinagem e produtos naturais para celebrar o Dia dos Pais.',link:'Explorar sugestões'},
+    tree:{kicker:'🌳 Especial • Dia da Árvore',title:'Cuidar da natureza é cultivar o futuro',description:'Sementes, plantas e ideias para celebrar as árvores e o meio ambiente.',link:'Explorar jardinagem'},
+    spring:{kicker:'🌸 Especial • Primavera',title:'A estação das flores chegou',description:'Descubra flores, sementes e inspirações para renovar seu jardim.',link:'Conhecer produtos para jardim'},
     black:{kicker:'🌿 Temporada especial • Novembro',title:'Black Friday Raiz Ancestral',description:'Chás, ervas e suplementos em uma vitrine pensada para facilitar sua pesquisa. Compare opções e confira os preços e condições diretamente nas lojas parceiras.',link:'Conhecer produtos naturais'},
     christmas:{kicker:'🎄 Temporada especial • Dezembro',title:'Um Natal mais natural e cheio de carinho',description:'Descubra chás, produtos naturais e ideias de presentes para compartilhar momentos especiais. Consulte preços e disponibilidade nas lojas parceiras.',link:'Explorar presentes e produtos'},
     valentine:{kicker:'🌹 Especial • Dia dos Namorados',title:'Cultive carinho e bons momentos',description:'Flores, jardins e sugestões naturais para demonstrar afeto. Confira as condições na loja parceira.',link:'Descobrir sugestões naturais'},
@@ -1228,16 +1372,48 @@ const botao = elemento("a", "buy", textoBotao);
   const label=document.getElementById('countdown-label');
   const pad=n=>String(n).padStart(2,'0');
   let lastSeason='';
-  // A V11 mantém suas janelas originais de Black Friday (novembro) e Natal (dezembro até 25).
-  // As três campanhas novas começam dez dias antes e terminam ao final da própria data.
+  // Calendário V12: datas móveis no Brasil, sem alterar relógio nem servidor.
+  function easterDate(year){
+    const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4;
+    const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
+    const h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4;
+    const l=(32+2*e+2*i-h-k+7)%7,m=Math.floor((a+11*h+22*l)/451);
+    const month=Math.floor((h+l-7*m+114)/31)-1;
+    const day=((h+l-7*m+114)%31)+1;
+    return new Date(year,month,day,0,0,0);
+  }
+  function blackFridayDate(year){const firstFriday=1+(5-new Date(year,10,1).getDay()+7)%7;return new Date(year,10,firstFriday+21,0,0,0);}
+  function nthSunday(year,month,n){
+    const dayOne=new Date(year,month,1).getDay();
+    return new Date(year,month,1+(7-dayOne)%7+7*(n-1));
+  }
+  function calendarDates(year){return {
+    newyear:new Date(year,0,1),easter:easterDate(year),mothers:nthSunday(year,4,2),
+    valentine:new Date(year,5,12),junina:new Date(year,5,24),fathers:nthSunday(year,7,2),
+    tree:new Date(year,8,21),spring:new Date(year,8,22),birthday:new Date(year,9,25),
+    black:blackFridayDate(year),christmas:new Date(year,11,25)
+  };}
   function automaticSeason(now){
-    const m=now.getMonth(),d=now.getDate();
+    const y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
+    // Preservar as janelas já aprovadas: Black Friday em novembro e Natal até 25/12.
     if(m===10)return 'black';
     if(m===11&&d<=25)return 'christmas';
-    const janela=(mes,dia)=>{const inicio=new Date(now.getFullYear(),mes,dia-10,0,0,0);const fim=new Date(now.getFullYear(),mes,dia+1,0,0,0);return now>=inicio&&now<fim;};
-    if(janela(5,12))return 'valentine';
-    if(janela(5,24))return 'junina';
-    if(janela(9,25))return 'birthday';
+    const today=new Date(y,m,d);
+    const dates=calendarDates(y);
+    // Ano-Novo começa depois do Natal, e continua até 1/1.
+    const newyearPrev=new Date(y-1,0,1);
+    const newyearNext=new Date(y+1,0,1);
+    const inWindow=(date,days=10)=>{
+      const start=new Date(date.getFullYear(),date.getMonth(),date.getDate()-days);
+      const end=new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
+      return today>=start&&today<end;
+    };
+    if(inWindow(dates.newyear)||inWindow(newyearNext)||inWindow(newyearPrev))return 'newyear';
+    // Dia da Árvore e Primavera se sobrepõem: Dia da Árvore até 21/9, Primavera a partir de 22/9.
+    if(inWindow(dates.tree))return 'tree';
+    if(inWindow(dates.spring))return 'spring';
+    const order=['easter','mothers','valentine','junina','fathers','birthday'];
+    for(const key of order){if(inWindow(dates[key]))return key;}
     return 'normal';
   }
   function apply(value,now=new Date()){
@@ -1255,8 +1431,8 @@ const botao = elemento("a", "buy", textoBotao);
     const now=new Date();const season=apply("auto",now);
     let target;
     if(season==='black'){
-      target=new Date(now.getFullYear(),10,27,0,0,0);
-      const end=new Date(now.getFullYear(),10,28,0,0,0);
+      target=blackFridayDate(now.getFullYear());
+      const end=new Date(target.getFullYear(),target.getMonth(),target.getDate()+1,0,0,0);
       if(now>=end){countdown.style.display='none';return;}
       if(now>=target){label.textContent='Black Friday chegou!';['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>document.getElementById(id).textContent='00');countdown.style.display='flex';return;}
       label.textContent='Faltam para a Black Friday';
@@ -1266,13 +1442,19 @@ const botao = elemento("a", "buy", textoBotao);
       if(now>=target){countdown.style.display='none';return;}
       label.textContent='Faltam para o Natal';
       countdown.setAttribute('aria-label','Contagem regressiva para o Natal');
-    }else if(season==='valentine'||season==='junina'||season==='birthday'){
-      const eventos={valentine:{mes:5,dia:12,rotulo:'o Dia dos Namorados'},junina:{mes:5,dia:24,rotulo:'a Festa Junina'},birthday:{mes:9,dia:25,rotulo:'o aniversário do Raiz Ancestral'}};
-      const evento=eventos[season];
-      target=new Date(now.getFullYear(),evento.mes,evento.dia,0,0,0);
+    }else if(['newyear','easter','mothers','valentine','junina','fathers','tree','spring','birthday'].includes(season)){
+      const y=now.getFullYear();
+      const dates=calendarDates(y);
+      let t=dates[season];
+      if(season==='newyear'&&now>dates.newyear)t=calendarDates(y+1).newyear;
+      // Em modo manual, testar datas futuras sem esconder o contador.
+      const labels={newyear:'o Ano-Novo',easter:'a Páscoa',mothers:'o Dia das Mães',
+        valentine:'o Dia dos Namorados',junina:'a Festa Junina',fathers:'o Dia dos Pais',
+        tree:'o Dia da Árvore',spring:'a Primavera',birthday:'o aniversário do Raiz Ancestral'};
+      target=t;
       if(now>=target){countdown.style.display='none';return;}
-      label.textContent='Faltam para '+evento.rotulo;
-      countdown.setAttribute('aria-label','Contagem regressiva para '+evento.rotulo);
+      label.textContent='Faltam para '+labels[season];
+      countdown.setAttribute('aria-label','Contagem regressiva para '+labels[season]);
     }else{countdown.style.display='none';return;}
     countdown.style.display='flex';
     let remaining=Math.max(0,Math.floor((target-now)/1000));
