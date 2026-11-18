@@ -408,6 +408,12 @@ body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231
 .raiz-admin-close{position:absolute;top:10px;right:12px;border:0;background:none;font-size:28px;cursor:pointer}
 .raiz-admin-status{font-size:13px;margin:12px 0 0;min-height:20px}
 .raiz-test-exit{background:#643c30!important;color:white!important}
+
+/* V12 Etapa 6 — proteção visual: testes somente após autorização. */
+body:not([data-preview-admin="true"]) .season-toolbar{display:none!important}
+body:not([data-preview-admin="true"]) #season-mode{display:none!important}
+body:not([data-preview-admin="true"]) .raiz-test-exit{display:none!important}
+body:not([data-preview-admin="true"]) .season-banner{display:none!important}
 </style>
 </head>
 <body>
@@ -954,7 +960,7 @@ const botao = elemento("a", "buy", textoBotao);
   </script>
 <div id="raiz-admin-modal" class="raiz-admin-modal" role="dialog" aria-modal="true" aria-labelledby="raiz-admin-title" hidden>
   <section class="raiz-admin-panel">
-    <button type="button" id="raiz-admin-close" class="raiz-admin-close" aria-label="Fechar acesso administrativo">×</button>
+    
     <h2 id="raiz-admin-title">🌿 Acesso administrativo</h2>
     <p style="font-size:13px;margin:0 0 12px"><a href="../index.html">← Voltar ao site público</a></p>
     <form id="raiz-admin-form" autocomplete="on">
@@ -987,9 +993,7 @@ const botao = elemento("a", "buy", textoBotao);
   }
   // Login exclusivo da rota /admin/; não há botão no site público.
   setModal(true);
-  close.addEventListener('click',()=>setModal(false));
-  modal.addEventListener('click',e=>{if(e.target===modal)setModal(false)});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)setModal(false)});
+  // Sem fechar a tela de login antes de uma autorização válida.
   form.addEventListener('submit',async e=>{
     e.preventDefault();submit.disabled=true;status.textContent='Verificando acesso...';
     const email=document.getElementById('raiz-admin-email').value.trim();
@@ -1084,6 +1088,8 @@ const botao = elemento("a", "buy", textoBotao);
           [botaoTeste,rotuloData,entradaData,limparData,avisoTeste,sair].forEach(n=>n.remove());
           selector.value='auto';selector.dispatchEvent(new Event('change',{bubbles:true}));
           document.body.removeAttribute('data-preview-admin');
+          document.getElementById('raiz-admin-modal').hidden=false;
+          document.getElementById('raiz-admin-email').focus();
         });
       }
     }
@@ -1147,8 +1153,8 @@ const botao = elemento("a", "buy", textoBotao);
     const mins=Math.floor(remaining/60),secs=remaining%60;
     [['cd-days',days],['cd-hours',hours],['cd-mins',mins],['cd-secs',secs]].forEach(([id,n])=>document.getElementById(id).textContent=pad(n));
   }
-  selector.addEventListener('change',()=>{lastSeason='';updateCountdown();});
-  updateCountdown();setInterval(updateCountdown,1000);
+  selector.addEventListener('change',()=>{if(!adminTestsUnlocked){selector.value='auto';return;}lastSeason='';updateCountdown();});
+  updateCountdown();setInterval(()=>{if(adminTestsUnlocked)updateCountdown();},1000);
 })();
 </script>
 </body></html>
