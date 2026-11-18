@@ -1527,6 +1527,14 @@ const botao = elemento("a", "buy", textoBotao);
       avisoTeste.textContent = 'Prévia apenas neste navegador — sem salvar alterações';
       avisoTeste.style.cssText = 'font-size:11px;color:#705c41';
       barraTeste.append(rotuloData, entradaData, limparData, avisoTeste);
+      // V12 Etapa 13 — painel informativo apenas após login autorizado.
+      const plano = document.createElement('div');
+      plano.id='raiz-automation-status';
+      plano.setAttribute('role','status');
+      plano.setAttribute('aria-live','polite');
+      plano.style.cssText='flex-basis:100%;max-width:1040px;text-align:center;font:600 12px/1.6 Arial,sans-serif;color:#31503c;padding:8px 12px;border-top:1px solid #d7c8ac';
+      plano.textContent='Calendário automático: preparando resumo...';
+      barraTeste.append(plano);
       entradaData.addEventListener('change', () => {
         if (selector.value !== 'auto') selector.value = 'auto';
         selector.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1543,7 +1551,7 @@ const botao = elemento("a", "buy", textoBotao);
         sair.addEventListener('click',()=>{
           adminTestsUnlocked=false;controlsInstalled=false;
           barraTeste.style.removeProperty('display');
-          [botaoTeste,rotuloData,entradaData,limparData,avisoTeste,sair].forEach(n=>n.remove());
+          [botaoTeste,rotuloData,entradaData,limparData,avisoTeste,plano,sair].forEach(n=>n.remove());
           selector.value='auto';selector.dispatchEvent(new Event('change',{bubbles:true}));
           document.body.removeAttribute('data-preview-admin');
           document.getElementById('raiz-admin-modal').hidden=false;
@@ -1553,7 +1561,7 @@ const botao = elemento("a", "buy", textoBotao);
     }
   }
   if(adminTestsUnlocked)activateTests();
-  window.addEventListener('raiz:admin-tests-unlocked',()=>{adminTestsUnlocked=true;activateTests()});
+  window.addEventListener('raiz:admin-tests-unlocked',()=>{adminTestsUnlocked=true;activateTests();updateCountdown()});
   document.querySelectorAll('[data-garimpo-category]').forEach(btn=>btn.addEventListener('click',()=>{const category=btn.dataset.garimpoCategory;const filter=[...document.querySelectorAll('[data-categoria]')].find(el=>el.dataset.categoria===category);if(filter)filter.click();document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});}));
   const content={
     newyear:{kicker:'✨ Especial • Ano-Novo',title:'Novos começos, novas raízes',description:'Celebre o novo ano com natureza, chás e ideias para cultivar bem-estar.',link:'Explorar produtos naturais'},
@@ -1608,10 +1616,12 @@ const botao = elemento("a", "buy", textoBotao);
       const end=new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
       return today>=start&&today<end;
     };
+    // Virada do ano: 26-31 de dezembro e preparação para 1º de janeiro.
+    if(m===11&&d>=26)return 'newyear';
     if(inWindow(dates.newyear)||inWindow(newyearNext)||inWindow(newyearPrev))return 'newyear';
-    // Dia da Árvore e Primavera se sobrepõem: Dia da Árvore até 21/9, Primavera a partir de 22/9.
-    if(inWindow(dates.tree))return 'tree';
-    if(inWindow(dates.spring))return 'spring';
+    // Sem sobreposição: Dia da Árvore até 21/9 e Primavera de 22/9 em diante.
+    if(m===8&&d>=12&&d<=21)return 'tree';
+    if(m===8&&d>=22&&d<=23)return 'spring';
     const order=['easter','mothers','valentine','junina','fathers','birthday'];
     for(const key of order){if(inWindow(dates[key]))return key;}
     return 'normal';
@@ -1640,8 +1650,28 @@ const botao = elemento("a", "buy", textoBotao);
     }
     return new Date();
   }
+  function updateAutomationStatus(now, season){
+    if(!adminTestsUnlocked)return;
+    const el=document.getElementById('raiz-automation-status');
+    if(!el)return;
+    const atual=content[season] ? content[season].title : 'Visual original';
+    const dates=[now.getFullYear(),now.getFullYear()+1].flatMap(year=>
+      Object.entries(calendarDates(year)).map(([key,date])=>({key,date})));
+    const hoje=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const next=dates.filter(x=>x.date>hoje).sort((a,b)=>a.date-b.date)[0];
+    const labels={newyear:'Ano-Novo',easter:'Páscoa',mothers:'Dia das Mães',
+      valentine:'Dia dos Namorados',junina:'Festa Junina',fathers:'Dia dos Pais',
+      tree:'Dia da Árvore',spring:'Primavera',birthday:'Aniversário do site',
+      black:'Black Friday',christmas:'Natal'};
+    const dataStr=next?next.date.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}):'—';
+    const dias=next?Math.round((Date.UTC(next.date.getFullYear(),next.date.getMonth(),next.date.getDate())-Date.UTC(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()))/86400000):0;
+    const modo=selector.value==='auto'?'Automático pela data':'Prévia manual';
+    el.textContent='⚙️ Automação: '+modo+' | Visual exibido: '+atual+
+      (next?' | Próxima data: '+labels[next.key]+' — '+dataStr+' (em '+dias+' dia'+(dias===1?'':'s')+')':'');
+  }
   function updateCountdown(){
     const now=dataDaPrevia();const season=apply(selector.value,now);
+    updateAutomationStatus(now,season);
     let target;
     if(season==='black'){
       target=blackFridayDate(now.getFullYear());
