@@ -840,6 +840,32 @@ body[data-season="tree"] .season-banner .season-inner{position:relative;z-index:
  body[data-season="christmas"] .season-banner {background-size:cover}
 }
 
+
+/* RAIZ ANCESTRAL V12 — ETAPA 12: ajuste pontual após troca das 5 imagens.
+   Sem mudanças no calendário, no JavaScript, no catálogo ou nos elementos de login. */
+body[data-season="newyear"] .season-banner,
+body[data-season="easter"] .season-banner,
+body[data-season="mothers"] .season-banner,
+body[data-season="fathers"] .season-banner,
+body[data-season="christmas"] .season-banner {
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+/* Preservar a onda dourada e deixar títulos, botões e contadores acima da arte. */
+body[data-season="newyear"] .season-banner .season-inner,
+body[data-season="easter"] .season-banner .season-inner,
+body[data-season="mothers"] .season-banner .season-inner,
+body[data-season="fathers"] .season-banner .season-inner,
+body[data-season="christmas"] .season-banner .season-inner {position:relative;z-index:2;}
+@media (max-width:650px) {
+  body[data-season="newyear"] .season-banner,
+  body[data-season="easter"] .season-banner,
+  body[data-season="mothers"] .season-banner,
+  body[data-season="fathers"] .season-banner,
+  body[data-season="christmas"] .season-banner {background-size:cover;background-position:center center;}
+}
+
 </style>
 </head>
 <body>
