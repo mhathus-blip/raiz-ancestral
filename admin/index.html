@@ -1000,6 +1000,15 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
     <button type="button" id="raiz-prod-load">Buscar</button>
     <button type="button" id="raiz-prod-new" class="subtle">+ Novo produto</button>
   </div>
+  <div style="padding:14px;border:1px solid #e5d9be;border-radius:12px;background:#f7f5ea">
+    <label for="raiz-prod-import-link" style="display:block;font-weight:700;margin-bottom:7px">🔗 Adicionar produto pelo link (Shopee ou Amazon)</label>
+    <div class="toolbar" style="margin:0">
+      <label style="flex:1"><input id="raiz-prod-import-link" type="url" placeholder="Cole o link HTTPS do anúncio ou afiliado" maxlength="1800" aria-label="Link do produto"></label>
+      <button type="button" id="raiz-prod-import">Preparar cadastro</button>
+    </div>
+    <small>Preenche automaticamente a loja, o link e os identificadores reconhecíveis. Nome e outros dados só serão sugeridos quando constarem no endereço; confira tudo antes de salvar. Links encurtados podem exigir preenchimento manual. Não consulta nem inventa preços.</small>
+    <div id="raiz-prod-import-status" class="status" aria-live="polite"></div>
+  </div>
   <div id="raiz-prod-status" class="status" role="status" aria-live="polite">Entre como administrador para consultar.</div>
   <div id="raiz-prod-list"></div>
   <div class="actions"><button type="button" id="raiz-prod-prev" class="subtle">← Anterior</button><span id="raiz-prod-page" style="align-self:center">Página 1</span><button type="button" id="raiz-prod-next" class="subtle">Próxima →</button></div>
@@ -2174,6 +2183,37 @@ function show(product){
 by('raiz-prod-load').addEventListener('click',()=>{page=1;load()});
 by('raiz-prod-search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();page=1;load()}});
 by('raiz-prod-new').addEventListener('click',()=>show(null));
+by('raiz-prod-import').addEventListener('click',()=>{
+ const out=by('raiz-prod-import-status');
+ const raw=by('raiz-prod-import-link').value.trim();
+ let u;try{u=new URL(raw)}catch{out.textContent='Informe uma URL HTTPS válida.';return}
+ if(u.protocol!=='https:'||u.username||u.password){out.textContent='Somente links HTTPS são aceitos.';return}
+ const host=u.hostname.toLowerCase();
+ const shopee=['shopee.com.br','www.shopee.com.br','s.shopee.com.br'].includes(host);
+ const amazon=['amazon.com.br','www.amazon.com.br','amzn.to','a.co'].includes(host);
+ if(!shopee&&!amazon){out.textContent='Por segurança, use links da Shopee ou Amazon Brasil.';return}
+ const shop=shopee?'Shopee':'Amazon';
+ const match=shopee?u.pathname.match(/-i\.(\d{3,20})\.(\d{3,20})(?:\/|$)/i):null;
+ const item=match?.[2]||'';
+ const parts=u.pathname.split('/').filter(Boolean);
+ let suggested='';
+ if(shopee&&match){
+  const slug=parts.find(x=>/-i\.\d+\.\d+/i.test(x));
+  suggested=slug?slug.replace(/-i\.\d+\.\d+.*/i,'').replace(/[-_]+/g,' '):'';
+ }else if(amazon){
+  const dp=parts.findIndex(x=>x.toLowerCase()==='dp');
+  const gp=parts.findIndex(x=>x.toLowerCase()==='product');
+  const idx=dp>=0?dp:gp;
+  if(idx>0)suggested=parts[idx-1].replace(/[-_]+/g,' ');
+ }
+ if(!suggested||suggested.length<6||/^\d+$/.test(suggested))suggested='';
+ show(null);
+ form.elements.namedItem('loja').value=shop;
+ form.elements.namedItem('link_afiliado').value=raw;
+ if(item)form.elements.namedItem('shopee_product_id').value=item;
+ if(suggested)form.elements.namedItem('nome').value=decodeURIComponent(suggested).replace(/\s+/g,' ').slice(0,250);
+ out.textContent='Pré-cadastro preparado para '+shop+'. '+(suggested?'Nome sugerido a partir do link; confirme com o anúncio. ':'Preencha o nome manualmente. ')+'Informe a categoria e revise os demais campos. O produto só será salvo após sua confirmação, como rascunho.';
+});
 by('raiz-prod-prev').addEventListener('click',()=>{if(page>1){page--;load()}});
 by('raiz-prod-next').addEventListener('click',()=>{if(hasNext){page++;load()}});
 by('raiz-prod-cancel').addEventListener('click',()=>{form.hidden=true;editing=null});
