@@ -925,6 +925,29 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 #raiz-shopee-api-preview table{width:100%;border-collapse:collapse;background:white;font:13px Arial,sans-serif}
 #raiz-shopee-api-preview th,#raiz-shopee-api-preview td{padding:9px;border-bottom:1px solid #e0d8c8;text-align:left}
 #raiz-shopee-api-preview .scroll{max-width:100%;overflow:auto}
+/* ETAPA 19 — gerenciamento administrativo responsivo de produtos */
+#raiz-gerenciar-produtos[hidden]{display:none!important}
+#raiz-gerenciar-produtos{max-width:1120px;margin:20px auto;padding:22px;border:1px solid #dbcdb4;background:#fffaf1;color:#264330;border-radius:18px}
+#raiz-gerenciar-produtos h2{font:700 clamp(23px,3.4vw,30px) Georgia,serif;margin:0 0 8px}
+#raiz-gerenciar-produtos p{line-height:1.5}
+#raiz-gerenciar-produtos .raiz-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#raiz-gerenciar-produtos label{display:flex;flex-direction:column;gap:5px;font:600 13px Arial,sans-serif}
+#raiz-gerenciar-produtos input,#raiz-gerenciar-produtos select,#raiz-gerenciar-produtos textarea{width:100%;padding:10px;border-radius:9px;border:1px solid #c8bb9f;background:white;color:#263e31;font:14px Arial,sans-serif}
+#raiz-gerenciar-produtos textarea{min-height:90px}
+#raiz-gerenciar-produtos button{border:0;border-radius:24px;background:#305b3b;color:white;padding:11px 16px;font:700 13px Arial,sans-serif;cursor:pointer}
+#raiz-gerenciar-produtos button[disabled]{opacity:.5;cursor:not-allowed}
+#raiz-gerenciar-produtos .subtle{background:#e4e8d9;color:#23472f}
+#raiz-gerenciar-produtos .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:18px 0}
+#raiz-gerenciar-produtos .toolbar label{flex:1;min-width:180px}
+#raiz-gerenciar-produtos .prod-row{display:flex;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid #e7ddca;padding:13px 4px}
+#raiz-gerenciar-produtos .prod-row .meta{flex:1;min-width:0}
+#raiz-gerenciar-produtos .prod-row b{display:block;overflow-wrap:anywhere}
+#raiz-gerenciar-produtos .prod-row small{color:#786b5d}
+#raiz-gerenciar-produtos .prod-row button{flex-shrink:0}
+#raiz-gerenciar-produtos .status{padding:10px 0;min-height:34px}
+#raiz-gerenciar-produtos .actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+#raiz-gerenciar-produtos .wide{grid-column:1/-1}
+@media(max-width:620px){#raiz-gerenciar-produtos{padding:16px;margin:16px 10px}#raiz-gerenciar-produtos .raiz-admin-grid{grid-template-columns:1fr}#raiz-gerenciar-produtos .prod-row{align-items:flex-start}#raiz-gerenciar-produtos .prod-row button{padding:9px 12px}}
 </style>
 </head>
 <body>
@@ -968,6 +991,35 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
  <p id="raiz-shopee-api-state" role="status" aria-live="polite">Nenhuma consulta realizada.</p>
  <div class="scroll"><table id="raiz-shopee-api-table" hidden><thead><tr><th>ID</th><th>Produto</th><th>Resultado</th><th>Preço mínimo</th><th>Preço máximo</th></tr></thead><tbody></tbody></table></div>
  <p style="font-size:12px;color:#766955">Links encurtados podem não revelar o ID do anúncio; nesse caso não será atribuído preço. Confira o anúncio antes de qualquer atualização futura.</p>
+</section>
+<section id="raiz-gerenciar-produtos" hidden aria-label="Gerenciar produtos">
+  <h2>🌿 Gerenciamento de produtos</h2>
+  <p>Cadastre novos produtos como <strong>rascunhos inativos</strong>, edite informações ou ative/desative anúncios com confirmação. As alterações aprovadas afetam o catálogo compartilhado com o site público.</p>
+  <div class="toolbar">
+    <label>Buscar pelo nome<input id="raiz-prod-search" type="search" placeholder="Ex.: camomila, fertilizante"></label>
+    <button type="button" id="raiz-prod-load">Buscar</button>
+    <button type="button" id="raiz-prod-new" class="subtle">+ Novo produto</button>
+  </div>
+  <div id="raiz-prod-status" class="status" role="status" aria-live="polite">Entre como administrador para consultar.</div>
+  <div id="raiz-prod-list"></div>
+  <div class="actions"><button type="button" id="raiz-prod-prev" class="subtle">← Anterior</button><span id="raiz-prod-page" style="align-self:center">Página 1</span><button type="button" id="raiz-prod-next" class="subtle">Próxima →</button></div>
+  <form id="raiz-prod-form" hidden>
+    <h3 id="raiz-prod-form-title">Novo produto (rascunho)</h3>
+    <div class="raiz-admin-grid">
+      <label>Nome *<input name="nome" required maxlength="250"></label>
+      <label>Loja *<input name="loja" required maxlength="55" placeholder="Shopee, Amazon..."></label>
+      <label>Categoria *<input name="categoria" required maxlength="100"></label>
+      <label>Preço (R$, opcional)<input name="preco" type="number" min="0.01" max="1000000" step="0.01" placeholder="Sem preço: deixe vazio"></label>
+      <label class="wide">Link afiliado HTTPS *<input name="link_afiliado" type="url" required maxlength="1800"></label>
+      <label class="wide">URL da imagem HTTPS<input name="imagem_url" type="url" maxlength="1800"></label>
+      <label class="wide">Descrição<textarea name="descricao" maxlength="2000"></textarea></label>
+      <label>ID do produto Shopee (opcional)<input name="shopee_product_id" maxlength="60"></label>
+      <label>Visibilidade<select name="ativo"><option value="false">Inativo / Rascunho</option><option value="true">Ativo / Público</option></select></label>
+      <label>Destaque<select name="destaque"><option value="false">Não</option><option value="true">Sim</option></select></label>
+    </div>
+    <div class="actions"><button id="raiz-prod-save" type="submit">Salvar produto</button><button id="raiz-prod-cancel" type="button" class="subtle">Cancelar edição</button></div>
+    <p style="font-size:12px;color:#746752">Novos produtos são criados inativos, mesmo que a opção de visibilidade esteja marcada; ative-os depois de revisar.</p>
+  </form>
 </section>
 <section id="catalogo" class="section" aria-labelledby="titulo-catalogo"><div class="section-head"><div><h2 id="titulo-catalogo">🍃 Produtos selecionados</h2><p class="section-sub">Confira nossas indicações e visite as lojas parceiras.</p></div></div><div class="busca-produtos" style="margin:20px 0;">
   <label for="busca-produtos">🔎 Encontre o que procura</label>
@@ -2060,6 +2112,96 @@ const botao = elemento("a", "buy", textoBotao);
   }catch(e){state.textContent=`Consulta interrompida após ${completed} registros: ${e.message}. Nenhum dado foi alterado.`;}
   finally{running=false;available();}
  });
+})();
+</script>
+<script>
+/* Raiz Ancestral V12 — Etapa 19, painel administrativo de produtos */
+(function(){
+'use strict';
+const by=id=>document.getElementById(id);
+const root=by('raiz-gerenciar-produtos'),form=by('raiz-prod-form'),list=by('raiz-prod-list');
+if(!root||!form)return;
+let token='',page=1,hasNext=false,editing=null,rows=[],working=false;
+const status=message=>{by('raiz-prod-status').textContent=message};
+const money=v=>v==null||v===''?'Consultar preço na loja':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+async function api(method,data,query=''){
+ const opts={method,headers:{Authorization:'Bearer '+token},cache:'no-store'};
+ if(method!=='GET'){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(data)}
+ const response=await fetch('/api/produtos-admin'+query,opts);
+ const result=await response.json();
+ if(!response.ok)throw new Error(result.erro||'Falha na operação.');
+ return result;
+}
+function freeze(state){
+ working=state;for(const id of ['raiz-prod-load','raiz-prod-new','raiz-prod-save','raiz-prod-prev','raiz-prod-next'])by(id).disabled=state;
+}
+async function load(){
+ if(!token||working)return;
+ freeze(true);status('Carregando produtos...');
+ try{
+  const q=by('raiz-prod-search').value.trim();
+  const data=await api('GET',null,'?page='+page+'&q='+encodeURIComponent(q));
+  rows=data.produtos||[];hasNext=!!data.mais;
+  const fragment=document.createDocumentFragment();
+  for(const product of rows){
+   const row=document.createElement('div');row.className='prod-row';
+   const info=document.createElement('div');info.className='meta';
+   const name=document.createElement('b');name.textContent='#'+product.id+' — '+product.nome;
+   const desc=document.createElement('small');desc.textContent=(product.loja||'')+' · '+money(product.preco)+' · '+(product.ativo?'Ativo':'Inativo')+(product.destaque?' · Destaque':'');
+   info.append(name,desc);
+   const edit=document.createElement('button');edit.type='button';edit.className='subtle';edit.textContent='Editar';
+   edit.addEventListener('click',()=>show(product));
+   row.append(info,edit);fragment.append(row);
+  }
+  list.replaceChildren(fragment);
+  if(!rows.length){const p=document.createElement('p');p.textContent='Nenhum produto encontrado.';list.append(p)}
+  by('raiz-prod-page').textContent='Página '+page;
+  status(rows.length+' produto(s) carregado(s).');
+ }catch(e){status('Erro: '+e.message)}finally{freeze(false);by('raiz-prod-prev').disabled=page<=1;by('raiz-prod-next').disabled=!hasNext}
+}
+function show(product){
+ editing=product?Number(product.id):null;
+ form.reset();
+ by('raiz-prod-form-title').textContent=editing?'Editar produto #'+editing:'Novo produto (rascunho)';
+ for(const key of ['nome','loja','categoria','preco','link_afiliado','imagem_url','descricao','shopee_product_id','ativo','destaque']){
+  const field=form.elements.namedItem(key);
+  if(field)field.value=product?(product[key]??(key==='ativo'||key==='destaque'?'false':'')):'';
+ }
+ if(!product){form.elements.namedItem('ativo').value='false';form.elements.namedItem('destaque').value='false'}
+ else{form.elements.namedItem('ativo').value=String(!!product.ativo);form.elements.namedItem('destaque').value=String(!!product.destaque)}
+ form.hidden=false;form.scrollIntoView({behavior:'smooth',block:'start'});
+}
+by('raiz-prod-load').addEventListener('click',()=>{page=1;load()});
+by('raiz-prod-search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();page=1;load()}});
+by('raiz-prod-new').addEventListener('click',()=>show(null));
+by('raiz-prod-prev').addEventListener('click',()=>{if(page>1){page--;load()}});
+by('raiz-prod-next').addEventListener('click',()=>{if(hasNext){page++;load()}});
+by('raiz-prod-cancel').addEventListener('click',()=>{form.hidden=true;editing=null});
+form.addEventListener('submit',async e=>{
+ e.preventDefault();if(!token||working)return;
+ const values={};
+ for(const key of ['nome','loja','categoria','link_afiliado','imagem_url','descricao','shopee_product_id'])values[key]=String(form.elements.namedItem(key).value||'').trim();
+ values.preco=form.elements.namedItem('preco').value.trim()===''?null:Number(form.elements.namedItem('preco').value);
+ values.ativo=form.elements.namedItem('ativo').value==='true';
+ values.destaque=form.elements.namedItem('destaque').value==='true';
+ const original=rows.find(x=>Number(x.id)===editing);
+ if(editing&&original&&original.ativo!==values.ativo){
+  if(!confirm(values.ativo?'Ativar este produto na vitrine pública?':'Desativar este produto da vitrine pública?'))return;
+ }
+ if(!editing&&values.ativo){if(!confirm('Novo produto será salvo como rascunho inativo. Continuar?'))return}
+ if(!confirm(editing?'Confirmar a atualização deste produto no Supabase?':'Criar este produto como rascunho inativo?'))return;
+ freeze(true);status('Salvando...');
+ try{
+  const r=editing?await api('PATCH',{id:editing,alteracoes:values}):await api('POST',values);
+  status((editing?'Produto atualizado.':'Rascunho criado.')+' ID '+r.produto?.id+'.');
+  form.hidden=true;editing=null;
+ }catch(err){status('Não foi possível salvar: '+err.message)}
+ finally{freeze(false);load()}
+});
+window.addEventListener('raiz:admin-tests-unlocked',e=>{
+ token=String(e.detail?.accessToken||'');
+ if(token){root.hidden=false;load();}
+});
 })();
 </script>
 </body></html>
