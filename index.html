@@ -436,7 +436,7 @@ body[data-season="christmas"] .season-countdown strong{border-color:rgba(255,231
     let ordemAtual = "padrao";
     let lojaAtual = "todas";
     let paginaAtual = 1;
-    const produtosPorPagina = 20;
+    const produtosPorPagina = 40;
     const CHAVE_FAVORITOS = "raiz-ancestral-favoritos-v1";
     let somenteFavoritos = false;
     let favoritos = new Set();
@@ -883,6 +883,25 @@ const botao = elemento("a", "buy", textoBotao);
         const produtosSupabase = await resposta.json();
         if (!Array.isArray(produtosSupabase)) throw new Error("Resposta inválida do catálogo");
         produtos = produtosSupabase;
+        // V12: reconhecer lojas adicionais sem alterar as lojas ou produtos atuais.
+        // Usa somente nomes das lojas presentes em produtos já aprovados.
+        const filtroLojas = document.getElementById("filtrar-loja");
+        const lojasCadastradas = new Map();
+        produtos.forEach(produto => {
+          const nomeLoja = String(produto.loja || "").trim();
+          const chaveLoja = normalizarBusca(nomeLoja);
+          if (chaveLoja && !lojasCadastradas.has(chaveLoja)) {
+            lojasCadastradas.set(chaveLoja, nomeLoja);
+          }
+        });
+        lojasCadastradas.forEach((nomeLoja, chaveLoja) => {
+          if (![...filtroLojas.options].some(opcao => opcao.value === chaveLoja)) {
+            const opcao = document.createElement("option");
+            opcao.value = chaveLoja;
+            opcao.textContent = nomeLoja;
+            filtroLojas.append(opcao);
+          }
+        });
         // Vitrine pública: apenas produtos aprovados no Supabase.
         // A prévia Shopee é uma função administrativa separada e não altera esta lista.
         renderizarProdutos();
@@ -912,6 +931,26 @@ const botao = elemento("a", "buy", textoBotao);
 (function(){
   // V11.1: apenas campanha sazonal. Catálogo, filtros e integrações permanecem intactos.
   const selector=document.getElementById('season-mode');
+  // V12: botão temporário de testes, disponível somente na cópia local do arquivo.
+  // Não modifica campanhas reais, banco de dados ou produtos.
+  if (location.protocol === 'file:' && selector) {
+    const barraTeste = document.querySelector('.season-toolbar');
+    if (barraTeste) {
+      barraTeste.style.setProperty('display', 'flex', 'important');
+      const botaoTeste = document.createElement('button');
+      botaoTeste.type = 'button';
+      botaoTeste.textContent = '🧪 Testar decoração';
+      botaoTeste.title = 'Alternar somente a decoração de demonstração';
+      botaoTeste.style.cssText = 'padding:8px 12px;border:1px solid #c7b99e;border-radius:10px;background:#fff;cursor:pointer;color:#23432e;font-weight:bold';
+      const modosTeste = ['black', 'christmas', 'normal', 'auto'];
+      botaoTeste.addEventListener('click', () => {
+        const atual = modosTeste.indexOf(selector.value);
+        selector.value = modosTeste[(atual + 1) % modosTeste.length];
+        selector.dispatchEvent(new Event('change', {bubbles:true}));
+      });
+      barraTeste.append(botaoTeste);
+    }
+  }
   document.querySelectorAll('[data-garimpo-category]').forEach(btn=>btn.addEventListener('click',()=>{const category=btn.dataset.garimpoCategory;const filter=[...document.querySelectorAll('[data-categoria]')].find(el=>el.dataset.categoria===category);if(filter)filter.click();document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});}));
   const content={
     black:{kicker:'🌿 Temporada especial • Novembro',title:'Black Friday Raiz Ancestral',description:'Chás, ervas e suplementos em uma vitrine pensada para facilitar sua pesquisa. Compare opções e confira os preços e condições diretamente nas lojas parceiras.',link:'Conhecer produtos naturais'},
