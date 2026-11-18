@@ -961,6 +961,31 @@ const botao = elemento("a", "buy", textoBotao);
         selector.dispatchEvent(new Event('change', {bubbles:true}));
       });
       barraTeste.append(botaoTeste);
+      // Etapa 3: simulador local de datas, sem escrita no Supabase.
+      const rotuloData = document.createElement('label');
+      rotuloData.textContent = 'Simular data: ';
+      rotuloData.htmlFor = 'season-test-date';
+      const entradaData = document.createElement('input');
+      entradaData.id = 'season-test-date';
+      entradaData.type = 'date';
+      entradaData.title = 'Data de demonstração (somente neste navegador)';
+      entradaData.style.cssText = 'padding:7px;border:1px solid #c7b99e;border-radius:10px;background:white;color:#23432e';
+      const limparData = document.createElement('button');
+      limparData.type = 'button';
+      limparData.textContent = 'Usar data atual';
+      limparData.style.cssText = botaoTeste.style.cssText;
+      const avisoTeste = document.createElement('span');
+      avisoTeste.textContent = 'Prévia local — sem salvar alterações';
+      avisoTeste.style.cssText = 'font-size:11px;color:#705c41';
+      barraTeste.append(rotuloData, entradaData, limparData, avisoTeste);
+      entradaData.addEventListener('change', () => {
+        if (selector.value !== 'auto') selector.value = 'auto';
+        selector.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      limparData.addEventListener('click', () => {
+        entradaData.value = '';
+        selector.dispatchEvent(new Event('change', { bubbles: true }));
+      });
     }
   }
   document.querySelectorAll('[data-garimpo-category]').forEach(btn=>btn.addEventListener('click',()=>{const category=btn.dataset.garimpoCategory;const filter=[...document.querySelectorAll('[data-categoria]')].find(el=>el.dataset.categoria===category);if(filter)filter.click();document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});}));
@@ -984,8 +1009,21 @@ const botao = elemento("a", "buy", textoBotao);
     }
     return season;
   }
+  function dataDaPrevia(){
+    // Somente arquivo local pode usar uma data simulada. Interpretar como data local,
+    // evitando mudança involuntária de dia por conversão de fuso horário.
+    if (location.protocol === 'file:') {
+      const campo = document.getElementById('season-test-date');
+      if (campo && /^\d{4}-\d{2}-\d{2}$/.test(campo.value)) {
+        const [ano,mes,dia] = campo.value.split('-').map(Number);
+        const valor = new Date(ano, mes - 1, dia, 12, 0, 0);
+        if (valor.getFullYear()===ano && valor.getMonth()===mes-1 && valor.getDate()===dia) return valor;
+      }
+    }
+    return new Date();
+  }
   function updateCountdown(){
-    const now=new Date();const season=apply(selector.value,now);
+    const now=dataDaPrevia();const season=apply(selector.value,now);
     let target;
     if(season==='black'){
       target=new Date(now.getFullYear(),10,27,0,0,0);
