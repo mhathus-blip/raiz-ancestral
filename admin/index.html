@@ -2305,9 +2305,13 @@ by('raiz-prod-suggest').addEventListener('click',async()=>{
  try{
   const r=await fetch('/api/shopee-sugestoes',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({nome:name}),cache:'no-store'});
   const result=await r.json();
-  if(!r.ok)throw Error(result.erro||'A consulta não funcionou.');
+  if(!r.ok){
+   const detail=Array.isArray(result.tentativas)?result.tentativas.map(t=>[t.tipo,t.status,t.codigo_api||'',t.http||''].filter(Boolean).join(' · ')).join(' | '):'';
+   throw Error((result.erro||'A consulta não funcionou.')+(detail?' Diagnóstico: '+detail:'')+(result.diagnostico?' ['+result.diagnostico+']':''));
+  }
   const offers=result.sugestoes||[];
-  info.textContent=offers.length+' possível(is) correspondência(s). Verifique marca, sabor, quantidade e embalagem.';
+  const attempts=Array.isArray(result.tentativas)?result.tentativas.map(t=>t.tipo+': '+t.recebidas+' oferta(s)').join(' | '):'';
+  info.textContent=offers.length?(offers.length+' possível(is) correspondência(s). Confirme marca, sabor, quantidade e embalagem. '+attempts):('Nenhuma correspondência confiável encontrada. '+attempts+'. Você pode preencher os dados manualmente e manter o link afiliado.');
   for(const p of offers){
    const row=document.createElement('div');row.className='prod-row';
    const desc=document.createElement('div');desc.className='meta';
