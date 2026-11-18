@@ -458,6 +458,150 @@ body[data-season="birthday"] .season-banner a{background:#e7ddba;color:#1c372a}
 body[data-season="birthday"] .season-banner .season-kicker{color:#d7c38c}
 @media(max-width:900px){body[data-season="christmas"] .season-inner::before,body[data-season="christmas"] .season-inner::after{display:none}}
 @media(max-width:600px){body[data-season="christmas"] .season-banner{padding:32px 18px 31px}body[data-season="christmas"] .season-banner::after,body[data-season="valentine"] .season-banner::after,body[data-season="junina"] .season-banner::after,body[data-season="birthday"] .season-banner::after{font-size:18px;letter-spacing:4px}}
+
+/* V12 ETAPA 8 — ornamentação reforçada das campanhas, com foco no Natal.
+   Mantém identidade do site e não altera catálogo, ondas ou integrações. */
+body[data-season="christmas"] .season-banner{
+  padding:64px 28px 54px;
+  background:
+    radial-gradient(circle at 50% -18%, rgba(255,235,180,.22), transparent 42%),
+    radial-gradient(circle at 15% 28%, rgba(255,220,150,.09), transparent 20%),
+    radial-gradient(circle at 85% 24%, rgba(255,210,145,.08), transparent 18%),
+    linear-gradient(118deg,#103927 0%,#165538 32%,#2b6a4b 54%,#6a3340 100%);
+  border-bottom:5px solid #d8bc7d;
+  box-shadow:inset 0 1px 0 rgba(255,242,210,.18);
+}
+body[data-season="christmas"] .season-banner::before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;opacity:1;
+  background:
+    radial-gradient(circle at 6% 15%, #f8df99 0 2px, transparent 3px),
+    radial-gradient(circle at 11% 22%, #c94359 0 10px, transparent 11px),
+    radial-gradient(circle at 13% 17%, rgba(255,240,205,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 14% 36%, #75b287 0 8px, transparent 9px),
+    radial-gradient(circle at 17% 31%, rgba(255,240,205,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 18% 49%, #f1c561 0 2px, transparent 3px),
+    radial-gradient(circle at 82% 17%, #75b287 0 8px, transparent 9px),
+    radial-gradient(circle at 85% 22%, rgba(255,240,205,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 86% 35%, #cf4d61 0 10px, transparent 11px),
+    radial-gradient(circle at 88% 30%, rgba(255,240,205,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 83% 48%, #f1c561 0 2px, transparent 3px),
+    radial-gradient(circle at 24% 10%, #f8df99 0 2px, transparent 3px),
+    radial-gradient(circle at 76% 12%, #f8df99 0 2px, transparent 3px),
+    radial-gradient(circle at 92% 73%, #f9e6b9 0 2px, transparent 3px),
+    radial-gradient(circle at 9% 72%, #f9e6b9 0 2px, transparent 3px),
+    linear-gradient(180deg, rgba(255,245,220,.16), transparent 20%),
+    radial-gradient(circle at 50% 115%, rgba(0,0,0,.18), transparent 32%);
+}
+body[data-season="christmas"] .season-banner::after{
+  content:"❄  ✨  🎀  ✨  🎁  ✨  🎄";
+  display:block;position:relative;margin:24px auto 0;
+  font-size:26px;letter-spacing:12px;opacity:.96;pointer-events:none;
+  text-shadow:0 3px 10px rgba(0,0,0,.18);
+}
+body[data-season="christmas"] .season-inner{
+  max-width:900px;
+  padding:10px 28px 16px;
+  border:1px solid rgba(255,235,194,.18);
+  border-radius:30px;
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  box-shadow:0 18px 38px rgba(7,22,18,.16), inset 0 1px 0 rgba(255,255,255,.05);
+}
+body[data-season="christmas"] .season-inner::before,
+body[data-season="christmas"] .season-inner::after{
+  content:"🍃  ✨  🔴  🍃  ✨  🎄";
+  position:absolute;top:8px;font-size:26px;letter-spacing:7px;
+  writing-mode:vertical-rl;opacity:.97;pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.15));
+}
+body[data-season="christmas"] .season-inner::before{left:-128px}
+body[data-season="christmas"] .season-inner::after{right:-128px;transform:rotate(180deg)}
+body[data-season="christmas"] .season-banner .season-decor.left,
+body[data-season="christmas"] .season-banner .season-decor.right{opacity:1;font-size:0}
+body[data-season="christmas"] .season-banner .season-decor.left::before,
+body[data-season="christmas"] .season-banner .season-decor.right::before{
+  position:absolute;top:-18px;font-size:56px;opacity:.95;
+}
+body[data-season="christmas"] .season-banner .season-decor.left::after{content:"❄";font-size:82px;color:#fff0ce;text-shadow:0 2px 12px rgba(0,0,0,.12)}
+body[data-season="christmas"] .season-banner .season-decor.right::after{content:"✦";font-size:88px;color:#f5d590;text-shadow:0 2px 12px rgba(0,0,0,.12)}
+body[data-season="christmas"] .season-banner .season-decor.left::before{content:"❋";left:80px;color:#f7d88f}
+body[data-season="christmas"] .season-banner .season-decor.right::before{content:"✶";right:82px;color:#fff0ce}
+body[data-season="christmas"] .season-banner .season-kicker{color:#ffe39f;text-shadow:0 1px 6px rgba(0,0,0,.16)}
+body[data-season="christmas"] .season-banner h2{
+  text-shadow:0 4px 18px rgba(8,24,20,.26);
+  margin-top:12px;
+}
+body[data-season="christmas"] .season-banner p{max-width:720px}
+body[data-season="christmas"] .season-banner a{
+  background:#f8e7c1;
+  color:#24412e;
+  box-shadow:0 8px 20px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.45);
+}
+body[data-season="christmas"] .season-banner a:hover{transform:translateY(-1px)}
+body[data-season="christmas"] .season-countdown{
+  gap:10px;
+  margin-top:22px;
+}
+body[data-season="christmas"] .season-countdown::before,
+body[data-season="christmas"] .season-countdown::after{
+  content:"✦";
+  align-self:center;
+  color:#f7d88f;
+  font-size:18px;
+  opacity:.9;
+}
+body[data-season="christmas"] .season-countdown strong{
+  background:rgba(17,58,38,.82);
+  border:1px solid rgba(228,196,137,.82);
+  box-shadow:0 6px 18px rgba(5,17,13,.18), inset 0 1px 0 rgba(255,255,255,.06);
+}
+body[data-season="valentine"] .season-banner{
+  background:radial-gradient(circle at 50% -10%, rgba(255,233,233,.16), transparent 42%), linear-gradient(115deg,#5c293b,#ad6274 55%,#533b40);
+}
+body[data-season="valentine"] .season-banner::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 22%, rgba(255,232,223,.9) 0 2px, transparent 3px),radial-gradient(circle at 18% 16%, rgba(255,255,255,.75) 0 1px, transparent 2px),radial-gradient(circle at 86% 20%, rgba(255,232,223,.9) 0 2px, transparent 3px),radial-gradient(circle at 82% 15%, rgba(255,255,255,.75) 0 1px, transparent 2px);
+}
+body[data-season="valentine"] .season-banner::after{content:"🌹  ♡  ✨  🌿  ♡  🌹";font-size:26px;letter-spacing:10px}
+body[data-season="junina"] .season-banner{
+  background:radial-gradient(circle at 50% -8%, rgba(255,240,194,.16), transparent 38%), linear-gradient(110deg,#244c39,#5e5d36 60%,#8e5034);
+}
+body[data-season="junina"] .season-banner::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg, transparent 0 10%, rgba(250,220,150,.18) 10% 11%, transparent 11% 19%, rgba(250,220,150,.18) 19% 20%, transparent 20% 80%, rgba(250,220,150,.18) 80% 81%, transparent 81% 89%, rgba(250,220,150,.18) 89% 90%, transparent 90% 100%);
+}
+body[data-season="junina"] .season-banner::after{content:"🌽  🎏  🌻  🎏  🔥  🎏  🌽";font-size:24px;letter-spacing:8px}
+body[data-season="birthday"] .season-banner{
+  background:radial-gradient(circle at 50% -15%, rgba(236,222,171,.15), transparent 40%), linear-gradient(115deg,#0b231b,#18362a 58%,#2d4332);
+}
+body[data-season="birthday"] .season-banner::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 10% 18%, rgba(214,195,140,.95) 0 2px, transparent 3px),radial-gradient(circle at 89% 16%, rgba(214,195,140,.95) 0 2px, transparent 3px),radial-gradient(circle at 17% 34%, rgba(142,170,128,.65) 0 10px, transparent 11px),radial-gradient(circle at 83% 31%, rgba(142,170,128,.65) 0 10px, transparent 11px);
+}
+body[data-season="birthday"] .season-banner::after{content:"🍃  ✧  🌿  ✧  🍂  ✧  🍃";font-size:24px;letter-spacing:8px}
+@media (max-width: 1000px){
+  body[data-season="christmas"] .season-inner::before{left:-105px}
+  body[data-season="christmas"] .season-inner::after{right:-105px}
+}
+@media (max-width: 900px){
+  body[data-season="christmas"] .season-inner{padding:8px 20px 16px}
+  body[data-season="christmas"] .season-inner::before,
+  body[data-season="christmas"] .season-inner::after{display:none}
+}
+@media (max-width: 600px){
+  body[data-season="christmas"] .season-banner{padding:34px 16px 30px}
+  body[data-season="christmas"] .season-inner{padding:8px 10px 12px;border-radius:20px}
+  body[data-season="christmas"] .season-banner::after{font-size:18px;letter-spacing:4px;margin-top:16px}
+  body[data-season="christmas"] .season-banner .season-decor.left::after,
+  body[data-season="christmas"] .season-banner .season-decor.right::after{font-size:44px}
+  body[data-season="christmas"] .season-banner .season-decor.left::before,
+  body[data-season="christmas"] .season-banner .season-decor.right::before{display:none}
+  body[data-season="christmas"] .season-countdown::before,
+  body[data-season="christmas"] .season-countdown::after{display:none}
+  body[data-season="valentine"] .season-banner::after,
+  body[data-season="junina"] .season-banner::after,
+  body[data-season="birthday"] .season-banner::after{font-size:18px;letter-spacing:4px}
+}
+
 </style>
 </head>
 <body>
