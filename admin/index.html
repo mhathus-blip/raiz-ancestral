@@ -2344,9 +2344,21 @@ async function identifyShopee(){
   if(p.nome)form.elements.namedItem('nome').value=p.nome;
   if(p.imagem_url)form.elements.namedItem('imagem_url').value=p.imagem_url;
   if(p.nome&&!form.elements.namedItem('categoria').value){const c=recommend(p.nome);if(c)form.elements.namedItem('categoria').value=c}
+  const priceField=form.elements.namedItem('preco');
+  const formatPrice=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  let priceNotice='A API não informou preço único confiável; mantido “Consultar preço na loja”.';
+  if(p.preco_status==='UNICO'&&Number.isFinite(Number(p.preco))&&Number(p.preco)>0){
+   if(!String(priceField.value||'').trim()){
+    priceField.value=Number(p.preco).toFixed(2);
+    priceNotice='Preço único da API: '+formatPrice(p.preco)+' (preenchido para revisão).';
+   }else{priceNotice='Preço da API: '+formatPrice(p.preco)+'. O preço que você já tinha preenchido foi preservado.'}
+  }else if(p.preco_status==='VARIACOES'&&p.faixa_preco){
+   priceNotice='A Shopee informou uma faixa de '+formatPrice(p.faixa_preco.min)+' até '+formatPrice(p.faixa_preco.max)+'. O campo preço ficou inalterado para não divulgar valor enganoso.';
+  }
   form.elements.namedItem('imagem_url').dispatchEvent(new Event('input',{bubbles:true}));
   form.elements.namedItem('nome').dispatchEvent(new Event('input',{bubbles:true}));
-  info.textContent='Dados recuperados pelo identificador '+data.itemId+'. Confira nome, imagem e categoria. Link afiliado e preço foram preservados; clique em Salvar para gravar.';
+  priceField.dispatchEvent(new Event('input',{bubbles:true}));
+  info.textContent='Anúncio '+data.itemId+' confirmado. '+priceNotice+' Revise os dados e clique em Salvar para gravar. Seu link afiliado não foi modificado.';
   form.scrollIntoView({behavior:'smooth',block:'start'});
  }catch(e){info.textContent='Identificação indisponível: '+e.message}
  finally{button.disabled=false}
