@@ -1017,6 +1017,15 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
     <div id="raiz-prod-suggest-list" aria-label="Possíveis ofertas"></div>
   </div>
   <div id="raiz-prod-status" class="status" role="status" aria-live="polite">Entre como administrador para consultar.</div>
+  <div style="padding:12px;margin:10px 0;border:1px solid #d8c9b4;border-radius:12px;background:#f7f5ea">
+    <div class="toolbar" style="margin:0;align-items:center">
+      <button type="button" id="raiz-price-batch" class="subtle" disabled>💰 Consultar preços dos produtos sem valor</button>
+      <small>Consulta até 12 produtos Shopee mais recentes. Não altera nenhum preço automaticamente.</small>
+    </div>
+    <div id="raiz-price-batch-status" class="status" role="status" aria-live="polite"></div>
+    <div id="raiz-price-batch-list"></div>
+    <button type="button" id="raiz-price-apply" disabled hidden>Aplicar preços únicos confirmados</button>
+  </div>
   <div id="raiz-prod-list"></div>
   <div class="actions"><button type="button" id="raiz-prod-prev" class="subtle">← Anterior</button><span id="raiz-prod-page" style="align-self:center">Página 1</span><button type="button" id="raiz-prod-next" class="subtle">Próxima →</button></div>
   <form id="raiz-prod-form" hidden>
@@ -2417,6 +2426,86 @@ by('raiz-prod-suggest').addEventListener('click',async()=>{
   }
  }catch(e){info.textContent=e.message}finally{button.disabled=!token}
 });
+})();
+</script>
+<script>
+/* V12: conferência em lote de preços Shopee. Somente preços únicos confirmados pelo itemId.
+ * Usa APIs administrativas com JWT; nenhuma alteração em link, imagens ou dados de outras lojas.
+ */
+(function(){
+'use strict';
+const el=id=>document.getElementById(id);
+const btn=el('raiz-price-batch'), apply=el('raiz-price-apply'), status=el('raiz-price-batch-status'), list=el('raiz-price-batch-list');
+if(!btn||!apply||!status||!list)return;
+let token='', proposals=[],busy=false;
+const money=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+async function call(url,body){
+ const resp=await fetch(url,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store'});
+ const data=await resp.json();
+ if(!resp.ok)throw Error(data.erro||'Falha HTTP '+resp.status);
+ return data;
+}
+const line=(name,info)=>{const p=document.createElement('p');p.style.cssText='margin:8px 0;padding:6px;border-bottom:1px solid #e1d8c6';const b=document.createElement('strong');b.textContent=name;p.append(b,document.createTextNode(' — '+info));list.append(p)};
+btn.addEventListener('click',async()=>{
+ if(!token||busy)return;
+ busy=true;btn.disabled=true;apply.hidden=true;apply.disabled=true;proposals=[];list.replaceChildren();
+ try{
+  const response=await call('/api/produtos-admin?page=1');
+  const pending=(response.produtos||[]).filter(p=>String(p.loja||'').toLowerCase()==='shopee'&&!Number(p.preco)&&/^\d{3,20}$/.test(String(p.shopee_product_id||''))).slice(0,12);
+  if(!pending.length){status.textContent='Nenhum produto Shopee sem preço e com ID confirmado entre os 30 produtos mais recentes.';return}
+  status.textContent='Consultando '+pending.length+' anúncios pela API Shopee...';
+  const results=[];
+  for(let i=0;i<pending.length;i+=2){
+   const part=pending.slice(i,i+2);
+   try{
+    const data=await call('/api/shopee-precos-preview',{ids:part.map(p=>Number(p.id))});
+    results.push(...(data.resultados||[]));
+   }catch(e){for(const p of part)results.push({id:p.id,status:'ERRO_CONSULTA',motivo:e.message})}
+   status.textContent='Consultados '+Math.min(i+2,pending.length)+' de '+pending.length+' anúncios...';
+  }
+  const byId=new Map(pending.map(p=>[Number(p.id),p]));
+  let withRange=0;
+  for(const r of results){
+   const p=byId.get(Number(r.id));if(!p)continue;
+   const title='#'+p.id+' '+p.nome;
+   const min=Number(r.preco_min),max=Number(r.preco_max);
+   const unique=r.status==='PRECO_CONSULTADO'&&Number.isFinite(min)&&min>0&&Number.isFinite(max)&&max>0&&Math.abs(min-max)<0.005;
+   if(unique){
+    proposals.push({id:Number(p.id),preco:Number(min.toFixed(2)),itemId:String(p.shopee_product_id)});
+    line(title,'Preço único confirmado: '+money(min));
+   }else if(r.status==='PRECO_CONSULTADO'){
+    withRange++;
+    line(title,'Variações: '+money(min)+(Number.isFinite(max)&&max>0?' a '+money(max):' ou mais')+'. Não será preenchido automaticamente.');
+   }else line(title,'Sem preço confirmado ('+String(r.status||'SEM_RESPOSTA')+').');
+  }
+  status.textContent='Consulta concluída: '+proposals.length+' preços únicos, '+withRange+' faixas de preço, '+(results.length-proposals.length-withRange)+' sem confirmação. Nenhum produto foi alterado.';
+  if(proposals.length){apply.hidden=false;apply.disabled=false;apply.textContent='Aplicar '+proposals.length+' preços únicos confirmados'}
+ }catch(e){status.textContent='Não foi possível consultar os preços: '+e.message}
+ finally{busy=false;btn.disabled=!token}
+});
+apply.addEventListener('click',async()=>{
+ if(!token||busy||!proposals.length)return;
+ if(!confirm('Aplicar '+proposals.length+' preços únicos confirmados pela API Shopee? Somente campos de preço ainda vazios serão preenchidos. Os links afiliados e fotos serão preservados.'))return;
+ busy=true;btn.disabled=true;apply.disabled=true;
+ let updated=0,skipped=0;
+ try{
+  // Revalidar antes de gravar evita sobrescrever um preço incluído por outra pessoa.
+  const data=await call('/api/produtos-admin?page=1');
+  const current=new Map((data.produtos||[]).map(p=>[Number(p.id),p]));
+  for(const p of proposals){
+   const row=current.get(p.id);
+   if(!row||Number(row.preco)>0||String(row.shopee_product_id)!==p.itemId){skipped++;continue}
+   try{
+    const resp=await fetch('/api/produtos-admin',{method:'PATCH',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({id:p.id,alteracoes:{preco:p.preco}}),cache:'no-store'});
+    if(resp.ok)updated++;else skipped++;
+   }catch{skipped++}
+  }
+  status.textContent=updated+' preços gravados no Supabase; '+skipped+' não alterados. Atualize a vitrine para visualizar os valores.';
+  proposals=[];apply.hidden=true;
+ }catch(e){status.textContent='Não foi possível aplicar os preços: '+e.message}
+ finally{busy=false;btn.disabled=!token;apply.disabled=true}
+});
+window.addEventListener('raiz:admin-tests-unlocked',e=>{token=String(e.detail?.accessToken||'');btn.disabled=!token});
 })();
 </script>
 </body></html>
