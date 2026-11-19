@@ -44,7 +44,7 @@ async function resolve(initial){
 async function offer(env,id){
  const app=String(env.SHOPEE_APP_ID||'').trim(),secret=String(env.SHOPEE_APP_SECRET||'').trim();
  if(!app||!secret)return {diagnostico:'API_SEM_CREDENCIAIS'};
- const query='query { productOfferV2(itemId: '+id+', page: 1, limit: 3) { nodes { itemId productName imageUrl priceMin shopId productLink } } }';
+ const query='query { productOfferV2(itemId: '+id+', page: 1, limit: 3) { nodes { itemId productName imageUrl priceMin priceMax shopId productLink } } }';
  const body=JSON.stringify({query}),stamp=Math.floor(Date.now()/1000);
  const bytes=new TextEncoder().encode(app+stamp+body+secret);
  const digest=await crypto.subtle.digest('SHA-256',bytes);
@@ -57,8 +57,13 @@ async function offer(env,id){
   const node=Array.isArray(nodes)?nodes.find(x=>String(x.itemId)===String(id)):null;
   if(!node)return {diagnostico:'PRODUTO_NAO_RETORNADO_PELA_API'};
   const img=node.imageUrl;
-  const price=Number(node.priceMin);
-  return {diagnostico:'PRODUTO_CONFIRMADO_PELA_API',produto:{nome:String(node.productName||'').slice(0,250),imagem_url:typeof img==='string'&&/^https:\/\//i.test(img)?img:'',shopee_product_id:String(node.itemId),preco:Number.isFinite(price)&&price>0?Number(price.toFixed(2)):null}};
+  const priceMin=Number(node.priceMin),priceMax=Number(node.priceMax);
+  const minValid=Number.isFinite(priceMin)&&priceMin>0&&priceMin<=1000000;
+  const maxValid=Number.isFinite(priceMax)&&priceMax>0&&priceMax<=1000000;
+  const samePrice=minValid&&maxValid&&Math.abs(priceMin-priceMax)<0.005;
+  // Quando há variações, não afirmar que o menor preço vale para todas.
+  const price=samePrice?Number(priceMin.toFixed(2)):null;
+  return {diagnostico:'PRODUTO_CONFIRMADO_PELA_API',produto:{nome:String(node.productName||'').slice(0,250),imagem_url:typeof img==='string'&&/^https:\/\//i.test(img)?img:'',shopee_product_id:String(node.itemId),preco:price,faixa_preco:minValid&&maxValid?{min:Number(priceMin.toFixed(2)),max:Number(priceMax.toFixed(2))}:null,preco_status:samePrice?'UNICO':minValid&&maxValid?'VARIACOES':'INDISPONIVEL'}};
  }catch{return {diagnostico:'FALHA_COMUNICACAO_API'}}
 }
 export async function onRequestPost({request,env}){
