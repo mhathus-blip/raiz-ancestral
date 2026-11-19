@@ -1027,6 +1027,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
       <label>Preço (R$, opcional)<input name="preco" type="number" min="0.01" max="1000000" step="0.01" placeholder="Sem preço: deixe vazio"></label>
       <label class="wide">Link afiliado HTTPS *<input name="link_afiliado" type="url" required maxlength="1800"></label>
       <label class="wide">URL da imagem HTTPS<input name="imagem_url" type="url" maxlength="1800"></label>
+      <div class="wide"><button id="raiz-prod-find-image" type="button" class="subtle">🔎 Procurar fotografia na API Shopee</button><p style="font-size:12px;margin:5px 0">Busca sugestões para conferência, sem substituir o link de afiliado ou salvar automaticamente.</p></div>
       <div class="wide" id="raiz-prod-image-preview" style="background:#f1f0e5;border:1px dashed #c8bb9f;border-radius:10px;display:flex;gap:12px;padding:10px;align-items:center;min-height:75px"><span id="raiz-prod-image-hint">Imagem não informada — o catálogo exibirá um aviso de imagem indisponível.</span><img id="raiz-prod-image" alt="Prévia da imagem do produto" style="max-width:100px;max-height:110px;object-fit:contain;border-radius:8px" hidden></div>
       <label class="wide">Descrição<textarea name="descricao" maxlength="2000"></textarea></label>
       <label>ID do produto Shopee (opcional)<input name="shopee_product_id" maxlength="60"></label>
@@ -2322,6 +2323,15 @@ form.elements.namedItem('nome').addEventListener('blur',()=>{
   if(suggested)form.elements.namedItem('categoria').value=suggested;
  }
 });
+by('raiz-prod-find-image').addEventListener('click',()=>{
+ const shop=normalized(form.elements.namedItem('loja').value);
+ if(!token){by('raiz-prod-suggest-status').textContent='Entre como administrador para buscar fotos.';return}
+ if(shop!=='shopee'){by('raiz-prod-suggest-status').textContent='Busca de fotografias disponível para a Shopee; Amazon ainda exige integração autorizada.';return}
+ if(!String(form.elements.namedItem('nome').value||'').trim()){by('raiz-prod-suggest-status').textContent='Preencha o nome do produto primeiro.';return}
+ by('raiz-prod-suggest').disabled=false;
+ by('raiz-prod-suggest').click();
+ by('raiz-prod-suggest-status').scrollIntoView({behavior:'smooth',block:'center'});
+});
 by('raiz-prod-suggest').addEventListener('click',async()=>{
  const info=by('raiz-prod-suggest-status'),list=by('raiz-prod-suggest-list');
  const name=String(form.elements.namedItem('nome').value||'').trim();
@@ -2340,6 +2350,9 @@ by('raiz-prod-suggest').addEventListener('click',async()=>{
   info.textContent=offers.length?(offers.length+' possível(is) correspondência(s). Confirme marca, sabor, quantidade e embalagem. '+attempts):('Nenhuma correspondência confiável encontrada. '+attempts+'. Você pode preencher os dados manualmente e manter o link afiliado.');
   for(const p of offers){
    const row=document.createElement('div');row.className='prod-row';
+   if(p.imagem_url){
+    const image=document.createElement('img');image.alt='Fotografia sugerida da Shopee — confirme a embalagem e marca';image.loading='lazy';image.referrerPolicy='no-referrer';image.src=p.imagem_url;image.style.cssText='width:76px;height:76px;object-fit:contain;border-radius:7px;background:#fff;border:1px solid #e4dbc9;flex-shrink:0';image.addEventListener('error',()=>image.remove());row.append(image);
+   }
    const desc=document.createElement('div');desc.className='meta';
    const title=document.createElement('b');title.textContent=p.nome;
    const subtitle=document.createElement('small');subtitle.textContent='Correspondência textual '+p.correspondencia+'% — preço informado pela API: '+(p.preco!=null?Number(p.preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'não disponível');
@@ -2349,6 +2362,7 @@ by('raiz-prod-suggest').addEventListener('click',async()=>{
     if(!confirm('Você conferiu que este é o MESMO produto do seu link afiliado (marca, quantidade, sabor e embalagem)?'))return;
     form.elements.namedItem('nome').value=p.nome;
     if(p.imagem_url)form.elements.namedItem('imagem_url').value=p.imagem_url;
+    form.elements.namedItem('imagem_url').dispatchEvent(new Event('input',{bubbles:true}));
     form.elements.namedItem('shopee_product_id').value=p.itemId;
     const category=recommend(p.nome);if(category)form.elements.namedItem('categoria').value=category;
     info.textContent='Nome, imagem e ID sugeridos aplicados. Seu link afiliado foi preservado. O preço não foi alterado.';
