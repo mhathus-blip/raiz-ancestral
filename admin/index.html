@@ -1009,6 +1009,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
     </div>
     <small>Preenche automaticamente a loja, o link e os identificadores reconhecíveis. Nome e outros dados só serão sugeridos quando constarem no endereço; confira tudo antes de salvar. Links encurtados podem exigir preenchimento manual. Não consulta nem inventa preços.</small>
     <div id="raiz-prod-import-status" class="status" aria-live="polite"></div>
+    <div class="toolbar" style="margin:8px 0"><button type="button" id="raiz-prod-identify" class="subtle">🔍 Identificar anúncio pelo link</button></div><div id="raiz-prod-identify-status" class="status" aria-live="polite"></div>
     <div class="toolbar" style="margin:8px 0">
       <button type="button" id="raiz-prod-suggest" class="subtle" disabled>🔎 Buscar sugestões na Shopee</button>
     </div>
@@ -2322,6 +2323,38 @@ form.elements.namedItem('nome').addEventListener('blur',()=>{
   const suggested=recommend(form.elements.namedItem('nome').value);
   if(suggested)form.elements.namedItem('categoria').value=suggested;
  }
+});
+async function identifyShopee(){
+ const info=by('raiz-prod-identify-status'),button=by('raiz-prod-identify');
+ const link=String(form.elements.namedItem('link_afiliado').value||by('raiz-prod-import-link').value||'').trim();
+ if(!token){info.textContent='Entre como administrador para identificar o anúncio.';return}
+ if(!/^https:\/\/(?:s\.|www\.)?shopee\.com\.br\//i.test(link)){info.textContent='Este recurso aceita links da Shopee Brasil.';return}
+ button.disabled=true;info.textContent='Verificando redirecionamento do link e identificador do anúncio...';
+ try{
+  const r=await fetch('/api/shopee-identificar',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({link}),cache:'no-store'});
+  const data=await r.json();
+  if(!r.ok)throw Error(data.erro||'Falha ao identificar link.');
+  if(!data.ok){info.textContent='Não foi possível identificar automaticamente: '+data.diagnostico+'. A Shopee pode bloquear redirecionamentos automatizados. Nenhuma informação foi alterada.';return}
+  form.elements.namedItem('shopee_product_id').value=data.itemId;
+  if(!data.produto){
+   info.textContent='Identificador '+data.itemId+' recuperado, mas a API não forneceu os dados ('+data.diagnostico+'). Confira o anúncio manualmente.';
+   return;
+  }
+  const p=data.produto;
+  if(p.nome)form.elements.namedItem('nome').value=p.nome;
+  if(p.imagem_url)form.elements.namedItem('imagem_url').value=p.imagem_url;
+  if(p.nome&&!form.elements.namedItem('categoria').value){const c=recommend(p.nome);if(c)form.elements.namedItem('categoria').value=c}
+  form.elements.namedItem('imagem_url').dispatchEvent(new Event('input',{bubbles:true}));
+  form.elements.namedItem('nome').dispatchEvent(new Event('input',{bubbles:true}));
+  info.textContent='Dados recuperados pelo identificador '+data.itemId+'. Confira nome, imagem e categoria. Link afiliado e preço foram preservados; clique em Salvar para gravar.';
+  form.scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(e){info.textContent='Identificação indisponível: '+e.message}
+ finally{button.disabled=false}
+}
+by('raiz-prod-identify').addEventListener('click',identifyShopee);
+by('raiz-prod-import').addEventListener('click',()=>{
+ const link=String(by('raiz-prod-import-link').value||'');
+ if(token&&/^https:\/\/(?:s\.|www\.)?shopee\.com\.br\//i.test(link))identifyShopee();
 });
 by('raiz-prod-find-image').addEventListener('click',()=>{
  const shop=normalized(form.elements.namedItem('loja').value);
