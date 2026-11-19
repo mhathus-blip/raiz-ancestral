@@ -2601,11 +2601,37 @@ async function load(){
  running=true;by('raiz-stats-refresh').disabled=true;status('Consultando estatísticas...');
  try{
   const days=Number(by('raiz-stats-period').value);
-  const response=await fetch('/api/estatisticas-admin?dias='+days,{method:'GET',headers:{Authorization:'Bearer '+token},cache:'no-store',credentials:'omit'});
-  const data=await response.json();
-  if(!response.ok)throw Error(data.erro||'Falha na consulta.');
-  draw(data.dados);
-  status('Estatísticas atualizadas. As contagens começam após a ativação da coleta na prévia V12.');
+  let stats=null,source='',firstError='';
+  // Preferir endpoint do próprio site; em falhas da rede/proxy tentar a API oficial Supabase
+  // com o JWT já validado no login ADM. A RLS e a função exigem is_raiz_admin().
+  try{
+   const response=await fetch('/api/estatisticas-admin?dias='+days,{
+    method:'GET',headers:{Authorization:'Bearer '+token,Accept:'application/json'},
+    cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(12000)
+   });
+   let data;
+   try{data=await response.json()}catch{throw Error('Resposta do Cloudflare não é JSON (HTTP '+response.status+').')}
+   if(!response.ok||!data?.ok||!data?.dados)throw Error(data?.erro||'Cloudflare retornou HTTP '+response.status);
+   stats=data.dados;source='Cloudflare';
+  }catch(e){firstError=e.message||String(e)}
+  if(!stats){
+   try{
+    if(typeof SUPABASE_URL!=='string'||typeof SUPABASE_KEY!=='string')throw Error('Configuração pública do Supabase indisponível.');
+    const response=await fetch(SUPABASE_URL+'/rest/v1/rpc/raiz_resumo_cliques',{
+     method:'POST',
+     headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},
+     body:JSON.stringify({p_dias:days}),cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(15000)
+    });
+    const data=await response.json();
+    if(!response.ok)throw Error(data?.message||data?.hint||'Supabase retornou HTTP '+response.status);
+    if(!data||typeof data!=='object'||!Array.isArray(data.evolucao))throw Error('Dados de estatísticas incompletos.');
+    stats=data;source='Supabase direto';
+   }catch(e){
+    throw Error('Cloudflare: '+(firstError||'sem resposta')+' | Supabase: '+(e.message||String(e)));
+   }
+  }
+  draw(stats);
+  status('Estatísticas atualizadas via '+source+'. A coleta começa na prévia V12; os cliques anteriores não são recuperados.');
  }catch(e){status('Não foi possível carregar estatísticas: '+e.message)}
  finally{running=false;by('raiz-stats-refresh').disabled=false}
 }
