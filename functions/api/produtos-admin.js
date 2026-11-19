@@ -100,6 +100,13 @@ export async function onRequest({request,env}){
  const exists=await db(ctx,'produtos?select=id&id=eq.'+id);
  if(exists.error)return json({erro:exists.error},exists.status);
  if(exists.data.length!==1)return json({erro:'Produto não encontrado.'},404);
+ // Não publicar novo anúncio sem uma imagem válida; uma sugestão nunca é aplicada automaticamente.
+ if(checked.value.ativo===true){
+  const current=await db(ctx,'produtos?select=id,imagem_url&id=eq.'+id);
+  if(current.error)return json({erro:current.error},current.status);
+  const image=Object.prototype.hasOwnProperty.call(checked.value,'imagem_url')?checked.value.imagem_url:current.data?.[0]?.imagem_url;
+  if(!image||!https(image))return json({erro:'Para ativar este produto, informe uma URL de imagem HTTPS válida e revise a fotografia.'},422);
+ }
  const r=await db(ctx,'produtos?id=eq.'+id,{method:'PATCH',body:checked.value});
  if(r.error)return json({erro:r.error},r.status);
  return json({ok:true,produto:r.data[0]});
