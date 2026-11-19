@@ -1168,6 +1168,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
       if (link) {
         const comprar = elemento("a", "primary", textoLinkParceiro(produto));
         comprar.href = link; comprar.target = "_blank"; comprar.rel = "sponsored noopener noreferrer";
+        comprar.addEventListener("click", () => window.raizRegistrarSaidaLoja?.(produto.id));
         info.append(comprar);
       }
       info.append(elemento("p", "section-sub", "A compra é realizada na loja parceira. Confira preços, disponibilidade e condições no anúncio."));
@@ -1357,6 +1358,7 @@ const botao = elemento("a", "buy", textoBotao);
               botao.href = url.href;
               botao.target = "_blank";
               botao.rel = "sponsored noopener noreferrer";
+              botao.addEventListener("click", () => window.raizRegistrarSaidaLoja?.(produto.id));
               conteudo.append(botao);
             }
           } catch (erro) {
@@ -1621,7 +1623,7 @@ const botao = elemento("a", "buy", textoBotao);
       const info=document.createElement('div');info.className='raiz-vitrine-info';
       const loja=document.createElement('span');loja.className='raiz-vitrine-loja';loja.textContent=String(p.loja||'Loja parceira');
       const nome=document.createElement('h3');nome.className='raiz-vitrine-nome';nome.textContent=String(p.nome||'Produto selecionado');
-      const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='sponsored noopener noreferrer';a.textContent=storeLabel(p.loja);
+      const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='sponsored noopener noreferrer';a.textContent=storeLabel(p.loja);a.addEventListener('click',()=>window.raizRegistrarSaidaLoja?.(p.id));
       // Preço só aparece se o banco tiver valor válido; não simular consulta à API.
       const raw=p.preco;
       const numero=(raw===null||raw===undefined||raw==='')?NaN:Number(raw);
@@ -1641,5 +1643,24 @@ const botao = elemento("a", "buy", textoBotao);
   obs.observe(document.body,{attributes:true,attributeFilter:['data-season']});
   render();
 })();
+</script>
+<script>
+/* V12: contagem anônima e agregada de cliques em links de lojas.
+   Não altera URLs de afiliados nem atrasa o destino da compra.
+   Sem cookies, localStorage, IP, referrer ou identificação de visitantes. */
+window.raizRegistrarSaidaLoja = function(id){
+  if(!Number.isSafeInteger(Number(id))||Number(id)<=0)return;
+  try{
+    fetch('/api/registrar-clique',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:Number(id)}),
+      keepalive:true,
+      credentials:'omit',
+      cache:'no-store',
+      referrerPolicy:'no-referrer'
+    }).catch(()=>{});
+  }catch(e){}
+};
 </script>
 </body></html>
