@@ -17,7 +17,7 @@ export async function onRequestPost({request,env}){
  const key=String(env.SUPABASE_PUBLISHABLE_KEY||env.SUPABASE_ANON_KEY||'').trim();
  if(!/^https:\/\/[^/]+\.supabase\.co$/.test(base)||!key)return answer({ok:false},503);
  try{
-  const resp=await fetch(base+'/rest/v1/rpc/raiz_registrar_clique_produto',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({p_produto_id:id}),signal:AbortSignal.timeout(5000)});
+  const resp=await fetch(base+'/rest/v1/rpc/raiz_registrar_clique_produto',{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({p_produto_id:id}),signal:AbortSignal.timeout(5000)});
   if(!resp.ok)return answer({ok:false},502);
   return answer({ok:true});
  }catch{return answer({ok:false},502)}
