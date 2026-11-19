@@ -949,6 +949,29 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 #raiz-gerenciar-produtos .actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 #raiz-gerenciar-produtos .wide{grid-column:1/-1}
 @media(max-width:620px){#raiz-gerenciar-produtos{padding:16px;margin:16px 10px}#raiz-gerenciar-produtos .raiz-admin-grid{grid-template-columns:1fr}#raiz-gerenciar-produtos .prod-row{align-items:flex-start}#raiz-gerenciar-produtos .prod-row button{padding:9px 12px}}
+/* V12 — estatísticas privadas de cliques de saída para lojas */
+#raiz-estatisticas[hidden]{display:none!important}
+#raiz-estatisticas{max-width:1120px;margin:20px auto;padding:23px;border:1px solid #dbcdb4;background:#fffaf1;color:#264330;border-radius:18px}
+#raiz-estatisticas h2{font:700 clamp(23px,3vw,30px) Georgia,serif;margin:0 0 8px}
+#raiz-estatisticas p{line-height:1.45}
+#raiz-estatisticas .stats-filters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:13px 0}
+#raiz-estatisticas .stats-filters select{border:1px solid #c9baa1;background:white;padding:10px;border-radius:9px;color:#264330}
+#raiz-estatisticas button{border:0;border-radius:22px;background:#315b3c;color:white;padding:10px 17px;font-weight:700;cursor:pointer}
+#raiz-estatisticas button:disabled{opacity:.55;cursor:wait}
+#raiz-estatisticas .stats-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:15px 0}
+#raiz-estatisticas .stats-card{padding:15px;border:1px solid #e1d5bf;border-radius:13px;background:#f7f4e9}
+#raiz-estatisticas .stats-card b{display:block;font:700 28px Georgia,serif;color:#28523a;overflow-wrap:anywhere}
+#raiz-estatisticas .stats-card span{font:600 12px Arial,sans-serif;color:#635845}
+#raiz-estatisticas .stats-bars{display:flex;align-items:end;gap:4px;min-height:135px;border-bottom:1px solid #cbbda6;padding:12px 0 0;overflow-x:auto}
+#raiz-estatisticas .stats-bar-cell{min-width:8px;flex:1 0 8px;display:flex;align-items:end;min-height:124px}
+#raiz-estatisticas .stats-bar{background:#638b63;width:100%;min-height:3px;border-radius:4px 4px 0 0}
+#raiz-estatisticas .stats-lists{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin:15px 0}
+#raiz-estatisticas .stats-list{list-style:none;margin:0;padding:0}
+#raiz-estatisticas .stats-list li{padding:9px 0;border-bottom:1px solid #e4dbc9;display:flex;gap:12px;align-items:start;justify-content:space-between}
+#raiz-estatisticas .stats-list li span{overflow-wrap:anywhere;min-width:0}
+#raiz-estatisticas .stats-list li strong{flex-shrink:0;color:#315b3c}
+#raiz-estatisticas .stats-caption{color:#6d6254;font-size:12px}
+@media(max-width:700px){#raiz-estatisticas{padding:15px;margin:12px 8px}#raiz-estatisticas .stats-cards{grid-template-columns:repeat(2,minmax(0,1fr))}#raiz-estatisticas .stats-lists{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -992,6 +1015,31 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
  <p id="raiz-shopee-api-state" role="status" aria-live="polite">Nenhuma consulta realizada.</p>
  <div class="scroll"><table id="raiz-shopee-api-table" hidden><thead><tr><th>ID</th><th>Produto</th><th>Resultado</th><th>Preço mínimo</th><th>Preço máximo</th></tr></thead><tbody></tbody></table></div>
  <p style="font-size:12px;color:#766955">Links encurtados podem não revelar o ID do anúncio; nesse caso não será atribuído preço. Confira o anúncio antes de qualquer atualização futura.</p>
+</section>
+<section id="raiz-estatisticas" hidden aria-label="Estatísticas dos produtos">
+  <h2>📊 Estatísticas do Raiz Ancestral</h2>
+  <p>Acompanhe os cliques nos botões que levam às lojas parceiras e a situação dos produtos cadastrados.</p>
+  <div class="stats-filters">
+    <label for="raiz-stats-period">Período</label>
+    <select id="raiz-stats-period"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option></select>
+    <button type="button" id="raiz-stats-refresh">Atualizar estatísticas</button>
+  </div>
+  <div id="raiz-stats-status" role="status" aria-live="polite">Entre como administrador para consultar.</div>
+  <div class="stats-cards">
+    <div class="stats-card"><b id="raiz-stats-clicks">—</b><span>Cliques para lojas</span></div>
+    <div class="stats-card"><b id="raiz-stats-products">—</b><span>Produtos com cliques</span></div>
+    <div class="stats-card"><b id="raiz-stats-active">—</b><span>Produtos ativos</span></div>
+    <div class="stats-card"><b id="raiz-stats-missing">—</b><span>Produtos sem preço</span></div>
+  </div>
+  <h3>Cliques por dia</h3>
+  <div id="raiz-stats-bars" class="stats-bars" role="img" aria-label="Gráfico de cliques por dia"></div>
+  <p class="stats-caption" id="raiz-stats-range">Selecione um período para consultar.</p>
+  <div class="stats-lists">
+    <div><h3>Produtos mais clicados</h3><ol id="raiz-stats-top" class="stats-list"></ol></div>
+    <div><h3>Cliques por loja</h3><ul id="raiz-stats-stores" class="stats-list"></ul></div>
+  </div>
+  <p class="stats-caption" id="raiz-stats-catalog">Catálogo: —</p>
+  <p class="stats-caption">Contabilizamos cliques nos links de saída da vitrine da V12, não visitantes únicos, pedidos, vendas ou comissões. Sem cookies nem identificação de visitantes. Cliques anteriores à instalação não estão disponíveis. Testes e cliques repetidos também podem entrar na contagem.</p>
 </section>
 <section id="raiz-gerenciar-produtos" hidden aria-label="Gerenciar produtos">
   <h2>🌿 Gerenciamento de produtos</h2>
@@ -2506,6 +2554,67 @@ apply.addEventListener('click',async()=>{
  finally{busy=false;btn.disabled=!token;apply.disabled=true}
 });
 window.addEventListener('raiz:admin-tests-unlocked',e=>{token=String(e.detail?.accessToken||'');btn.disabled=!token});
+})();
+</script>
+<script>
+/* V12 — dashboard privado, somente leitura, nenhum evento de cliques no ADM. */
+(function(){
+'use strict';
+const by=id=>document.getElementById(id);
+const root=by('raiz-estatisticas');if(!root)return;
+let token='',running=false;
+const numeral=x=>Number(x||0).toLocaleString('pt-BR');
+const status=s=>{by('raiz-stats-status').textContent=s};
+function item(parent,name,amount){
+ const li=document.createElement('li'),span=document.createElement('span'),count=document.createElement('strong');
+ span.textContent=name;count.textContent=numeral(amount);
+ li.append(span,count);parent.append(li);
+}
+function draw(d){
+ by('raiz-stats-clicks').textContent=numeral(d.cliques_total);
+ by('raiz-stats-products').textContent=numeral(d.produtos_com_cliques);
+ by('raiz-stats-active').textContent=numeral(d.catalogo?.ativos);
+ by('raiz-stats-missing').textContent=numeral(d.catalogo?.sem_preco);
+ by('raiz-stats-catalog').textContent='Produtos cadastrados: '+numeral(d.catalogo?.total)+' · Ativos: '+numeral(d.catalogo?.ativos)+' · Inativos: '+numeral(d.catalogo?.inativos)+' · Sem preço: '+numeral(d.catalogo?.sem_preco)+'.';
+ by('raiz-stats-range').textContent='Período de '+d.inicio+' até '+d.fim+' (datas do Brasil).';
+ const bars=by('raiz-stats-bars');bars.replaceChildren();
+ const daily=Array.isArray(d.evolucao)?d.evolucao:[];
+ const max=Math.max(1,...daily.map(v=>Number(v.cliques)||0));
+ for(const value of daily){
+  const cell=document.createElement('div'),bar=document.createElement('div');
+  cell.className='stats-bar-cell';bar.className='stats-bar';
+  bar.style.height=Math.max(3,Math.round(120*(Number(value.cliques)||0)/max))+'px';
+  const title=value.dia+': '+numeral(value.cliques)+' cliques';
+  bar.title=title;cell.title=title;
+  cell.append(bar);bars.append(cell);
+ }
+ bars.setAttribute('aria-label','Cliques diários: '+daily.map(v=>v.dia+' '+numeral(v.cliques)).join(', '));
+ const top=by('raiz-stats-top');top.replaceChildren();
+ for(const p of d.top_produtos||[])item(top,'#'+p.id+' · '+p.nome+' ('+p.loja+')',p.cliques);
+ if(!top.children.length){const li=document.createElement('li');li.textContent='Ainda não há cliques registrados neste período.';top.append(li)}
+ const stores=by('raiz-stats-stores');stores.replaceChildren();
+ for(const p of d.por_loja||[])item(stores,p.loja||'Loja não informada',p.cliques);
+ if(!stores.children.length){const li=document.createElement('li');li.textContent='Sem dados ainda.';stores.append(li)}
+}
+async function load(){
+ if(!token||running)return;
+ running=true;by('raiz-stats-refresh').disabled=true;status('Consultando estatísticas...');
+ try{
+  const days=Number(by('raiz-stats-period').value);
+  const response=await fetch('/api/estatisticas-admin?dias='+days,{method:'GET',headers:{Authorization:'Bearer '+token},cache:'no-store',credentials:'omit'});
+  const data=await response.json();
+  if(!response.ok)throw Error(data.erro||'Falha na consulta.');
+  draw(data.dados);
+  status('Estatísticas atualizadas. As contagens começam após a ativação da coleta na prévia V12.');
+ }catch(e){status('Não foi possível carregar estatísticas: '+e.message)}
+ finally{running=false;by('raiz-stats-refresh').disabled=false}
+}
+by('raiz-stats-refresh').addEventListener('click',load);
+by('raiz-stats-period').addEventListener('change',load);
+window.addEventListener('raiz:admin-tests-unlocked',e=>{
+ token=String(e.detail?.accessToken||'');
+ if(token){root.hidden=false;load()}
+});
 })();
 </script>
 </body></html>
