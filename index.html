@@ -1487,31 +1487,30 @@ const botao = elemento("a", "buy", textoBotao);
       }
       try {
         mostrarMensagem("Carregando produtos...");
-        const endpoint = SUPABASE_URL + "/rest/v1/produtos?select=id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado&ativo=eq.true&order=id.desc&limit=1000";
-        async function buscarCatalogo() {
-          const controlador = new AbortController();
-          const limite = setTimeout(() => controlador.abort(), 12000);
-          try {
-            return await fetch(endpoint, {
-              headers: { apikey: SUPABASE_KEY },
-              signal: controlador.signal,
-              cache: "no-store"
-            });
-          } finally {
-            clearTimeout(limite);
+        // Supabase PostgREST: leitura em lotes pequenos, estáveis por cursor (id).
+        // Primeira vitrine aparece cedo; demais produtos entram em segundo plano.
+        // Suporta até 10.000 produtos ativos sem modificar o banco ou RLS.
+        const TAMANHO_LOTE = 500, LIMITE_CATALOGO = 10000;
+        async function buscarLote(ultimoId) {
+          const base = SUPABASE_URL + "/rest/v1/produtos?select=id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado&ativo=eq.true&order=id.desc&limit="+TAMANHO_LOTE;
+          const endpoint = ultimoId ? base+"&id=lt."+encodeURIComponent(ultimoId) : base;
+          async function realizar() {
+            const controller=new AbortController();
+            const timeout=setTimeout(()=>controller.abort(),15000);
+            try {
+              return await fetch(endpoint,{headers:{apikey:SUPABASE_KEY},signal:controller.signal,cache:"no-store"});
+            } finally {clearTimeout(timeout);}
           }
+          let response;
+          try {response=await realizar();if(!response.ok&&response.status>=500)response=await realizar();}
+          catch (_) {response=await realizar();}
+          if(!response.ok)throw new Error("Falha na consulta de produtos: HTTP "+response.status);
+          const batch=await response.json();
+          if(!Array.isArray(batch))throw new Error("Resposta inválida do catálogo.");
+          return batch;
         }
-        let resposta;
-        try {
-          resposta = await buscarCatalogo();
-          if (!resposta.ok && resposta.status >= 500) resposta = await buscarCatalogo();
-        } catch (primeiroErro) {
-          resposta = await buscarCatalogo();
-        }
-        if (!resposta.ok) throw new Error("Erro na consulta: " + resposta.status);
-        const produtosSupabase = await resposta.json();
-        if (!Array.isArray(produtosSupabase)) throw new Error("Resposta inválida do catálogo");
-        produtos = produtosSupabase;
+        const produtosSupabase=await buscarLote(null);
+        produtos=produtosSupabase;
         window.dispatchEvent(new CustomEvent('raiz:catalogo-carregado', {detail:{produtos:produtosSupabase}}));
         // V12: reconhecer lojas adicionais sem alterar as lojas ou produtos atuais.
         // Usa somente nomes das lojas presentes em produtos já aprovados.
@@ -1535,6 +1534,49 @@ const botao = elemento("a", "buy", textoBotao);
         // Vitrine pública: apenas produtos aprovados no Supabase.
         // A prévia Shopee é uma função administrativa separada e não altera esta lista.
         renderizarProdutos();
+        if(produtosSupabase.length===TAMANHO_LOTE){
+          const aviso=document.createElement("p");
+          aviso.id="raiz-catalogo-progress";
+          aviso.setAttribute("role","status");
+          aviso.setAttribute("aria-live","polite");
+          aviso.style.cssText="font-size:12px;color:#496542;margin:8px 0 12px";
+          contadorResultados.insertAdjacentElement("afterend",aviso);
+          const vistos=new Set(produtos.map(p=>String(p.id)));
+          void (async()=>{
+            let ultimaChave=Number(produtosSupabase[produtosSupabase.length-1].id);
+            let ultimoLote=produtosSupabase;
+            try{
+              // Pausa inicial libera a interface, especialmente em smartphones.
+              await new Promise(resolve=>setTimeout(resolve,220));
+              while(ultimoLote.length===TAMANHO_LOTE&&produtos.length<LIMITE_CATALOGO){
+                if(!Number.isSafeInteger(ultimaChave)||ultimaChave<1)break;
+                const lote=await buscarLote(ultimaChave);
+                if(!lote.length)break;
+                const anteriores=vistos.size;
+                for(const p of lote){
+                  const id=String(p.id);
+                  if(!vistos.has(id)&&produtos.length<LIMITE_CATALOGO){
+                    vistos.add(id);produtos.push(p);
+                  }
+                }
+                if(vistos.size===anteriores)break;
+                ultimoLote=lote;
+                ultimaChave=Number(lote[lote.length-1].id);
+                aviso.textContent="Ampliando catálogo: "+produtos.length+" produtos carregados...";
+                await new Promise(resolve=>setTimeout(resolve,90));
+              }
+              // Apenas atualização de leitura; mantém filtros, favoritos e paginação de 40.
+              window.dispatchEvent(new CustomEvent('raiz:catalogo-carregado',{detail:{produtos:produtos.slice()}}));
+              renderizarProdutos();
+              if(produtos.length>=LIMITE_CATALOGO){
+                aviso.textContent="Exibindo até 10.000 produtos ativos. O catálogo continua disponível para busca e filtros.";
+              }else aviso.remove();
+            }catch(error){
+              console.warn("Catálogo complementar indisponível:",error);
+              aviso.textContent="Catálogo parcialmente carregado ("+produtos.length+" itens). Atualize a página para tentar novamente.";
+            }
+          })();
+        }
         const produtoSolicitado = new URLSearchParams(location.search).get("produto");
         if (produtoSolicitado) {
           const escolhido = produtos.find(item => String(item.id) === produtoSolicitado);
