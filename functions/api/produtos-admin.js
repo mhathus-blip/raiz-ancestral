@@ -70,6 +70,23 @@ async function db(ctx,path,{method='GET',body,prefer}={}){
  if(!resp.ok)return {error:'Supabase retornou erro HTTP '+resp.status,status:502};
  return {data};
 }
+// Leitura paginada de até 10 mil produtos, sempre sob RLS do administrador.
+async function readCatalogForAdmin(ctx,columns){
+ const items=[];
+ let lastId=null;
+ for(let page=0;page<20;page++){
+   const params=new URLSearchParams({select:columns,order:'id.desc',limit:'500'});
+   if(lastId!==null)params.set('id','lt.'+lastId);
+   const r=await db(ctx,'produtos?'+params.toString());
+   if(r.error)return r;
+   const batch=r.data||[];
+   items.push(...batch);
+   if(batch.length<500)break;
+   lastId=Number(batch[batch.length-1].id);
+   if(!Number.isSafeInteger(lastId)||lastId<1)break;
+ }
+ return {data:items};
+}
 export async function onRequest({request,env}){
  if(!['GET','POST','PATCH'].includes(request.method))return json({erro:'Método não permitido.'},405);
  const ctx=await auth(request,env);if(ctx.error)return json({erro:ctx.error},ctx.status);
@@ -90,7 +107,7 @@ export async function onRequest({request,env}){
     return json({pagina:page,produtos:result.data,mais:result.data.length===batch});
   }
   if(url.searchParams.get('categories')==='1'){
-   const r=await db(ctx,'produtos?select=categoria&order=categoria.asc&limit=1000');
+   const r=await readCatalogForAdmin(ctx,'id,categoria');
    if(r.error)return json({erro:r.error},r.status);
    return json({categorias:[...new Set((r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
@@ -112,7 +129,7 @@ export async function onRequest({request,env}){
   const checked=validate(input);
   if(checked.error)return json({erro:checked.error},400);
   // Evita inserção duplicada por link ou nome. A pesquisa é feita sob a RLS do administrador.
-  const existing=await db(ctx,'produtos?select=id,nome,link_afiliado,loja&limit=1000');
+  const existing=await readCatalogForAdmin(ctx,'id,nome,link_afiliado,loja');
   if(existing.error)return json({erro:existing.error},existing.status);
   const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   const duplicado=(existing.data||[]).find(p=>String(p.link_afiliado||'').trim()===checked.value.link_afiliado||
