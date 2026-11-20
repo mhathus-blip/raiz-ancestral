@@ -2,13 +2,28 @@
    Usa as fotografias locais já existentes, preserva campanhas, ondas, calendário,
    autenticação, catálogo, administração e comparação ?tema=original. */
 html:not(.raiz-original-v12){--raiz-deep:#123e27;--raiz-gold:#efc875;--raiz-mist:rgba(255,255,237,.54)}
+/* Fundo herdado da prévia anterior, sem importar seu HTML ou suas funções.
+   Cores extraídas de preview/visual-botanico-realista-20261120.
+   A V12 original continua responsável por campanhas, hero, banners e admin. */
 html:not(.raiz-original-v12) body{
+ background-color:#d6dd9d!important;
  background-image:
- radial-gradient(ellipse at 12% 17%,rgba(156,192,82,.62),transparent 34%),
- radial-gradient(ellipse at 91% 26%,rgba(96,147,49,.40),transparent 37%),
- radial-gradient(ellipse at 55% 70%,rgba(245,219,154,.46),transparent 46%),
- linear-gradient(120deg,#dce3a8 0%,#f5efcf 43%,#cfdb98 75%,#e9d7aa 100%)!important;
- background-size:cover!important;background-repeat:no-repeat!important;
+  radial-gradient(ellipse at 9% 32%,rgba(96,145,37,.5),transparent 31%),
+  radial-gradient(ellipse at 91% 38%,rgba(103,151,46,.42),transparent 36%),
+  radial-gradient(ellipse at 53% 86%,#ebd8a6,transparent 45%),
+  linear-gradient(125deg,#d6dd9d 0%,#f1edcf 48%,#bbc78f 100%)!important;
+ background-size:cover,cover,cover,cover!important;
+ background-position:center,center,center,center!important;
+ background-repeat:no-repeat!important;
+}
+/* Impede que a ilustração SVG de fundo da V12 cubra o fundo fotonatural da prévia.
+   Preserva as imagens dos produtos e os banners sazonais separadamente. */
+html:not(.raiz-original-v12) main.wrap::before{
+ background:
+  radial-gradient(ellipse at 9% 32%,rgba(96,145,37,.17),transparent 31%),
+  radial-gradient(ellipse at 91% 38%,rgba(103,151,46,.14),transparent 36%),
+  radial-gradient(ellipse at 53% 86%,rgba(235,216,166,.18),transparent 45%)!important;
+ opacity:.65!important;
 }
 html:not(.raiz-original-v12) .site-header{
  background:linear-gradient(135deg,rgba(255,255,239,.76),rgba(235,243,204,.59),rgba(252,242,205,.72))!important;
