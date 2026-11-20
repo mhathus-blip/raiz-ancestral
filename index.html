@@ -1296,6 +1296,40 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
         return new Date().toISOString().slice(0,10);
       }
     }
+    // Vitrine equilibrada: diversidade de categorias, lojas e imagens sem omitir itens.
+    // Cada produto entra uma única vez; as outras ordenações da loja permanecem intactas.
+    function ordemVitrineDiversificada(lista) {
+      const grupos=new Map();
+      for(const produto of lista){
+        const chave=String(produto.categoria||"Sem categoria").trim()||"Sem categoria";
+        if(!grupos.has(chave))grupos.set(chave,[]);
+        grupos.get(chave).push(produto);
+      }
+      const resultado=[];
+      let ultimaLoja="";
+      while(resultado.length<lista.length){
+        for(const grupo of grupos.values()){
+          if(!grupo.length)continue;
+          const janela=Math.min(grupo.length,12);
+          let posicao=-1;
+          for(let k=0;k<janela;k++){
+            const item=grupo[k];
+            const loja=String(item.loja||"").toLowerCase();
+            if(item.imagem_url&&loja!==ultimaLoja){posicao=k;break;}
+          }
+          if(posicao<0){
+            for(let k=0;k<janela;k++){
+              if(grupo[k].imagem_url){posicao=k;break;}
+            }
+          }
+          if(posicao<0)posicao=0;
+          const escolhido=grupo.splice(posicao,1)[0];
+          resultado.push(escolhido);
+          ultimaLoja=String(escolhido.loja||"").toLowerCase();
+        }
+      }
+      return resultado;
+    }
     function misturarVitrineDoDia(lista) {
       if(lista.length < 2)return lista.slice();
       const dia = dataVitrineBrasilia();
@@ -1318,7 +1352,7 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
         [items[i],items[j]]=[items[j],items[i]];
       }
       // Distribui categorias pela vitrine em vez de concentrar uma só no começo.
-      return ordemInteligente(items);
+      return ordemVitrineDiversificada(items);
     }
 
     function renderizarProdutos() {
