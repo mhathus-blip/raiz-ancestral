@@ -956,6 +956,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 try{if(new URLSearchParams(location.search).get('tema')==='original')document.documentElement.classList.add('raiz-original-v12')}catch(e){}
 </script>
 <link rel="stylesheet" href="/assets/raiz-botanical-liquid-v12.css">
+<link rel="stylesheet" href="/assets/v12-refinamento-glass.css?v=20261120" data-v12-visual-preview="true">
 </head>
 <body>
 <header id="inicio" class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div></header>
@@ -978,14 +979,14 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     placeholder="Buscar plantas, chás, ferramentas..."
     style="display:block;width:100%;max-width:520px;padding:15px;margin-top:10px;border:1px solid #d8c9b4;border-radius:30px;background:#fff;color:#213f2b;"
   >
-</div><div id="resultado-busca" role="status" aria-live="polite" style="margin:8px 0;color:#4e5d4d;font-size:14px;"></div><button type="button" id="limpar-filtros" style="display:none;border:1px solid #d8c9b4;border-radius:25px;background:#fffaf1;color:#213f2b;padding:9px 15px;cursor:pointer;">Limpar busca e filtros</button><div class="ordenacao" style="display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0;">   <label for="filtrar-loja">Loja:</label><select id="filtrar-loja" aria-label="Filtrar por loja" style="padding:10px;border:1px solid #d8c9b4;border-radius:10px;background:#fff;color:#213f2b;"><option value="todas">Todas as lojas</option><option value="shopee">Shopee</option><option value="amazon">Amazon</option></select><label for="ordenar-preco">Ordenar por:</label>   <select id="ordenar-preco" style="padding:10px;border:1px solid #d8c9b4;border-radius:10px;background:#fff;color:#213f2b;">     <option value="padrao">Ordem padrão</option>     <option value="menor">Menor preço primeiro</option>     <option value="maior">Maior preço primeiro</option><option value="nome">Nome: A a Z</option><option value="recentes" selected>Mais recentes</option>   </select> </div><div id="produtos" class="products" aria-live="polite"><p class="message">Carregando produtos...</p></div><nav id="paginacao-produtos" aria-label="Navegação das páginas de produtos" style="display:none;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin:28px 0 8px;"></nav></section><section id="sobre" class="about"><div><h2>Pequenas escolhas, grandes conexões com a natureza.</h2><p>O Raiz Ancestral reúne recomendações de plantas, produtos naturais e jardinagem. Não realizamos vendas diretamente: ao escolher um produto, você será direcionado à loja parceira.</p></div><div class="raiz-filosofia" aria-label="Nosso compromisso com você">
+</div><div id="resultado-busca" role="status" aria-live="polite" style="margin:8px 0;color:#4e5d4d;font-size:14px;"></div><button type="button" id="limpar-filtros" style="display:none;border:1px solid #d8c9b4;border-radius:25px;background:#fffaf1;color:#213f2b;padding:9px 15px;cursor:pointer;">Limpar busca e filtros</button><div class="ordenacao" style="display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0;">   <label for="filtrar-loja">Loja:</label><select id="filtrar-loja" aria-label="Filtrar por loja" style="padding:10px;border:1px solid #d8c9b4;border-radius:10px;background:#fff;color:#213f2b;"><option value="todas">Todas as lojas</option><option value="shopee">Shopee</option><option value="amazon">Amazon</option></select><label for="ordenar-preco">Ordenar por:</label>   <select id="ordenar-preco" style="padding:10px;border:1px solid #d8c9b4;border-radius:10px;background:#fff;color:#213f2b;">     <option value="padrao">Ordem padrão</option>     <option value="menor">Menor preço primeiro</option>     <option value="maior">Maior preço primeiro</option><option value="nome">Nome: A a Z</option><option value="diario" selected>🌿 Vitrine do dia</option><option value="recentes">Mais recentes</option>   </select> </div><div id="produtos" class="products" aria-live="polite"><p class="message">Carregando produtos...</p></div><nav id="paginacao-produtos" aria-label="Navegação das páginas de produtos" style="display:none;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin:28px 0 8px;"></nav></section><section id="sobre" class="about"><div><h2>Pequenas escolhas, grandes conexões com a natureza.</h2><p>O Raiz Ancestral reúne recomendações de plantas, produtos naturais e jardinagem. Não realizamos vendas diretamente: ao escolher um produto, você será direcionado à loja parceira.</p></div><div class="raiz-filosofia" aria-label="Nosso compromisso com você">
   <div class="raiz-filosofia-selo">🌿 NOSSA FILOSOFIA</div>
   <h3>Mais do que oferecer produtos, queremos cultivar confiança.</h3>
   <p>Acreditamos que cada pessoa merece informações claras, escolhas conscientes e respeito pelo seu dinheiro.</p>
   <p>Nosso compromisso é selecionar produtos com responsabilidade, apresentar preços com transparência e nunca prometer aquilo que não podemos comprovar.</p>
   <strong>Porque, para nós, confiança não tem preço.</strong>
 </div><div class="about-art" aria-hidden="true"><svg viewBox="0 0 280 210" role="img" aria-label="Ilustração botânica delicada"><g fill="none" stroke="#7b986f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M136 195Q142 110 121 28"/><path d="M138 152Q80 143 62 106M138 132Q190 116 206 72M130 94Q87 78 79 41"/></g><g fill="#a6bd88" stroke="#6c9063" stroke-width="2"><path d="M120 48Q82 44 83 11Q118 19 120 48Z"/><path d="M137 85Q167 42 197 52Q180 88 137 85Z"/><path d="M101 123Q66 79 35 93Q49 126 101 123Z"/><path d="M152 164Q197 130 229 148Q200 180 152 164Z"/><path d="M127 67Q150 28 137 8Q114 30 127 67Z"/></g><path d="M38 195Q140 202 242 195" stroke="#b7835c" stroke-width="3" fill="none" opacity=".6"/></svg></div></section></main>
-<footer class="site-footer"><div class="wrap"><div class="footer-grid"><div><h3>🌿 Raiz Ancestral</h3><p>Uma vitrine de descobertas para quem ama plantas, natureza e jardinagem.</p></div><div><h4>Navegue</h4><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></div><div><h4>Conecte-se com a gente</h4><p class="social-note">Acompanhe o Raiz Ancestral nas redes sociais.</p><div class="social-links" aria-label="Nossas redes sociais">
+<footer class="site-footer"><div class="wrap"><div class="footer-grid"><div><h3>🌿 Raiz Ancestral</h3><p>Uma vitrine de descobertas para quem ama plantas, natureza e jardinagem.</p></div><div><h4>Navegue</h4><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a><a class="raiz-admin-public-link" href="/admin/" aria-label="Acessar área administrativa protegida">🔐 Acesso ADM</a></div><div><h4>Conecte-se com a gente</h4><p class="social-note">Acompanhe o Raiz Ancestral nas redes sociais.</p><div class="social-links" aria-label="Nossas redes sociais">
 <a href="https://www.instagram.com/raiz_ancestral1/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do Raiz Ancestral" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.8" cy="6.5" r=".7" fill="currentColor" stroke="none"/></svg></a>
 <a href="https://k.kwai.com/u/@raizancestral/CCG0qF7t" target="_blank" rel="noopener noreferrer" aria-label="Kwai do Raiz Ancestral" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="6"/><circle cx="9" cy="9" r="1.4"/><circle cx="15" cy="9" r="1.4"/><circle cx="12" cy="14" r="2.2"/><path d="M10 17.5h4"/></svg></a>
 <a href="https://www.tiktok.com/@raiz.ancestral8" target="_blank" rel="noopener noreferrer" aria-label="TikTok do Raiz Ancestral" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2v12.3a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14 2c.4 3.6 2.6 5.6 6 5.8v3.3c-2.4 0-4.5-.8-6-2.3"/></svg></a>
@@ -1001,7 +1002,7 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     const botoes = document.querySelectorAll("#categorias button");
     let produtos = [];
     let categoriaAtual = "Todos";
-    let ordemAtual = "recentes";
+    let ordemAtual = "diario";
     let lojaAtual = "todas";
     let paginaAtual = 1;
     const produtosPorPagina = 40;
@@ -1089,8 +1090,8 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     const limparFiltros = document.getElementById("limpar-filtros");
     limparFiltros.addEventListener("click", () => {
       document.getElementById("busca-produtos").value = "";
-      document.getElementById("ordenar-preco").value = "padrao";
-      ordemAtual = "padrao";
+      document.getElementById("ordenar-preco").value = "diario";
+      ordemAtual = "diario";
       lojaAtual = "todas";
       paginaAtual = 1;
       document.getElementById("filtrar-loja").value = "todas";
@@ -1281,6 +1282,45 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
       });
     }
 
+    // V12: vitrine diária determinística, baseada na data de Brasília.
+    // Mesma lista para todos os visitantes no mesmo dia; sem gravação no banco.
+    // A mistura ocorre antes da paginação, para não duplicar itens entre páginas.
+    function dataVitrineBrasilia() {
+      try {
+        const partes = new Intl.DateTimeFormat("en-US", {
+          timeZone:"America/Sao_Paulo", year:"numeric", month:"2-digit", day:"2-digit"
+        }).formatToParts(new Date());
+        const dados = Object.fromEntries(partes.filter(p => p.type !== "literal").map(p => [p.type,p.value]));
+        return dados.year+"-"+dados.month+"-"+dados.day;
+      } catch (_) {
+        return new Date().toISOString().slice(0,10);
+      }
+    }
+    function misturarVitrineDoDia(lista) {
+      if(lista.length < 2)return lista.slice();
+      const dia = dataVitrineBrasilia();
+      let seed = 2166136261;
+      for(const c of "raiz-ancestral-v12|"+dia) {
+        seed ^= c.charCodeAt(0);
+        seed = Math.imul(seed,16777619);
+      }
+      // Ordem base fixa: novas inserções não dependem da ordem da API.
+      const items = lista.slice().sort((a,b) => Number(a.id||0)-Number(b.id||0));
+      // Mulberry32 + Fisher-Yates: embaralhamento reproduzível durante o dia.
+      const aleatorio = () => {
+        seed = (seed + 0x6D2B79F5)|0;
+        let t = Math.imul(seed ^ (seed>>>15),1|seed);
+        t ^= t + Math.imul(t ^ (t>>>7),61|t);
+        return ((t ^ (t>>>14))>>>0) / 4294967296;
+      };
+      for(let i=items.length-1;i>0;i--){
+        const j=Math.floor(aleatorio()*(i+1));
+        [items[i],items[j]]=[items[j],items[i]];
+      }
+      // Distribui categorias pela vitrine em vez de concentrar uma só no começo.
+      return ordemInteligente(items);
+    }
+
     function renderizarProdutos() {
       container.replaceChildren();
       const termo = normalizarBusca(document.getElementById("busca-produtos").value);
@@ -1307,7 +1347,14 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     : null;
 };
 
-if (ordemAtual === "padrao" && termos.length) {
+if (ordemAtual === "diario" && !termos.length && !somenteFavoritos) {
+  visiveis.splice(0,visiveis.length,...misturarVitrineDoDia(visiveis));
+} else if (ordemAtual === "diario") {
+  // Pesquisas priorizam relevância; favoritos mantêm a ordem previsível.
+  visiveis.sort((a,b) => termos.length
+    ? pontuacaoBusca(b,termos)-pontuacaoBusca(a,termos) || Number(b.id||0)-Number(a.id||0)
+    : Number(b.id||0)-Number(a.id||0));
+} else if (ordemAtual === "padrao" && termos.length) {
   visiveis.sort((a,b) => pontuacaoBusca(b,termos) - pontuacaoBusca(a,termos) || Number(b.id||0)-Number(a.id||0));
 } else if (ordemAtual === "padrao" && !somenteFavoritos) {
   visiveis.splice(0,visiveis.length,...ordemInteligente(visiveis));
@@ -1330,7 +1377,7 @@ if (ordemAtual === "padrao" && termos.length) {
 }
       botaoFavoritos.textContent = (somenteFavoritos ? "♥ Mostrando favoritos" : "♡ Meus favoritos") + " (" + favoritos.size + ")";
       botaoFavoritos.setAttribute("aria-pressed", String(somenteFavoritos));
-      contadorResultados.textContent = `${visiveis.length} ${visiveis.length === 1 ? "produto encontrado" : "produtos encontrados"} de ${produtos.length}` + (categoriaAtual !== "Todos" ? ` • ${categoriaAtual}` : "") + (lojaAtual !== "todas" ? ` • ${lojaAtual.toUpperCase()}` : "") + (somenteFavoritos ? " • Favoritos" : "");
+      contadorResultados.textContent = `${visiveis.length} ${visiveis.length === 1 ? "produto encontrado" : "produtos encontrados"} de ${produtos.length}` + (categoriaAtual !== "Todos" ? ` • ${categoriaAtual}` : "") + (lojaAtual !== "todas" ? ` • ${lojaAtual.toUpperCase()}` : "") + (somenteFavoritos ? " • Favoritos" : "") + (ordemAtual === "diario" && !termos.length && !somenteFavoritos ? " • 🌿 Vitrine do dia" : "");
       limparFiltros.style.display = (termo || categoriaAtual !== "Todos" || lojaAtual !== "todas" || ordemAtual !== "padrao" || somenteFavoritos) ? "inline-block" : "none";
       if (!visiveis.length) {
         paginacao.style.display = "none";

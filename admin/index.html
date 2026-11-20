@@ -1041,6 +1041,26 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 try{if(new URLSearchParams(location.search).get('tema')==='original')document.documentElement.classList.add('raiz-original-v12')}catch(e){}
 </script>
 <link rel="stylesheet" href="/assets/raiz-botanical-liquid-v12.css">
+<link rel="stylesheet" href="/assets/v12-refinamento-glass.css?v=20261120" data-v12-admin-visual="true">
+
+<style id="raiz-admin-layout-compact-v12">
+/* Apenas apresentação do painel ADM; nenhum script de login, edição ou campanha alterado. */
+#raiz-gerenciar-produtos{margin:12px auto!important;padding:16px 18px!important}
+#raiz-gerenciar-produtos>h2{margin-bottom:5px!important}
+#raiz-gerenciar-produtos>p{margin:5px 0 12px!important}
+#raiz-gerenciar-produtos .toolbar{gap:8px!important;margin:7px 0!important}
+#raiz-gerenciar-produtos #raiz-prod-form:not([hidden]){margin:12px 0 14px!important;padding:14px!important;border:1px solid rgba(123,150,106,.3);border-radius:16px;background:rgba(255,255,248,.8)}
+#raiz-gerenciar-produtos #raiz-prod-form .raiz-admin-grid{gap:9px 12px!important}
+#raiz-gerenciar-produtos #raiz-prod-form input,#raiz-gerenciar-produtos #raiz-prod-form select{padding:9px!important}
+#raiz-gerenciar-produtos #raiz-prod-form h3{margin:0 0 12px!important}
+#raiz-gerenciar-produtos #raiz-prod-form .actions{margin-top:10px!important}
+#raiz-gerenciar-produtos .raiz-prod-list-wrapper{margin-top:18px;padding-top:12px;border-top:1px solid rgba(102,134,95,.33)}
+#raiz-gerenciar-produtos .raiz-prod-list-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+#raiz-gerenciar-produtos .raiz-prod-list-heading h3{margin:0;font:700 19px Georgia,serif;color:#23452d}
+#raiz-gerenciar-produtos .raiz-prod-list-heading span{font-size:12px;color:#5c6b52}
+#raiz-gerenciar-produtos .raiz-prod-list-wrapper .actions{margin:10px 0!important}
+@media(max-width:650px){#raiz-gerenciar-produtos{padding:12px!important}#raiz-gerenciar-produtos #raiz-prod-form:not([hidden]){padding:10px!important}}
+</style>
 </head>
 <body>
 <header id="inicio" class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div></header>
@@ -1066,6 +1086,20 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
 <button id="raiz-liquid-toggle" type="button" aria-pressed="true">✨ Efeito liquid: ligado</button>
 </nav>
 <p class="raiz-tool-muted">Atalhos visíveis apenas após o login administrativo. O efeito liquid é um teste visual da V12; é possível desligá-lo sem mudar os estilos originais.</p>
+</section>
+<section id="raiz-central-automacoes" class="raiz-auto-center" aria-labelledby="raiz-auto-titulo" hidden>
+ <h2 id="raiz-auto-titulo">⚙️ Central de campanhas e automações</h2>
+ <p>Controles da V12 reunidos em um só lugar. As simulações afetam apenas esta tela; nenhuma campanha é publicada ou alterada no banco por estes botões.</p>
+ <p class="raiz-auto-state" id="raiz-auto-status" role="status" aria-live="polite">Autenticado — verificando modo de decoração.</p>
+ <div class="raiz-auto-grid">
+  <article class="raiz-auto-card"><h3>📅 Calendário automático</h3><p>11 datas temáticas, incluindo Black Friday, Natal, Dia das Mães e aniversário da Raiz Ancestral, com decorações por data.</p><button type="button" id="raiz-auto-restaurar">Usar data atual e modo automático</button></article>
+  <article class="raiz-auto-card"><h3>🎨 Simulador de campanhas</h3><p>Escolha uma comemoração e simule uma data na barra administrativa. Teste a contagem regressiva, a decoração e a vitrine temática.</p><button type="button" id="raiz-auto-simular">Abrir simulador de datas</button></article>
+  <article class="raiz-auto-card"><h3>🛍️ Vitrine sazonal</h3><p>Seleção visual de produtos ativos por afinidade com a campanha, sem inventar preço, descontos ou disponibilidade.</p><a href="#raiz-vitrine-campanha">Ver vitrine temática</a></article>
+  <article class="raiz-auto-card"><h3>🔄 Diagnóstico Shopee</h3><p>Consulta autorizada de anúncios sem preço, em modo de leitura; depende da integração disponível e não altera produtos.</p><a href="#raiz-shopee-api-preview">Ver consultas Shopee</a></article>
+  <article class="raiz-auto-card"><h3>📊 Conferência e relatórios</h3><p>Auditoria de preços, exportação CSV, validação dos resultados e estatísticas existentes.</p><a href="#raiz-auditoria-precos">Auditoria</a><a href="#raiz-estatisticas">Estatísticas</a></article>
+  <article class="raiz-auto-card"><h3>📦 Cadastro de produtos</h3><p>Cadastro, rascunhos, edição, importação por link e ativação controlada com as verificações de acesso existentes.</p><a href="#raiz-gerenciar-produtos">Gerenciar catálogo</a></article>
+ </div>
+ <p class="raiz-auto-note">Atenção: os botões deste painel não criam tarefas de execução agendada nem habilitam integrações externas. Eles dão acesso aos recursos já presentes na V12. Configurações de execução automática no servidor exigem implementação e autorização separadas.</p>
 </section>
 <section id="raiz-auditoria-precos" class="raiz-auditoria-precos" aria-labelledby="raiz-auditoria-titulo" hidden>
  <h2 id="raiz-auditoria-titulo">🔎 Auditoria de preços — Shopee</h2>
@@ -1153,8 +1187,6 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     <div id="raiz-price-batch-list"></div>
     <button type="button" id="raiz-price-apply" disabled hidden>Aplicar preços únicos confirmados</button>
   </div>
-  <div id="raiz-prod-list"></div>
-  <div class="actions"><button type="button" id="raiz-prod-prev" class="subtle">← Anterior</button><span id="raiz-prod-page" style="align-self:center">Página 1</span><button type="button" id="raiz-prod-next" class="subtle">Próxima →</button></div>
   <form id="raiz-prod-form" hidden>
     <h3 id="raiz-prod-form-title">Novo produto (rascunho)</h3>
     <div class="raiz-admin-grid">
@@ -1175,6 +1207,11 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     <div id="raiz-prod-review" role="status" aria-live="polite" style="padding:10px;border-radius:8px;background:#f4eedf;font-size:13px">Preencha os dados e confira o resumo antes de salvar.</div>
     <p style="font-size:12px;color:#746752">Novos produtos são criados inativos, mesmo que a opção de visibilidade esteja marcada; ative-os depois de revisar.</p>
   </form>
+  <div class="raiz-prod-list-wrapper" aria-label="Lista dos produtos cadastrados">
+    <div class="raiz-prod-list-heading"><h3>📋 Produtos cadastrados</h3><span>Escolha “Editar” para preencher o formulário acima.</span></div>
+  <div id="raiz-prod-list"></div>
+  <div class="actions"><button type="button" id="raiz-prod-prev" class="subtle">← Anterior</button><span id="raiz-prod-page" style="align-self:center">Página 1</span><button type="button" id="raiz-prod-next" class="subtle">Próxima →</button></div>
+  </div>
 </section>
 <section id="catalogo" class="section" aria-labelledby="titulo-catalogo"><div class="section-head"><div><h2 id="titulo-catalogo">🍃 Produtos selecionados</h2><p class="section-sub">Confira nossas indicações e visite as lojas parceiras.</p></div></div><div class="busca-produtos" style="margin:20px 0;">
   <label for="busca-produtos">🔎 Encontre o que procura</label>
@@ -2753,6 +2790,49 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
  toggle.addEventListener('click',()=>{document.documentElement.classList.toggle('raiz-liquid-off');update()});
  window.addEventListener('raiz:admin-tests-unlocked',()=>{nav.hidden=false;update()});
  update();
+})();
+</script>
+
+<script>
+/* Painel consolidado: aparece apenas após autenticação e autorização da V12.
+   Não cria permissões e não executa chamadas administrativas diretamente. */
+(function(){
+ const root=document.getElementById('raiz-central-automacoes');
+ const status=document.getElementById('raiz-auto-status');
+ const selector=document.getElementById('season-mode');
+ const refresh=document.getElementById('raiz-auto-restaurar');
+ const simulator=document.getElementById('raiz-auto-simular');
+ if(!root||!status||!selector||!refresh||!simulator)return;
+ let authorized=false;
+ const update=()=>{
+  if(!authorized)return;
+  const mode=selector.value==='auto'?'automático':'prévia de '+selector.options[selector.selectedIndex]?.textContent;
+  const active=document.body.dataset.season||'normal';
+  status.textContent='Decoração: '+mode+' | campanha exibida: '+active+'. Alterações apenas nesta sessão de teste.';
+ };
+ window.addEventListener('raiz:admin-tests-unlocked',()=>{
+  authorized=true;root.hidden=false;update();
+ });
+ selector.addEventListener('change',update);
+ refresh.addEventListener('click',()=>{
+  if(!authorized)return;
+  const date=document.getElementById('season-test-date');
+  if(date)date.value='';
+  selector.value='auto';
+  selector.dispatchEvent(new Event('change',{bubbles:true}));
+  update();
+ });
+ simulator.addEventListener('click',()=>{
+  if(!authorized)return;
+  const toolbar=document.querySelector('.season-toolbar');
+  if(toolbar){
+   toolbar.style.setProperty('display','flex','important');
+   toolbar.scrollIntoView({behavior:'smooth',block:'center'});
+   (document.getElementById('season-test-date')||selector).focus();
+  }
+ });
+ const observer=new MutationObserver(update);
+ observer.observe(document.body,{attributes:true,attributeFilter:['data-season']});
 })();
 </script>
 </body></html>
