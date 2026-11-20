@@ -35,7 +35,7 @@ function validate(input,update=false){
    const cap={nome:250,loja:55,categoria:100,link_afiliado:1800,imagem_url:1800,descricao:2000,shopee_product_id:60}[key];
    if(v.length>cap)return {error:'Campo muito longo: '+key};
    if((key==='link_afiliado'&&(!v||!https(v)))||(key==='imagem_url'&&v&&!https(v)))return {error:'Endereço HTTPS inválido em '+key};
-   if(['nome','loja','categoria'].includes(key)&&!v)return {error:'Campo obrigatório: '+key};
+   if(['nome','loja'].includes(key)&&!v)return {error:'Campo obrigatório: '+key};
    out[key]=v||(['imagem_url','descricao','shopee_product_id'].includes(key)?null:v);
   } else if(key==='preco'){
    if(val===''||val===null){out.preco=null;continue}
