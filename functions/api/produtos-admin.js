@@ -154,10 +154,17 @@ export async function onRequest({request,env}){
   const provided=String(checked.value.categoria||'').trim();
   const suggested=suggestCategory(checked.value.nome);
   const categoria=(!provided||provided==='A classificar')?suggested:provided;
-  const product={...checked.value,categoria,ativo:false,destaque:false};
+  // Respeita a opção de visibilidade escolhida explicitamente no formulário.
+  // Rascunho continua o padrão. Ativação exige imagem HTTPS revisada,
+  // da mesma forma que a edição de um produto existente.
+  const publicar=checked.value.ativo===true;
+  if(publicar&&!https(checked.value.imagem_url)){
+    return json({erro:'Para ativar no primeiro cadastro, informe e confira uma URL de imagem HTTPS válida.'},422);
+  }
+  const product={...checked.value,categoria,ativo:publicar,destaque:false};
   const r=await db(ctx,'produtos',{method:'POST',body:product});
   if(r.error)return json({erro:r.error},r.status);
-  return json({ok:true,produto:r.data[0],observacao:'Cadastrado inativo para revisão.'},201);
+  return json({ok:true,produto:r.data[0],observacao:publicar?'Produto cadastrado e ativado.':'Cadastrado inativo para revisão.'},201);
  }
  const id=Number(input?.id);
  if(!Number.isSafeInteger(id)||id<1)return json({erro:'ID inválido.'},400);
