@@ -1302,28 +1302,28 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
       const grupos=new Map();
       for(const produto of lista){
         const chave=String(produto.categoria||"Sem categoria").trim()||"Sem categoria";
-        if(!grupos.has(chave))grupos.set(chave,[]);
-        grupos.get(chave).push(produto);
+        if(!grupos.has(chave))grupos.set(chave,{itens:[],pos:0});
+        grupos.get(chave).itens.push(produto);
       }
       const resultado=[];
       let ultimaLoja="";
+      // Sem splice: 10 mil itens continuam em O(n * 12), mesmo com categoria única.
       while(resultado.length<lista.length){
         for(const grupo of grupos.values()){
-          if(!grupo.length)continue;
-          const janela=Math.min(grupo.length,12);
+          if(grupo.pos>=grupo.itens.length)continue;
+          const limite=Math.min(grupo.itens.length,grupo.pos+12);
           let posicao=-1;
-          for(let k=0;k<janela;k++){
-            const item=grupo[k];
-            const loja=String(item.loja||"").toLowerCase();
-            if(item.imagem_url&&loja!==ultimaLoja){posicao=k;break;}
+          for(let k=grupo.pos;k<limite;k++){
+            const item=grupo.itens[k];
+            if(item.imagem_url&&String(item.loja||"").toLowerCase()!==ultimaLoja){posicao=k;break;}
           }
           if(posicao<0){
-            for(let k=0;k<janela;k++){
-              if(grupo[k].imagem_url){posicao=k;break;}
-            }
+            for(let k=grupo.pos;k<limite;k++)if(grupo.itens[k].imagem_url){posicao=k;break;}
           }
-          if(posicao<0)posicao=0;
-          const escolhido=grupo.splice(posicao,1)[0];
+          if(posicao<0)posicao=grupo.pos;
+          // Troca apenas dentro da janela: nenhuma exclusão/duplicação.
+          [grupo.itens[grupo.pos],grupo.itens[posicao]]=[grupo.itens[posicao],grupo.itens[grupo.pos]];
+          const escolhido=grupo.itens[grupo.pos++];
           resultado.push(escolhido);
           ultimaLoja=String(escolhido.loja||"").toLowerCase();
         }
