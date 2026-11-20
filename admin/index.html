@@ -1209,7 +1209,7 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     </div>
     <div class="actions"><button id="raiz-prod-save" type="submit">Salvar produto</button><button id="raiz-prod-cancel" type="button" class="subtle">Cancelar edição</button></div>
     <div id="raiz-prod-review" role="status" aria-live="polite" style="padding:10px;border-radius:8px;background:#f4eedf;font-size:13px">Preencha os dados e confira o resumo antes de salvar.</div>
-    <p style="font-size:12px;color:#746752">Novos produtos são criados inativos, mesmo que a opção de visibilidade esteja marcada; ative-os depois de revisar.</p>
+    <p style="font-size:12px;color:#746752">Novos produtos são salvos conforme a visibilidade selecionada. Para ativar no primeiro cadastro, confira os dados, a imagem HTTPS e confirme a publicação. O padrão continua Inativo / Rascunho.</p>
   </form>
   <div class="raiz-prod-list-wrapper" aria-label="Lista dos produtos cadastrados">
     <div class="raiz-prod-list-heading"><h3>📋 Produtos cadastrados</h3><span>Escolha “Editar” para preencher o formulário acima.</span></div>
@@ -2379,7 +2379,7 @@ function updateReview(){
  const active=form.elements.namedItem('ativo').value==='true';
  const missing=[!name?'nome':null,!shop?'loja':null,!category?'categoria':null,!link?'link afiliado':null].filter(Boolean);
  const msg=missing.length?'Campos pendentes: '+missing.join(', ')+'. ':'Campos obrigatórios preenchidos. ';
- by('raiz-prod-review').textContent=msg+(editing?(active?'Este produto ficará ATIVO após salvar.':'Este produto ficará INATIVO após salvar.'):'Novo produto será salvo INATIVO, para sua revisão.')+(image?' Confira a imagem e o link antes de publicar.':' Sem imagem: o anúncio poderá mostrar imagem indisponível.');
+ by('raiz-prod-review').textContent=msg+(editing?(active?'Este produto ficará ATIVO após salvar.':'Este produto ficará INATIVO após salvar.'):(active?'Este novo produto será ATIVADO ao salvar, após sua confirmação.':'Novo produto será salvo INATIVO, para sua revisão.'))+(image?' Confira a imagem e o link antes de publicar.':' Sem imagem: o anúncio poderá mostrar imagem indisponível.');
  const hint=by('raiz-prod-image-hint'),img=by('raiz-prod-image');
  if(/^https:\/\//i.test(image)){
   img.hidden=false;img.src=image;img.referrerPolicy='no-referrer';hint.textContent='Prévia da imagem:';
@@ -2422,7 +2422,7 @@ by('raiz-prod-import').addEventListener('click',()=>{
  form.elements.namedItem('link_afiliado').value=raw;
  if(item)form.elements.namedItem('shopee_product_id').value=item;
  if(suggested)form.elements.namedItem('nome').value=decodeURIComponent(suggested).replace(/\s+/g,' ').slice(0,250);
- out.textContent='Pré-cadastro preparado para '+shop+'. '+(suggested?'Nome sugerido a partir do link; confirme com o anúncio. ':'Preencha o nome manualmente. ')+'Informe a categoria e revise os demais campos. O produto só será salvo após sua confirmação, como rascunho.';
+ out.textContent='Pré-cadastro preparado para '+shop+'. '+(suggested?'Nome sugerido a partir do link; confirme com o anúncio. ':'Preencha o nome manualmente. ')+'Informe a categoria e revise os demais campos. O produto só será salvo após sua confirmação, conforme a visibilidade escolhida.';
 });
 by('raiz-prod-prev').addEventListener('click',()=>{if(page>1){page--;load()}});
 by('raiz-prod-next').addEventListener('click',()=>{if(hasNext){page++;load()}});
@@ -2438,12 +2438,17 @@ form.addEventListener('submit',async e=>{
  if(editing&&original&&original.ativo!==values.ativo){
   if(!confirm(values.ativo?'Ativar este produto na vitrine pública?':'Desativar este produto da vitrine pública?'))return;
  }
- if(!editing&&values.ativo){if(!confirm('Novo produto será salvo como rascunho inativo. Continuar?'))return}
- if(!confirm(editing?'Confirmar a atualização deste produto no Supabase?':'Criar este produto como rascunho inativo?'))return;
+ if(!editing&&values.ativo){
+  const img=values.imagem_url;
+  try{const u=new URL(img);if(u.protocol!=='https:'||u.username||u.password||!u.hostname)throw Error('Imagem inválida');}
+  catch{status('Para ativar no primeiro cadastro, informe e confira uma URL HTTPS válida para a imagem.');return;}
+  if(!confirm('Publicar este novo produto imediatamente no catálogo? Confira nome, imagem, link e categoria antes de confirmar.'))return;
+ }
+ if(!confirm(editing?'Confirmar a atualização deste produto no Supabase?':(values.ativo?'Cadastrar e ATIVAR este produto agora?':'Criar este produto como rascunho inativo?')))return;
  freeze(true);status('Salvando...');
  try{
   const r=editing?await api('PATCH',{id:editing,alteracoes:values}):await api('POST',values);
-  status((editing?'Produto atualizado.':'Rascunho criado.')+' ID '+r.produto?.id+'.');
+  status((editing?'Produto atualizado.':(r.produto?.ativo?'Produto criado e ATIVO na vitrine.':'Rascunho criado.'))+' ID '+r.produto?.id+'.');
   form.hidden=true;editing=null;
  }catch(err){status('Não foi possível salvar: '+err.message)}
  finally{freeze(false);load()}
