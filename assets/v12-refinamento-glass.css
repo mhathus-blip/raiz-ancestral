@@ -101,3 +101,34 @@ html:not(.raiz-original-v12) body[data-season="black"] .season-banner .raiz-gold
  html:not(.raiz-original-v12) body[data-season="black"] .season-banner{background-size:cover!important}
 }
 @media(prefers-reduced-motion:reduce){html:not(.raiz-original-v12) :is(.hero .primary,.garimpo button,.product .buy){transition:none!important}}
+
+/* V12: linhas/ondas douradas atrás das seções, sem cobrir textos ou cards. */
+html:not(.raiz-original-v12) main.wrap{position:relative;isolation:isolate}
+html:not(.raiz-original-v12) main.wrap::after{
+ content:""!important;display:block!important;position:absolute!important;
+ inset:0 calc(50% - 50vw)!important;z-index:0!important;
+ pointer-events:none!important;
+ background:url("/assets/ondas-douradas-glass-v12.svg") center 0 / 100% 800px repeat-y!important;
+ opacity:.68!important;filter:drop-shadow(0 2px 2px rgba(250,222,144,.16));
+}
+html:not(.raiz-original-v12) main.wrap>*{position:relative;z-index:1}
+html:not(.raiz-original-v12) .hero{border-bottom:3px solid rgba(217,180,103,.58)!important}
+html:not(.raiz-original-v12) .season-banner .raiz-gold-wave{z-index:2}
+.raiz-admin-public-link{display:inline-flex!important;align-items:center;gap:7px;margin-top:12px;padding:7px 12px!important;border:1px solid rgba(242,226,180,.35);border-radius:999px;font-size:12px;opacity:.88;text-decoration:none!important}
+.raiz-admin-public-link:hover{opacity:1;background:rgba(255,255,255,.1)}
+.raiz-auto-center[hidden]{display:none!important}
+.raiz-auto-center{max-width:1120px;margin:16px auto 24px;padding:24px;color:#1e412c;border-radius:28px;
+ background:linear-gradient(138deg,rgba(255,255,247,.83),rgba(229,240,203,.68));
+ border:2px solid #fffffff2;box-shadow:inset 0 2px 4px #fff,0 12px 29px #2a4b3327}
+.raiz-auto-center h2{font:700 clamp(22px,2.7vw,31px) Georgia,serif;margin:0 0 6px}
+.raiz-auto-center .raiz-auto-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:17px 0}
+.raiz-auto-center .raiz-auto-card{border:1px solid #ffffffee;border-radius:18px;background:#ffffffb8;padding:17px;box-shadow:0 5px 15px #39512a18}
+.raiz-auto-center .raiz-auto-card h3{margin:0 0 6px;font:700 18px Georgia,serif}
+.raiz-auto-center p{font-size:13px;line-height:1.55;margin:7px 0}
+.raiz-auto-center a,.raiz-auto-center button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #b9d698;border-radius:999px;padding:10px 14px;background:linear-gradient(180deg,#ecf9d3,#c7e4b7);font:700 13px Arial,sans-serif;color:#225033;text-decoration:none;cursor:pointer;margin:4px 5px 3px 0}
+.raiz-auto-center button:hover,.raiz-auto-center a:hover{background:#d5f2c5}
+.raiz-auto-center .raiz-auto-state{font-weight:bold;color:#23602f}
+.raiz-auto-center .raiz-auto-note{color:#72512c}
+@media(max-width:850px){.raiz-auto-center .raiz-auto-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.raiz-auto-center .raiz-auto-grid{grid-template-columns:1fr}.raiz-auto-center{padding:16px}}
+@media(prefers-reduced-motion:reduce){html:not(.raiz-original-v12) main.wrap::after{filter:none}}
