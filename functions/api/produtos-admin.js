@@ -70,13 +70,60 @@ async function db(ctx,path,{method='GET',body,prefer}={}){
  if(!resp.ok)return {error:'Supabase retornou erro HTTP '+resp.status,status:502};
  return {data};
 }
+// Leitura paginada de até 10 mil produtos, sempre sob RLS do administrador.
+async function readCatalogForAdmin(ctx,columns){
+ const items=[];
+ let lastId=null;
+ for(let page=0;page<20;page++){
+   const params=new URLSearchParams({select:columns,order:'id.desc',limit:'500'});
+   if(lastId!==null)params.set('id','lt.'+lastId);
+   const r=await db(ctx,'produtos?'+params.toString());
+   if(r.error)return r;
+   const batch=r.data||[];
+   items.push(...batch);
+   if(batch.length<500)break;
+   lastId=Number(batch[batch.length-1].id);
+   if(!Number.isSafeInteger(lastId)||lastId<1)break;
+ }
+ return {data:items};
+}
 export async function onRequest({request,env}){
  if(!['GET','POST','PATCH'].includes(request.method))return json({erro:'Método não permitido.'},405);
  const ctx=await auth(request,env);if(ctx.error)return json({erro:ctx.error},ctx.status);
  if(request.method==='GET'){
   const url=new URL(request.url);
+  // Exportação administrativa em lotes, SEM mutação e sem expor token no arquivo.
+  // Exige a mesma verificação Supabase Auth + is_raiz_admin das outras ações.
+  if(url.searchParams.get('export')==='1'){
+    // Exportação em ordem de ID, com cursor estável (evita pular registros
+    // quando novos produtos são cadastrados durante o download).
+    // Mantém modo legado por page para compatibilidade; o novo ADM usa cursor.
+    const batch=500;
+    const cursorParam=url.searchParams.get('cursor');
+    const cursorMode=cursorParam!==null;
+    const page=Number(url.searchParams.get('page')||1);
+    if(!Number.isSafeInteger(page)||page<1||page>25)return json({erro:'Lote de backup inválido.'},400);
+    const cursor=cursorMode?Number(cursorParam):0;
+    if(cursorMode&&(!Number.isSafeInteger(cursor)||cursor<0))return json({erro:'Cursor de backup inválido.'},400);
+    const params=new URLSearchParams({
+      select:'id,created_at,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id',
+      order:'id.asc',limit:String(batch)
+    });
+    if(cursorMode){
+      if(cursor>0)params.set('id','gt.'+cursor);
+    }else{
+      params.set('offset',String((page-1)*batch));
+    }
+    const result=await db(ctx,'produtos?'+params.toString());
+    if(result.error)return json({erro:result.error},result.status);
+    const items=result.data||[];
+    const last=items.length?Number(items[items.length-1].id):cursor;
+    if(items.length&&(!Number.isSafeInteger(last)||last<1))
+      return json({erro:'Falha de integridade: identificador inválido.'},502);
+    return json({pagina:page,produtos:items,mais:items.length===batch,proximo_cursor:last});
+  }
   if(url.searchParams.get('categories')==='1'){
-   const r=await db(ctx,'produtos?select=categoria&order=categoria.asc&limit=1000');
+   const r=await readCatalogForAdmin(ctx,'id,categoria');
    if(r.error)return json({erro:r.error},r.status);
    return json({categorias:[...new Set((r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
@@ -98,7 +145,7 @@ export async function onRequest({request,env}){
   const checked=validate(input);
   if(checked.error)return json({erro:checked.error},400);
   // Evita inserção duplicada por link ou nome. A pesquisa é feita sob a RLS do administrador.
-  const existing=await db(ctx,'produtos?select=id,nome,link_afiliado,loja&limit=1000');
+  const existing=await readCatalogForAdmin(ctx,'id,nome,link_afiliado,loja');
   if(existing.error)return json({erro:existing.error},existing.status);
   const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   const duplicado=(existing.data||[]).find(p=>String(p.link_afiliado||'').trim()===checked.value.link_afiliado||
@@ -107,10 +154,17 @@ export async function onRequest({request,env}){
   const provided=String(checked.value.categoria||'').trim();
   const suggested=suggestCategory(checked.value.nome);
   const categoria=(!provided||provided==='A classificar')?suggested:provided;
-  const product={...checked.value,categoria,ativo:false,destaque:false};
+  // Respeita a opção de visibilidade escolhida explicitamente no formulário.
+  // Rascunho continua o padrão. Ativação exige imagem HTTPS revisada,
+  // da mesma forma que a edição de um produto existente.
+  const publicar=checked.value.ativo===true;
+  if(publicar&&!https(checked.value.imagem_url)){
+    return json({erro:'Para ativar no primeiro cadastro, informe e confira uma URL de imagem HTTPS válida.'},422);
+  }
+  const product={...checked.value,categoria,ativo:publicar,destaque:false};
   const r=await db(ctx,'produtos',{method:'POST',body:product});
   if(r.error)return json({erro:r.error},r.status);
-  return json({ok:true,produto:r.data[0],observacao:'Cadastrado inativo para revisão.'},201);
+  return json({ok:true,produto:r.data[0],observacao:publicar?'Produto cadastrado e ativado.':'Cadastrado inativo para revisão.'},201);
  }
  const id=Number(input?.id);
  if(!Number.isSafeInteger(id)||id<1)return json({erro:'ID inválido.'},400);

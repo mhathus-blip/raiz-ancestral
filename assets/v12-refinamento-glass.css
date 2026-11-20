@@ -160,3 +160,194 @@ html:not(.raiz-original-v12) main.wrap::after{
  }
  html:not(.raiz-original-v12) main.wrap::after{opacity:.30!important}
 }
+
+/* V12: otimização mobile. Somente CSS; mantém ondas largas, produtos e eventos JS. */
+@media(max-width:760px){
+ html:not(.raiz-original-v12) :is(.season-garimpos,.garimpo,.product,.about,.raiz-vitrine-campanha,.raiz-vitrine-card,.raiz-auto-center){
+   -webkit-backdrop-filter:blur(7px) saturate(1.15)!important;
+   backdrop-filter:blur(7px) saturate(1.15)!important;
+   box-shadow:inset 0 2px 4px rgba(255,255,255,.77),0 5px 13px rgba(44,72,32,.13)!important;
+ }
+ html:not(.raiz-original-v12) main.wrap::after{display:none!important}
+ html:not(.raiz-original-v12) main.wrap::before{
+   background-size:100% 800px,cover!important;
+   background-repeat:repeat-y,no-repeat!important;
+ }
+ .topbar .menu{gap:6px!important;justify-content:center;flex-wrap:wrap;max-width:100%}
+ .topbar .menu a{padding:9px 11px!important;min-height:42px;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+ .hero h1{font-size:clamp(31px,7vw,44px)!important;line-height:1.06!important}
+ .hero p{font-size:14px;line-height:1.5}
+ #categorias.filters{gap:9px!important}
+ #categorias.filters button{min-height:54px!important;gap:6px!important;padding:7px!important;font-size:12px;overflow-wrap:anywhere}
+ #categorias.filters .category-photo{width:40px!important;height:40px!important;flex-basis:40px!important}
+ .products>.product{min-width:0!important}
+ .products .content{min-width:0!important;overflow-wrap:anywhere}
+ .products .buy,.products .share-card,.garimpo button,.hero .primary{min-height:44px}
+ .ordenacao select,.busca-produtos input,#busca-produtos{font-size:16px!important}
+ #paginacao-produtos button{min-height:42px}
+ .raiz-auto-center .raiz-auto-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:400px){
+ .topbar .menu a{font-size:12px;padding:8px!important}
+ #categorias.filters .category-photo{width:32px!important;height:32px!important;flex-basis:32px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html:not(.raiz-original-v12) :is(.product,.garimpo,.primary,.buy,.raiz-vitrine-card a){transition:none!important;animation:none!important}
+}
+
+/* V12 preview - acabamento fotobotânico: sem substituir artes ou mudar funções. */
+/* Fundo das duas seções de curadoria, feito com fotografia de plantas já existente. */
+html:not(.raiz-original-v12) .raiz-area-botanica {
+  position:relative;
+  isolation:isolate;
+  padding:20px 16px 28px;
+  overflow:hidden;
+  background:linear-gradient(180deg,#d9e3bd 0%,#e8edcf 48%,#e1e7c6 100%);
+}
+html:not(.raiz-original-v12) .raiz-area-botanica::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.47;
+  background-image:
+    linear-gradient(180deg,rgba(229,237,201,.28) 0%,rgba(229,237,201,.12) 43%,rgba(229,237,201,.95) 95%),
+    url("/assets/campanha-tree.webp");
+  background-repeat:no-repeat,no-repeat;
+  background-size:cover,100% auto;
+  background-position:center,center top;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 65%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 65%,transparent 100%);
+}
+html:not(.raiz-original-v12) .raiz-area-botanica > :is(.raiz-vitrine-campanha,.season-garimpos) {
+  position:relative;
+  z-index:1;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica .raiz-vitrine-campanha{
+  margin:6px auto 16px!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica .season-garimpos{
+  margin:16px auto 0!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica :is(.raiz-vitrine-card,.garimpo){
+  background:linear-gradient(145deg,rgba(255,255,251,.77),rgba(244,249,219,.66))!important;
+  border:2px solid rgba(255,255,255,.95)!important;
+  border-radius:19px!important;
+  -webkit-backdrop-filter:blur(11px) saturate(1.12)!important;
+  backdrop-filter:blur(11px) saturate(1.12)!important;
+  box-shadow:inset 0 2px 4px rgba(255,255,255,.95),0 6px 20px rgba(31,68,36,.17)!important;
+}
+/* A fotografia original do hero ocupa o painel inteiro, com máscara progressiva
+   na lateral esquerda: remove o corte seco sem apagar os detalhes da direita. */
+html:not(.raiz-original-v12) .hero{
+  background:linear-gradient(90deg,#e8ebc6 0%,#e9ebc9 48%,#e2e6be 100%)!important;
+}
+html:not(.raiz-original-v12) .hero::before{
+  inset:0!important;
+  background-image:url("/assets/vitrine-produtos-naturais.webp")!important;
+  background-position:right center!important;
+  background-size:70% 100%!important;
+  background-repeat:no-repeat!important;
+  opacity:1!important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 24%,rgba(0,0,0,.08) 35%,rgba(0,0,0,.4) 47%,rgba(0,0,0,.83) 60%,#000 73%)!important;
+  mask-image:linear-gradient(90deg,transparent 0%,transparent 24%,rgba(0,0,0,.08) 35%,rgba(0,0,0,.4) 47%,rgba(0,0,0,.83) 60%,#000 73%)!important;
+  pointer-events:none!important;
+}
+html:not(.raiz-original-v12) .hero .hero-grid{
+  position:relative;
+  z-index:1;
+}
+@media(max-width:760px){
+ html:not(.raiz-original-v12) .raiz-area-botanica{padding:12px 8px 20px}
+ html:not(.raiz-original-v12) .raiz-area-botanica::before{
+   background-size:cover,auto 520px;
+   background-position:center,center top;
+   opacity:.35;
+ }
+ html:not(.raiz-original-v12) .raiz-area-botanica :is(.raiz-vitrine-card,.garimpo){
+   -webkit-backdrop-filter:blur(5px) saturate(1.08)!important;
+   backdrop-filter:blur(5px) saturate(1.08)!important;
+ }
+ html:not(.raiz-original-v12) .hero::before{
+   background-size:100% 100%!important;
+   background-position:74% center!important;
+   opacity:.54!important;
+   -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.1) 28%,rgba(0,0,0,.55) 64%,#000 100%)!important;
+   mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.1) 28%,rgba(0,0,0,.55) 64%,#000 100%)!important;
+ }
+}
+
+/* V12 prévia: preencher a área inteira com fotografia botânica real.
+   Duas faixas da fotografia existente, com sobreposição suave no centro.
+   Mantém os cartões glass, o texto e as ondas da V12 intactos. */
+html:not(.raiz-original-v12) .raiz-area-botanica{
+  background:linear-gradient(180deg,#a8ba88 0%,#a6b886 52%,#b9c899 100%)!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica::before,
+html:not(.raiz-original-v12) .raiz-area-botanica::after{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:-1!important;
+  pointer-events:none!important;
+  background-image:
+    linear-gradient(rgba(224,237,197,.20),rgba(222,235,195,.24)),
+    url("/assets/campanha-tree.webp")!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-size:cover,100% 62%!important;
+  opacity:.76!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica::before{
+  background-position:center,center top!important;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 43%,rgba(0,0,0,.90) 55%,transparent 75%)!important;
+  mask-image:linear-gradient(to bottom,#000 0%,#000 43%,rgba(0,0,0,.90) 55%,transparent 75%)!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica::after{
+  background-position:center,center bottom!important;
+  transform:scaleX(-1);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 27%,rgba(0,0,0,.85) 49%,#000 65%,#000 100%)!important;
+  mask-image:linear-gradient(to bottom,transparent 27%,rgba(0,0,0,.85) 49%,#000 65%,#000 100%)!important;
+}
+@media(max-width:760px){
+ html:not(.raiz-original-v12) .raiz-area-botanica::before,
+ html:not(.raiz-original-v12) .raiz-area-botanica::after{
+   background-size:cover,100% 60%!important;
+   opacity:.57!important;
+ }
+}
+
+/* V12: navegação inclusiva, sem alterar aparência da vitrine, hero ou glass. */
+.raiz-pular-catalogo {
+ position:fixed;left:12px;top:10px;z-index:99999;
+ padding:12px 18px;border-radius:14px;
+ color:#fff!important;background:#173f2b!important;
+ font:700 15px/1.35 Arial,sans-serif;text-decoration:none;
+ box-shadow:0 6px 24px rgba(0,0,0,.26);
+ transform:translateY(-150%);
+ transition:transform .12s ease;
+}
+.raiz-pular-catalogo:focus,
+.raiz-pular-catalogo:focus-visible {
+ transform:translateY(0);outline:3px solid #f0d187;outline-offset:2px;
+}
+.raiz-voltar-topo {
+ display:flex;justify-content:center;margin:20px 0 6px;
+}
+.raiz-voltar-topo a {
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:44px;padding:10px 20px;
+ border:1px solid rgba(52,93,53,.3);border-radius:999px;
+ background:rgba(248,250,229,.9);color:#1d4e30!important;
+ font:700 13px/1.3 Arial,sans-serif;text-decoration:none;
+ box-shadow:inset 0 1px 0 #fff,0 4px 13px rgba(40,76,41,.12);
+}
+.raiz-voltar-topo a:hover{background:rgba(226,240,204,.98)}
+.raiz-voltar-topo a:focus-visible,
+#catalogo :is(a,button,input,select):focus-visible {
+ outline:3px solid #b77738!important;outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .raiz-pular-catalogo{transition:none}
+}
