@@ -277,3 +277,43 @@ html:not(.raiz-original-v12) .hero .hero-grid{
    mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.1) 28%,rgba(0,0,0,.55) 64%,#000 100%)!important;
  }
 }
+
+/* V12 prévia: preencher a área inteira com fotografia botânica real.
+   Duas faixas da fotografia existente, com sobreposição suave no centro.
+   Mantém os cartões glass, o texto e as ondas da V12 intactos. */
+html:not(.raiz-original-v12) .raiz-area-botanica{
+  background:linear-gradient(180deg,#a8ba88 0%,#a6b886 52%,#b9c899 100%)!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica::before,
+html:not(.raiz-original-v12) .raiz-area-botanica::after{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:-1!important;
+  pointer-events:none!important;
+  background-image:
+    linear-gradient(rgba(224,237,197,.20),rgba(222,235,195,.24)),
+    url("/assets/campanha-tree.webp")!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-size:cover,100% 62%!important;
+  opacity:.76!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica::before{
+  background-position:center,center top!important;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 43%,rgba(0,0,0,.90) 55%,transparent 75%)!important;
+  mask-image:linear-gradient(to bottom,#000 0%,#000 43%,rgba(0,0,0,.90) 55%,transparent 75%)!important;
+}
+html:not(.raiz-original-v12) .raiz-area-botanica::after{
+  background-position:center,center bottom!important;
+  transform:scaleX(-1);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 27%,rgba(0,0,0,.85) 49%,#000 65%,#000 100%)!important;
+  mask-image:linear-gradient(to bottom,transparent 27%,rgba(0,0,0,.85) 49%,#000 65%,#000 100%)!important;
+}
+@media(max-width:760px){
+ html:not(.raiz-original-v12) .raiz-area-botanica::before,
+ html:not(.raiz-original-v12) .raiz-area-botanica::after{
+   background-size:cover,100% 60%!important;
+   opacity:.57!important;
+ }
+}
