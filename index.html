@@ -1599,6 +1599,20 @@ const botao = elemento("a", "buy", textoBotao);
                 aviso.textContent="Ampliando catálogo: "+produtos.length+" produtos carregados...";
                 await new Promise(resolve=>setTimeout(resolve,90));
               }
+              // Atualizar também lojas que só apareceram nos lotes adicionais.
+              for(const p of produtos){
+                const loja=String(p.loja||"").trim(),chave=normalizarBusca(loja);
+                if(chave && ![...filtroLojas.options].some(o=>o.value===chave)){
+                  const option=document.createElement("option");
+                  option.value=chave;option.textContent=loja;filtroLojas.append(option);
+                }
+              }
+              // Link de produto antigo ou profundo pode apontar para além dos 500 iniciais.
+              const idSolicitado=new URLSearchParams(location.search).get("produto");
+              if(idSolicitado&&!produtosSupabase.some(x=>String(x.id)===idSolicitado)){
+                const correspondente=produtos.find(x=>String(x.id)===idSolicitado);
+                if(correspondente)abrirDetalhes(correspondente);
+              }
               // Apenas atualização de leitura; mantém filtros, favoritos e paginação de 40.
               window.dispatchEvent(new CustomEvent('raiz:catalogo-carregado',{detail:{produtos:produtos.slice()}}));
               renderizarProdutos();
