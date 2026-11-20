@@ -2857,10 +2857,11 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
    if(!token||button.disabled)return;
    button.disabled=true;
    const products=[],ids=new Set();
+   let cursor=0,concluido=false,ultimoId=0;
    try{
      for(let page=1;page<=25;page++){
        message.textContent='Preparando backup... lote '+page+' (até 500 por lote).';
-       const response=await fetch('/api/produtos-admin?export=1&page='+page,{
+       const response=await fetch('/api/produtos-admin?export=1&page='+page+'&cursor='+cursor,{
          method:'GET',
          headers:{Authorization:'Bearer '+token,Accept:'application/json'},
          cache:'no-store',
@@ -2870,13 +2871,18 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
        if(!response.ok)throw new Error(data.erro||'Falha ao exportar dados.');
        if(!Array.isArray(data.produtos))throw new Error('Resposta inválida na exportação.');
        for(const item of data.produtos){
-         const key=String(item.id);
-         if(ids.has(key))continue;
-         ids.add(key);products.push(item);
+         const id=Number(item?.id);
+         if(!Number.isSafeInteger(id)||id<=ultimoId||ids.has(String(id)))
+           throw new Error('Falha na integridade da sequência de produtos. Backup cancelado.');
+         ids.add(String(id));ultimoId=id;products.push(item);
        }
-       if(!data.mais)break;
-       if(page===25)throw new Error('Limite de 12.500 itens atingido; exportação incompleta. Nenhum backup foi baixado.');
+       const next=Number(data.proximo_cursor);
+       if(!Number.isSafeInteger(next)||next<cursor||next!==ultimoId&&data.produtos.length)
+         throw new Error('Cursor inválido no backup. Tente novamente.');
+       cursor=next;
+       if(!data.mais){concluido=true;break;}
      }
+     if(!concluido)throw new Error('Exportação acima do limite de 12.500 itens. Nenhum backup parcial foi salvo.');
      const backup={
        sistema:'Raiz Ancestral V12',
        versao_backup:1,
