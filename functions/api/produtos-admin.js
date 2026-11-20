@@ -75,6 +75,20 @@ export async function onRequest({request,env}){
  const ctx=await auth(request,env);if(ctx.error)return json({erro:ctx.error},ctx.status);
  if(request.method==='GET'){
   const url=new URL(request.url);
+  // Exportação administrativa em lotes, SEM mutação e sem expor token no arquivo.
+  // Exige a mesma verificação Supabase Auth + is_raiz_admin das outras ações.
+  if(url.searchParams.get('export')==='1'){
+    const page=Number(url.searchParams.get('page')||1);
+    if(!Number.isSafeInteger(page)||page<1||page>25)return json({erro:'Lote de backup inválido.'},400);
+    const batch=500;
+    const params=new URLSearchParams({
+      select:'id,created_at,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id',
+      order:'id.asc',limit:String(batch),offset:String((page-1)*batch)
+    });
+    const result=await db(ctx,'produtos?'+params.toString());
+    if(result.error)return json({erro:result.error},result.status);
+    return json({pagina:page,produtos:result.data,mais:result.data.length===batch});
+  }
   if(url.searchParams.get('categories')==='1'){
    const r=await db(ctx,'produtos?select=categoria&order=categoria.asc&limit=1000');
    if(r.error)return json({erro:r.error},r.status);
