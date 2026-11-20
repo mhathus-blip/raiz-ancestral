@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="760" viewBox="0 0 1440 760" preserveAspectRatio="none">
+<defs>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2=".4"><stop stop-color="#789850" stop-opacity=".32"/><stop offset=".35" stop-color="#f4d58f" stop-opacity=".88"/><stop offset=".72" stop-color="#c49a50" stop-opacity=".56"/><stop offset="1" stop-color="#7d9857" stop-opacity=".28"/></linearGradient>
+ <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff1bc" stop-opacity=".6"/><stop offset="1" stop-color="#cadb99" stop-opacity=".05"/></linearGradient>
+</defs>
+<g fill="none" stroke="url(#gold)" stroke-linecap="round">
+<path d="M-100 110 C150 25 225 190 475 98 S850 20 1100 105 S1350 202 1540 88" stroke-width="3.7"/>
+<path d="M-100 122 C150 37 225 202 475 110 S850 32 1100 117 S1350 214 1540 100" stroke-width="1.25" opacity=".7"/>
+<path d="M-110 355 C160 270 290 450 525 360 S965 255 1200 370 S1410 425 1550 348" stroke-width="2.5" opacity=".68"/>
+<path d="M-110 365 C160 280 290 460 525 370 S965 265 1200 380 S1410 435 1550 358" stroke-width="1.15" opacity=".6"/>
+<path d="M-100 620 C160 510 330 725 570 615 S1040 530 1300 642 S1420 710 1550 630" stroke-width="3" opacity=".63"/>
+</g>
+<path d="M-100 110 C150 25 225 190 475 98 S850 20 1100 105 S1350 202 1540 88 L1540 200 C1300 275 1100 200 930 190 S530 275 300 175 S0 225 -100 220Z" fill="url(#glow)" opacity=".25"/>
+</svg>

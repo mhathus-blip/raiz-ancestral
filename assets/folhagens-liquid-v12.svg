@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Folhagens botânicas decorativas">
+<defs>
+ <radialGradient id="leaf" cx=".26" cy=".18" r=".95"><stop stop-color="#a2d65b"/><stop offset=".36" stop-color="#4f9b33"/><stop offset=".75" stop-color="#21632c"/><stop offset="1" stop-color="#143d23"/></radialGradient>
+ <linearGradient id="shine" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff9bd" stop-opacity=".95"/><stop offset=".48" stop-color="#c4ed76" stop-opacity=".28"/><stop offset="1" stop-color="#143f27" stop-opacity=".16"/></linearGradient>
+ <radialGradient id="light"><stop stop-color="#ffffff" stop-opacity=".70"/><stop offset=".46" stop-color="#e9edac" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+ <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+ <g id="folha"><path d="M0 0 C-24 -65 12 -117 94 -142 C89 -63 61 -4 0 0Z" fill="url(#leaf)" stroke="#a6c964" stroke-width="2"/><path d="M0 0 Q48 -62 94 -142" fill="none" stroke="#ecf3ae" stroke-opacity=".62" stroke-width="2"/><path d="M30 -34 L18 -83 M49 -65 L59 -108 M60 -83 L37 -111" stroke="#c6e49a" stroke-opacity=".38" stroke-width="1.5"/></g>
+ <g id="ramo"><path d="M0 100 Q60 -10 120 -166" stroke="#497c34" stroke-width="7" fill="none" stroke-linecap="round"/><use href="#folha" transform="translate(48 20) rotate(-40) scale(.92)"/><use href="#folha" transform="translate(71 -49) rotate(18) scale(.7)"/><use href="#folha" transform="translate(110 -115) rotate(-45) scale(.8)"/></g>
+</defs>
+<ellipse cx="58" cy="75" rx="220" ry="260" fill="#51882a" opacity=".18" filter="url(#soft)"/>
+<ellipse cx="1384" cy="169" rx="180" ry="260" fill="#c3bc61" opacity=".2" filter="url(#soft)"/>
+<ellipse cx="110" cy="850" rx="170" ry="190" fill="#699e3f" opacity=".19" filter="url(#soft)"/>
+<use href="#ramo" transform="translate(-20 128) rotate(-25) scale(1.55)"/>
+<use href="#ramo" transform="translate(1370 -72) rotate(65) scale(1.45)"/>
+<use href="#ramo" transform="translate(1480 535) rotate(140) scale(1.36)"/>
+<use href="#ramo" transform="translate(-35 805) rotate(-24) scale(1.3)"/>
+<use href="#folha" transform="translate(1350 805) rotate(128) scale(.9)"/>
+<circle cx="112" cy="278" r="128" fill="url(#light)"/>
+<circle cx="1325" cy="390" r="132" fill="url(#light)"/>
+<circle cx="188" cy="757" r="95" fill="url(#light)"/>
+</svg>
