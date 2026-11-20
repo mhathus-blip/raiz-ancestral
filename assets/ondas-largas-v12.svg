@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" preserveAspectRatio="none">
+<defs>
+<linearGradient id="sage" x1="0" y1="0" x2="1" y2=".65"><stop stop-color="#b8c2a3"/><stop offset=".52" stop-color="#b9bea5"/><stop offset="1" stop-color="#d1c9ac"/></linearGradient>
+<linearGradient id="terracotta" x1="0" y1=".25" x2="1" y2=".6"><stop stop-color="#dcc3ac"/><stop offset=".52" stop-color="#d7af95"/><stop offset="1" stop-color="#cfa68a"/></linearGradient>
+<linearGradient id="cream" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#f8f1df"/><stop offset=".55" stop-color="#fdf4df"/><stop offset="1" stop-color="#f5e7d2"/></linearGradient>
+</defs>
+<!-- Faixas largas e fluidas como na versão anterior, sem folhas artificiais -->
+<path fill="#f9f1e1" opacity=".96" d="M0 0H1600V103C1344 62 1133 190 923 158C704 123 595 34 368 69C206 94 123 121 0 76Z"/>
+<path fill="url(#terracotta)" opacity=".73" d="M0 135C200 182 310 87 494 128C704 174 755 305 975 242C1172 187 1419 103 1600 139V302C1443 263 1252 327 1054 355C787 397 649 284 461 254C248 219 111 307 0 265Z"/>
+<path fill="url(#sage)" opacity=".78" d="M0 330C237 255 372 391 573 400C816 411 945 291 1170 307C1341 319 1481 362 1600 342V472C1423 440 1286 523 1097 527C874 532 738 462 533 479C288 499 163 438 0 468Z"/>
+<path fill="url(#cream)" opacity=".96" d="M0 532C203 468 347 519 565 532C777 545 852 666 1095 617C1336 567 1462 461 1600 500V719C1422 688 1334 745 1114 752C876 759 782 678 548 690C283 703 166 650 0 713Z"/>
+<path fill="url(#terracotta)" opacity=".49" d="M0 785C231 714 353 826 565 818C769 811 889 715 1091 746C1305 779 1405 844 1600 802V914C1437 877 1310 962 1070 976C851 990 733 885 523 895C316 905 152 866 0 920Z"/>
+<path fill="url(#sage)" opacity=".61" d="M0 983C204 929 367 1018 582 998C797 977 865 930 1067 951C1303 983 1467 1008 1600 960V1100H0Z"/>
+<path d="M0 135C200 182 310 87 494 128C704 174 755 305 975 242C1172 187 1419 103 1600 139M0 532C203 468 347 519 565 532C777 545 852 666 1095 617C1336 567 1462 461 1600 500" fill="none" stroke="#fff9e8" stroke-width="4" stroke-opacity=".35"/>
+</svg>
