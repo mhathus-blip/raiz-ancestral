@@ -1081,7 +1081,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
     <div class="raiz-admin-grid">
       <label>Nome *<input name="nome" required maxlength="250"></label>
       <label>Loja *<input name="loja" required maxlength="55" placeholder="Shopee, Amazon..."></label>
-      <label>Categoria *<select name="categoria" id="raiz-prod-category" required><option value="">Selecione uma categoria</option></select></label>
+      <label>Categoria (sugestão automática; você pode alterar)<select name="categoria" id="raiz-prod-category"><option value="">Detectar automaticamente pelo nome</option></select><small id="raiz-prod-category-hint">Ao informar o nome, o sistema sugere uma categoria existente. Casos duvidosos ficam em “A classificar”.</small></label>
       <label>Preço (R$, opcional)<input name="preco" type="number" min="0.01" max="1000000" step="0.01" placeholder="Sem preço: deixe vazio"></label>
       <label class="wide">Link afiliado HTTPS *<input name="link_afiliado" type="url" required maxlength="1800"></label>
       <label class="wide">URL da imagem HTTPS<input name="imagem_url" type="url" maxlength="1800"></label>
@@ -2343,14 +2343,18 @@ if(!form)return;
 let token='',categories=[];
 const normalized=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function recommend(name){
- const v=normalized(name);
+ const v=normalized(name),has=re=>re.test(v);
  let category='';
- if(/barra|cereal|granola|frutas|aveia|chia|linhaca|castanha|mel|snack|farinha|sem acucar/.test(v))category='Alimentos Naturais';
- else if(/cha|camomila|hibisco|hortela|infusao|erva doce/.test(v))category='Chás e Ervas';
- else if(/adubo|fertilizante|bokashi|npk/.test(v))category='Jardinagem e Fertilizantes';
- else if(/semente|muda|horta/.test(v))category='Hortas e Sementes';
- else if(/vaso|decoracao|ornamento/.test(v))category='Decoração Natural';
- return categories.find(c=>normalized(c)===normalized(category))||'';
+ if(has(/\b(adubo|fertilizante|npk|bokashi|substrato|ureia|humus|calcario)\b/))category='Jardinagem e Fertilizantes';
+ else if(has(/\b(tesoura de poda|pulverizador|regador|enxada|pa de jardim|ferramenta de jardinagem)\b/))category='Ferramentas para Jardinagem';
+ else if(has(/\b(semente|sementes|muda|mudas|horta|hortalica|germinacao)\b/))category='Hortas e Sementes';
+ else if(has(/\b(vaso decorativo|arranjo artificial|buque artificial|decoracao|ornamento|arvore artificial)\b/))category='Decoração Natural';
+ else if(has(/\b(rosa natural|orquidea viva|flor natural|flores vivas)\b/))category='Flores';
+ else if(has(/\b(shampoo|sabonete|creme corporal|hidratante|cosmetico|oleo para pele)\b/))category='Beleza e Cuidados Naturais';
+ else if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/)&&!has(/\b(barra|barras|barrinha|barrinhas)\b/))category='Suplementos Naturais';
+ else if(has(/\b(cha|chas|camomila|hibisco|infusao|erva doce|hortela|capim limao)\b/))category='Chás e Ervas';
+ else if(has(/\b(barra|barras|barrinha|barrinhas|cereal|granola|aveia|palha italiana|pasta de amendoim|amendoim|castanha|snack|farinha|chia|linhaca|mel puro|cookie|biscoito)\b/))category='Alimentos Naturais';
+ return categories.find(c=>normalized(c)===normalized(category))||(category?'':'A classificar');
 }
 async function loadCategories(){
  const r=await fetch('/api/produtos-admin?categories=1',{headers:{Authorization:'Bearer '+token},cache:'no-store'});
@@ -2358,9 +2362,10 @@ async function loadCategories(){
  categories=data.categorias||[];
  const field=form.elements.namedItem('categoria'), current=field.value;
  field.replaceChildren();
- const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Selecione uma categoria existente';field.append(placeholder);
+ const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Detectar automaticamente pelo nome';field.append(placeholder);
  for(const name of categories){const o=document.createElement('option');o.value=name;o.textContent=name;field.append(o)}
  if(categories.includes(current))field.value=current;
+ if(!categories.includes('A classificar')){const option=document.createElement('option');option.value='A classificar';option.textContent='A classificar (revisar)';field.append(option)}
 }
 window.addEventListener('raiz:admin-tests-unlocked',e=>{
  token=String(e.detail?.accessToken||'');
@@ -2375,12 +2380,20 @@ by('raiz-prod-import').addEventListener('click',()=>{
  const suggested=recommend(form.elements.namedItem('nome').value);
  if(suggested)form.elements.namedItem('categoria').value=suggested;
 });
-form.elements.namedItem('nome').addEventListener('blur',()=>{
- if(!form.elements.namedItem('categoria').value){
-  const suggested=recommend(form.elements.namedItem('nome').value);
-  if(suggested)form.elements.namedItem('categoria').value=suggested;
- }
+const categoryField=form.elements.namedItem('categoria');
+const nameField=form.elements.namedItem('nome');
+let manualCategory=false;
+categoryField.addEventListener('change',()=>{manualCategory=!!categoryField.value&&categoryField.value!=='A classificar'});
+nameField.addEventListener('input',()=>{
+ // Nunca substituir uma categoria escolhida manualmente pelo administrador.
+ if(manualCategory)return;
+ const name=nameField.value.trim();
+ if(!name){categoryField.value='';return}
+ const suggested=recommend(name);
+ categoryField.value=suggested||'A classificar';
+ by('raiz-prod-category-hint').textContent=suggested&&suggested!=='A classificar'?'Sugestão: '+suggested+' — confira antes de salvar.':'Sem identificação confiável: o produto ficará em “A classificar” para revisão.';
 });
+form.addEventListener('reset',()=>{manualCategory=false;by('raiz-prod-category-hint').textContent='Categoria sugerida pelo nome; você pode selecionar outra.'});
 async function identifyShopee(){
  const info=by('raiz-prod-identify-status'),button=by('raiz-prod-identify');
  const link=String(form.elements.namedItem('link_afiliado').value||by('raiz-prod-import-link').value||'').trim();
