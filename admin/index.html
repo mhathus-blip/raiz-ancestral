@@ -1041,6 +1041,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 try{if(new URLSearchParams(location.search).get('tema')==='original')document.documentElement.classList.add('raiz-original-v12')}catch(e){}
 </script>
 <link rel="stylesheet" href="/assets/raiz-botanical-liquid-v12.css">
+<link rel="stylesheet" href="/assets/v12-refinamento-glass.css?v=20261120" data-v12-admin-visual="true">
 </head>
 <body>
 <header id="inicio" class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div></header>
@@ -1066,6 +1067,20 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
 <button id="raiz-liquid-toggle" type="button" aria-pressed="true">✨ Efeito liquid: ligado</button>
 </nav>
 <p class="raiz-tool-muted">Atalhos visíveis apenas após o login administrativo. O efeito liquid é um teste visual da V12; é possível desligá-lo sem mudar os estilos originais.</p>
+</section>
+<section id="raiz-central-automacoes" class="raiz-auto-center" aria-labelledby="raiz-auto-titulo" hidden>
+ <h2 id="raiz-auto-titulo">⚙️ Central de campanhas e automações</h2>
+ <p>Controles da V12 reunidos em um só lugar. As simulações afetam apenas esta tela; nenhuma campanha é publicada ou alterada no banco por estes botões.</p>
+ <p class="raiz-auto-state" id="raiz-auto-status" role="status" aria-live="polite">Autenticado — verificando modo de decoração.</p>
+ <div class="raiz-auto-grid">
+  <article class="raiz-auto-card"><h3>📅 Calendário automático</h3><p>11 datas temáticas, incluindo Black Friday, Natal, Dia das Mães e aniversário da Raiz Ancestral, com decorações por data.</p><button type="button" id="raiz-auto-restaurar">Usar data atual e modo automático</button></article>
+  <article class="raiz-auto-card"><h3>🎨 Simulador de campanhas</h3><p>Escolha uma comemoração e simule uma data na barra administrativa. Teste a contagem regressiva, a decoração e a vitrine temática.</p><button type="button" id="raiz-auto-simular">Abrir simulador de datas</button></article>
+  <article class="raiz-auto-card"><h3>🛍️ Vitrine sazonal</h3><p>Seleção visual de produtos ativos por afinidade com a campanha, sem inventar preço, descontos ou disponibilidade.</p><a href="#raiz-vitrine-campanha">Ver vitrine temática</a></article>
+  <article class="raiz-auto-card"><h3>🔄 Diagnóstico Shopee</h3><p>Consulta autorizada de anúncios sem preço, em modo de leitura; depende da integração disponível e não altera produtos.</p><a href="#raiz-shopee-api-preview">Ver consultas Shopee</a></article>
+  <article class="raiz-auto-card"><h3>📊 Conferência e relatórios</h3><p>Auditoria de preços, exportação CSV, validação dos resultados e estatísticas existentes.</p><a href="#raiz-auditoria-precos">Auditoria</a><a href="#raiz-estatisticas">Estatísticas</a></article>
+  <article class="raiz-auto-card"><h3>📦 Cadastro de produtos</h3><p>Cadastro, rascunhos, edição, importação por link e ativação controlada com as verificações de acesso existentes.</p><a href="#raiz-gerenciar-produtos">Gerenciar catálogo</a></article>
+ </div>
+ <p class="raiz-auto-note">Atenção: os botões deste painel não criam tarefas de execução agendada nem habilitam integrações externas. Eles dão acesso aos recursos já presentes na V12. Configurações de execução automática no servidor exigem implementação e autorização separadas.</p>
 </section>
 <section id="raiz-auditoria-precos" class="raiz-auditoria-precos" aria-labelledby="raiz-auditoria-titulo" hidden>
  <h2 id="raiz-auditoria-titulo">🔎 Auditoria de preços — Shopee</h2>
@@ -2753,6 +2768,49 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
  toggle.addEventListener('click',()=>{document.documentElement.classList.toggle('raiz-liquid-off');update()});
  window.addEventListener('raiz:admin-tests-unlocked',()=>{nav.hidden=false;update()});
  update();
+})();
+</script>
+
+<script>
+/* Painel consolidado: aparece apenas após autenticação e autorização da V12.
+   Não cria permissões e não executa chamadas administrativas diretamente. */
+(function(){
+ const root=document.getElementById('raiz-central-automacoes');
+ const status=document.getElementById('raiz-auto-status');
+ const selector=document.getElementById('season-mode');
+ const refresh=document.getElementById('raiz-auto-restaurar');
+ const simulator=document.getElementById('raiz-auto-simular');
+ if(!root||!status||!selector||!refresh||!simulator)return;
+ let authorized=false;
+ const update=()=>{
+  if(!authorized)return;
+  const mode=selector.value==='auto'?'automático':'prévia de '+selector.options[selector.selectedIndex]?.textContent;
+  const active=document.body.dataset.season||'normal';
+  status.textContent='Decoração: '+mode+' | campanha exibida: '+active+'. Alterações apenas nesta sessão de teste.';
+ };
+ window.addEventListener('raiz:admin-tests-unlocked',()=>{
+  authorized=true;root.hidden=false;update();
+ });
+ selector.addEventListener('change',update);
+ refresh.addEventListener('click',()=>{
+  if(!authorized)return;
+  const date=document.getElementById('season-test-date');
+  if(date)date.value='';
+  selector.value='auto';
+  selector.dispatchEvent(new Event('change',{bubbles:true}));
+  update();
+ });
+ simulator.addEventListener('click',()=>{
+  if(!authorized)return;
+  const toolbar=document.querySelector('.season-toolbar');
+  if(toolbar){
+   toolbar.style.setProperty('display','flex','important');
+   toolbar.scrollIntoView({behavior:'smooth',block:'center'});
+   (document.getElementById('season-test-date')||selector).focus();
+  }
+ });
+ const observer=new MutationObserver(update);
+ observer.observe(document.body,{attributes:true,attributeFilter:['data-season']});
 })();
 </script>
 </body></html>
