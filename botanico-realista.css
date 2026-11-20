@@ -1,0 +1,45 @@
+/* Raiz Ancestral • revisão botânica — somente apresentação.
+   Preserve catálogo, Supabase, filtros, campanhas e autenticação. */
+:root{--forest:#153b24;--forest2:#287733;--cream:#fffbea;--ink:#153421;--gold:#dbb868}
+body{background:radial-gradient(ellipse at 12% 28%,#b9cb77 0,transparent 34%),radial-gradient(ellipse at 93% 50%,#a6c77b 0,transparent 36%),linear-gradient(125deg,#fbf7e8,#e4e5bd 45%,#fff5dd);color:var(--ink)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.2;background:url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=75') center/cover;mask-image:linear-gradient(90deg,#000 0%,transparent 30%,transparent 70%,#000 100%)}
+.wrap{width:min(1290px,calc(100% - 42px))}
+.site-header{background:rgba(253,250,230,.78)!important;border-bottom:1px solid rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(140%);box-shadow:0 4px 25px #243b211b}
+.topbar{min-height:86px}
+.brand-name,.section h2,.season-garimpos h2{color:#103f26!important}
+.menu{background:linear-gradient(135deg,#fff9ecb9,#fffdf5a9);padding:8px 12px;border:1px solid #fff;border-radius:100px;box-shadow:inset 0 2px 5px #fff9,0 6px 22px #567c3120;gap:5px}
+.menu a{padding:9px 15px;border-radius:100px;color:#213e29}
+.menu a:first-child,.menu a:hover{background:linear-gradient(180deg,#8be044,#19772b 65%,#075521);color:white;box-shadow:inset 0 2px 3px #e5ffc9,0 2px 12px #3a992f9b}
+.hero{background:linear-gradient(90deg,rgba(248,247,212,.98),rgba(255,252,226,.79) 48%,transparent 70%),linear-gradient(125deg,#f9f1d8,#dce8bb)!important;min-height:425px;position:relative}
+.hero:before{inset:0 0 0 43%!important;opacity:1;background-image:linear-gradient(90deg,#f7f5d9 0%,rgba(250,249,223,.7) 18%,transparent 60%),url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=85')!important;background-position:center!important;background-size:cover!important;mask-image:linear-gradient(90deg,transparent 0%,#000 23%,#000 100%);border-radius:0!important}
+.hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 75%,rgba(83,139,37,.14));z-index:0}
+.hero-grid{position:relative;z-index:1;min-height:425px;padding:48px 0;grid-template-columns:1.05fr .95fr}
+.eyebrow{font-weight:800;color:#6c5830;letter-spacing:3.5px}
+.hero h1{font-style:italic;max-width:610px;font-size:clamp(38px,4.4vw,64px);line-height:1.04;text-shadow:0 2px 1px #fff7}
+.hero p{color:#273b27;max-width:510px}
+.primary,.buy,.garimpo button,.season-garimpos button,.filters button[aria-pressed=true]{border:1px solid #83c64b!important;background:linear-gradient(180deg,#93eb45 0%,#328e24 28%,#116b21 64%,#075125 100%)!important;box-shadow:inset 0 2px 2px #eaffbe,inset 0 -3px 4px #063b20,0 0 0 3px #ffffff94,0 6px 16px #38912c71!important;color:#fff!important;text-shadow:0 1px 1px #124a22;border-radius:999px!important;transition:filter .15s,transform .15s}
+.primary:hover,.buy:hover,.garimpo button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.hero .trust{font-size:13px}
+.season-garimpos{max-width:1290px!important;background:linear-gradient(135deg,#ffffff9e,#f6f6d3ad)!important;border:2px solid #ffffffd9!important;box-shadow:0 15px 48px #244b2920,inset 0 2px 12px #fff!important;border-radius:30px!important;backdrop-filter:blur(14px)}
+.garimpos-grid{gap:20px!important}
+.garimpo{background:linear-gradient(160deg,#ffffffd5,#f1f1d9af)!important;border:2px solid #fff!important;box-shadow:inset 0 3px 14px #fffd,0 8px 20px #35542625!important;border-radius:35px!important;backdrop-filter:blur(12px);padding:28px 16px!important}
+.garimpo .emoji{font-size:55px;line-height:1.1}
+.garimpo h3{font:700 clamp(21px,2.1vw,29px) Georgia,serif;color:#143a23}
+.garimpo button{padding:11px 22px!important}
+.filters{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px!important}
+.filters button{min-height:65px;display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#ffffffd8,#f2f1dfb4)!important;border:2px solid #fff!important;box-shadow:inset 0 4px 10px #fff,0 5px 18px #42542a24!important;border-radius:999px!important;color:#1a3925!important;text-align:center;line-height:1.2;white-space:normal}
+.filters button[aria-pressed=true]{color:#fff!important}
+.category-photo{width:46px!important;height:46px!important;object-fit:cover!important;border-radius:50%!important;mask-image:radial-gradient(circle,#000 50%,transparent 74%);flex-shrink:0}
+.section-head h2{color:#123d26!important}
+.product{background:linear-gradient(140deg,#fffef7ee,#f1f1dfef)!important;border:2px solid #ffffff!important;border-radius:26px!important;box-shadow:0 8px 25px #24422225,inset 0 2px 7px #fff!important;overflow:hidden}
+.product img{border-radius:20px 20px 10px 10px;object-fit:contain!important;background:linear-gradient(160deg,#fffff6,#f4f1e2)}
+.content{padding:19px!important}
+.price{color:#0c6128!important}
+.about{background:linear-gradient(130deg,#ffffffbc,#dfe9c1b3)!important;border:2px solid white;border-radius:28px;backdrop-filter:blur(12px)}
+.season-banner{border-bottom:2px solid #d7b45e}
+.season-garimpos,.section,.about{position:relative;z-index:1}
+@media(min-width:1000px){.hero{border-top:3px solid #d1a947}.hero-grid>div:first-child{max-width:600px}}
+@media(max-width:900px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.hero:before{inset:0 0 0 32%!important;opacity:.6}.hero-grid{grid-template-columns:1fr}.hero h1{max-width:620px}}
+@media(max-width:650px){.wrap{width:calc(100% - 24px)}.topbar{gap:12px}.menu{justify-content:center}.menu a{padding:8px 10px}.hero{min-height:0}.hero:before{inset:0!important;opacity:.24;mask-image:none}.hero-grid{padding:35px 0;min-height:0}.hero h1{font-size:clamp(37px,9vw,49px)}.season-garimpos{border-radius:23px!important;margin:16px 12px!important}.filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px!important}.filters button{font-size:12px!important;padding:9px!important;min-height:64px}.category-photo{height:38px!important;width:38px!important}.garimpo{border-radius:23px!important}}
+@media(max-width:390px){.filters{grid-template-columns:1fr 1fr}.filters button{gap:4px}.category-photo{width:30px!important;height:30px!important}}
+@media(prefers-reduced-motion:reduce){.primary,.buy,.garimpo button{transition:none}}
