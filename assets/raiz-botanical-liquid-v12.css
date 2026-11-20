@@ -1,0 +1,143 @@
+/* RAIZ ANCESTRAL V12 — Botanical Liquid Glass
+   Teste visual reversível: acrescente ?tema=original para comparar.
+   CSS de apresentação: sem mudar dados, links, componentes funcionais ou campanhas. */
+html:not(.raiz-original-v12){
+ --raiz-glass:#f6f5db;
+ --raiz-green:#1c542c;
+ --raiz-emerald:#217437;
+ --raiz-glow:#9af032;
+ --raiz-line:rgba(255,255,255,.89);
+}
+html:not(.raiz-original-v12) body{
+ background-color:#e8e6bf;
+ background-image:
+  url("/assets/folhagens-liquid-v12.svg"),
+  radial-gradient(ellipse at 17% 12%,rgba(240,243,169,.94),transparent 31%),
+  radial-gradient(ellipse at 85% 24%,rgba(119,168,57,.38),transparent 35%),
+  radial-gradient(ellipse at 12% 65%,rgba(168,194,87,.48),transparent 43%),
+  radial-gradient(ellipse at 88% 81%,rgba(225,190,104,.42),transparent 38%),
+  linear-gradient(145deg,#f3efce 0%,#dae0a8 28%,#fcf1d4 52%,#c8d49a 76%,#e9dfb3 100%);
+ background-size:min(100%,1440px) auto,cover,cover,cover,cover,cover;
+ background-position:center top,center,center,center,center,center;
+ background-repeat:repeat-y,no-repeat,no-repeat,no-repeat,no-repeat,no-repeat;
+ color:#193927;
+}
+html:not(.raiz-original-v12) .site-header{
+ background:linear-gradient(125deg,rgba(255,255,242,.9),rgba(240,248,222,.73),rgba(255,250,221,.88))!important;
+ border-color:rgba(244,245,204,.92)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 4px 20px rgba(40,88,34,.10)!important;
+ -webkit-backdrop-filter:blur(16px) saturate(1.4);
+ backdrop-filter:blur(16px) saturate(1.4);
+}
+html:not(.raiz-original-v12) .brand,
+html:not(.raiz-original-v12) .menu a{color:#174228}
+html:not(.raiz-original-v12) .menu a:hover{color:#287d35}
+html:not(.raiz-original-v12) .hero{
+ background:linear-gradient(110deg,rgba(234,239,180,.60),rgba(251,244,209,.45),rgba(155,196,106,.20))!important;
+ border-bottom:1px solid rgba(255,255,222,.82)!important;
+}
+html:not(.raiz-original-v12) .hero h1,
+html:not(.raiz-original-v12) .section h2,
+html:not(.raiz-original-v12) .season-garimpos h2,
+html:not(.raiz-original-v12) .raiz-vitrine-campanha h2{
+ color:#194529!important;
+ text-shadow:0 2px 0 rgba(255,255,255,.62),0 6px 25px rgba(63,109,48,.10);
+}
+html:not(.raiz-original-v12) main.wrap::before{
+ background:
+  url("/assets/folhagens-liquid-v12.svg") center top / 100% auto repeat-y,
+  radial-gradient(ellipse at 20% 15%,rgba(185,215,106,.4),transparent 35%),
+  radial-gradient(ellipse at 84% 46%,rgba(240,219,150,.53),transparent 38%),
+  radial-gradient(ellipse at 30% 80%,rgba(139,178,91,.37),transparent 40%),
+  linear-gradient(140deg,rgba(244,236,192,.82),rgba(236,232,192,.75),rgba(218,222,155,.73))!important;
+ opacity:1!important;
+}
+html:not(.raiz-original-v12) main.wrap>.section,
+html:not(.raiz-original-v12) main.wrap>.season-garimpos,
+html:not(.raiz-original-v12) main.wrap>.raiz-vitrine-campanha{
+ position:relative;
+}
+html:not(.raiz-original-v12) :is(.season-garimpos,.raiz-vitrine-campanha,.about,#raiz-estatisticas,#raiz-gerenciar-produtos,#raiz-admin-atalhos,#raiz-auditoria-precos,#raiz-reconciliacao-precos,#raiz-shopee-api-preview){
+ background:linear-gradient(142deg,rgba(255,255,246,.72),rgba(243,249,217,.54) 48%,rgba(255,247,212,.66))!important;
+ border:1.5px solid rgba(255,255,255,.90)!important;
+ border-radius:27px!important;
+ box-shadow:inset 0 2px 0 rgba(255,255,255,.92),inset 0 -2px 6px rgba(132,141,72,.09),0 16px 38px rgba(49,84,45,.13),0 0 20px rgba(251,244,187,.35)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(1.35);
+ backdrop-filter:blur(18px) saturate(1.35);
+}
+html:not(.raiz-original-v12) .season-garimpos .garimpo,
+html:not(.raiz-original-v12) .raiz-vitrine-campanha .raiz-vitrine-card,
+html:not(.raiz-original-v12) .product{
+ background:linear-gradient(151deg,rgba(255,255,255,.79),rgba(241,247,216,.61) 55%,rgba(250,250,226,.82))!important;
+ border:1.5px solid rgba(255,255,255,.95)!important;
+ border-radius:24px!important;
+ box-shadow:inset 0 3px 2px rgba(255,255,255,.9),inset 0 -2px 5px rgba(35,73,44,.08),0 10px 26px rgba(47,82,51,.12),0 1px 0 rgba(255,255,255,.85)!important;
+ overflow:hidden;
+}
+html:not(.raiz-original-v12) .season-garimpos .garimpo{
+ padding:23px 20px!important;
+}
+html:not(.raiz-original-v12) .season-garimpos .garimpo .emoji{
+ text-shadow:0 3px 9px rgba(45,112,35,.27);
+ font-size:32px;
+}
+html:not(.raiz-original-v12) .season-garimpos .garimpo h3{color:#143e26}
+html:not(.raiz-original-v12) :is(.product img,.raiz-vitrine-card img){background-color:rgba(255,255,255,.54)!important}
+html:not(.raiz-original-v12) .product .store{color:#5b763f}
+html:not(.raiz-original-v12) :is(.hero .primary,.product .buy,.product .primary,.raiz-vitrine-card a,.garimpo button,.raiz-admin-atalhos a){
+ border:1.5px solid rgba(229,255,187,.82)!important;
+ border-radius:50px!important;
+ background:linear-gradient(180deg,#4ca830 0%,#257d2b 42%,#126527 73%,#2f9233 100%)!important;
+ color:#fff!important;
+ text-shadow:0 1px 2px rgba(12,58,25,.55);
+ box-shadow:inset 0 2px 2px rgba(255,255,255,.72),inset 0 -3px 4px rgba(9,65,15,.30),0 6px 14px rgba(36,112,30,.29),0 0 9px rgba(132,228,69,.60)!important;
+ -webkit-backdrop-filter:blur(10px) saturate(1.5);
+ backdrop-filter:blur(10px) saturate(1.5);
+ transition:box-shadow .23s ease,transform .23s ease!important;
+}
+html:not(.raiz-original-v12) :is(.hero .primary,.product .buy,.raiz-vitrine-card a,.garimpo button):hover{
+ transform:translateY(-2px);
+ box-shadow:inset 0 2px 2px rgba(255,255,255,.74),0 10px 23px rgba(31,105,28,.36),0 0 17px rgba(123,224,43,.67)!important;
+}
+html:not(.raiz-original-v12):root:not(.raiz-liquid-off) #categorias.filters button{
+ background:linear-gradient(148deg,rgba(255,255,255,.84),rgba(253,250,226,.52) 45%,rgba(223,241,190,.70))!important;
+ color:#183c27!important;
+ border:2px solid rgba(255,255,255,.95)!important;
+ border-radius:55px!important;
+ box-shadow:inset 0 3px 2px rgba(255,255,255,.96),inset 0 -2px 5px rgba(64,91,50,.08),0 8px 23px rgba(41,81,37,.13),0 0 11px rgba(255,248,205,.76)!important;
+ -webkit-backdrop-filter:blur(15px) saturate(1.5);
+ backdrop-filter:blur(15px) saturate(1.5);
+}
+html:not(.raiz-original-v12):root:not(.raiz-liquid-off) #categorias.filters button[aria-pressed="true"]{
+ background:linear-gradient(150deg,#74cf31 0%,#2d991f 33%,#10631f 70%,#5ac51c 100%)!important;
+ color:#fff!important;
+ text-shadow:0 1px 2px rgba(6,54,17,.75);
+ border:2px solid rgba(209,255,157,.92)!important;
+ box-shadow:inset 0 3px 3px rgba(255,255,255,.68),inset 0 -2px 4px rgba(2,73,14,.28),0 8px 23px rgba(37,120,22,.25),0 0 15px rgba(122,237,38,.65)!important;
+}
+html:not(.raiz-original-v12) #categorias.filters button .category-photo{
+ border:2px solid rgba(255,255,255,.83);
+ box-shadow:0 2px 6px rgba(41,82,32,.19);
+}
+html:not(.raiz-original-v12) .about,
+html:not(.raiz-original-v12) .message{color:#23402d}
+html:not(.raiz-original-v12) .site-footer{
+ background:linear-gradient(125deg,rgba(28,75,39,.95),rgba(37,92,50,.95))!important;
+ border-top:2px solid rgba(236,236,175,.7);
+}
+html:not(.raiz-original-v12) :is(button,a):focus-visible{
+ outline:3px solid #dbb746!important;outline-offset:3px;
+}
+@media(max-width:760px){
+ html:not(.raiz-original-v12) body{background-size:cover,cover,cover,cover,cover,cover;background-attachment:scroll}
+ html:not(.raiz-original-v12) main.wrap::before{background-size:auto 850px,cover,cover,cover,cover}
+ html:not(.raiz-original-v12) :is(.season-garimpos,.raiz-vitrine-campanha,.about,#raiz-gerenciar-produtos,#raiz-estatisticas){
+  border-radius:19px!important;
+  -webkit-backdrop-filter:blur(9px);
+  backdrop-filter:blur(9px);
+ }
+ html:not(.raiz-original-v12) .season-garimpos .garimpo{padding:16px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html:not(.raiz-original-v12) :is(.hero .primary,.product .buy,.raiz-vitrine-card a,.garimpo button){transition:none!important}
+}
