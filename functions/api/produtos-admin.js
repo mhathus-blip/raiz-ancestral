@@ -5,12 +5,28 @@
  */
 const json=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Vary':'Authorization'}});
 const fields=['nome','descricao','imagem_url','preco','loja','categoria','link_afiliado','ativo','destaque','shopee_product_id'];
+
+// Sugestões conservadoras: correspondência forte primeiro; casos ambíguos ficam em revisão.
+function suggestCategory(name){
+ const text=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const has=re=>re.test(text);
+ if(has(/\b(adubo|fertilizante|npk|bokashi|substrato|ureia|húmus|humus|calcario)\b/))return 'Jardinagem e Fertilizantes';
+ if(has(/\b(tesoura de poda|pulverizador|regador|enxada|pa de jardim|ferramenta de jardinagem)\b/))return 'Ferramentas para Jardinagem';
+ if(has(/\b(semente|sementes|muda|mudas|horta|hortaliça|hortalica|germinacao)\b/))return 'Hortas e Sementes';
+ if(has(/\b(vaso decorativo|arranjo artificial|buque artificial|decoracao|ornamento|arvore artificial)\b/))return 'Decoração Natural';
+ if(has(/\b(rosa natural|orquidea viva|flor natural|flores vivas)\b/))return 'Flores';
+ if(has(/\b(shampoo|sabonete|creme corporal|hidratante|cosmetico|oleo para pele)\b/))return 'Beleza e Cuidados Naturais';
+ if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/) && !has(/\b(barra|barras|barrinha|barrinhas)\b/))return 'Suplementos Naturais';
+ if(has(/\b(cha|chas|camomila|hibisco|infusao|erva doce|hortela|capim limao)\b/))return 'Chás e Ervas';
+ if(has(/\b(barra|barras|barrinha|barrinhas|cereal|granola|aveia|palha italiana|pasta de amendoim|amendoim|castanha|snack|farinha|chia|linhaca|mel puro|cookie|biscoito)\b/))return 'Alimentos Naturais';
+ return 'A classificar';
+}
 function https(value){try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!!u.hostname}catch{return false}}
 function validate(input,update=false){
  if(!input||typeof input!=='object'||Array.isArray(input))return {error:'Dados inválidos.'};
  const bad=Object.keys(input).filter(k=>!fields.includes(k));
  if(bad.length)return {error:'Campo não permitido: '+bad.join(', ')};
- if(!update&&!['nome','loja','categoria','link_afiliado'].every(k=>typeof input[k]==='string'&&input[k].trim()))return {error:'Informe nome, loja, categoria e link.'};
+ if(!update&&!['nome','loja','link_afiliado'].every(k=>typeof input[k]==='string'&&input[k].trim()))return {error:'Informe nome, loja e link.'};
  const out={};
  for(const [key,val] of Object.entries(input)){
   if(['nome','loja','categoria','link_afiliado','imagem_url','descricao','shopee_product_id'].includes(key)){
@@ -88,7 +104,10 @@ export async function onRequest({request,env}){
   const duplicado=(existing.data||[]).find(p=>String(p.link_afiliado||'').trim()===checked.value.link_afiliado||
     (String(p.loja||'').toLowerCase()===String(checked.value.loja||'').toLowerCase()&&norm(p.nome)===norm(checked.value.nome)));
   if(duplicado)return json({erro:'Já existe um anúncio semelhante no catálogo (ID '+duplicado.id+'). Revise antes de cadastrar.',produto_existente:duplicado.id},409);
-  const product={...checked.value,ativo:false,destaque:false};
+  const provided=String(checked.value.categoria||'').trim();
+  const suggested=suggestCategory(checked.value.nome);
+  const categoria=(!provided||provided==='A classificar')?suggested:provided;
+  const product={...checked.value,categoria,ativo:false,destaque:false};
   const r=await db(ctx,'produtos',{method:'POST',body:product});
   if(r.error)return json({erro:r.error},r.status);
   return json({ok:true,produto:r.data[0],observacao:'Cadastrado inativo para revisão.'},201);
