@@ -95,16 +95,32 @@ export async function onRequest({request,env}){
   // Exportação administrativa em lotes, SEM mutação e sem expor token no arquivo.
   // Exige a mesma verificação Supabase Auth + is_raiz_admin das outras ações.
   if(url.searchParams.get('export')==='1'){
+    // Exportação em ordem de ID, com cursor estável (evita pular registros
+    // quando novos produtos são cadastrados durante o download).
+    // Mantém modo legado por page para compatibilidade; o novo ADM usa cursor.
+    const batch=500;
+    const cursorParam=url.searchParams.get('cursor');
+    const cursorMode=cursorParam!==null;
     const page=Number(url.searchParams.get('page')||1);
     if(!Number.isSafeInteger(page)||page<1||page>25)return json({erro:'Lote de backup inválido.'},400);
-    const batch=500;
+    const cursor=cursorMode?Number(cursorParam):0;
+    if(cursorMode&&(!Number.isSafeInteger(cursor)||cursor<0))return json({erro:'Cursor de backup inválido.'},400);
     const params=new URLSearchParams({
       select:'id,created_at,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id',
-      order:'id.asc',limit:String(batch),offset:String((page-1)*batch)
+      order:'id.asc',limit:String(batch)
     });
+    if(cursorMode){
+      if(cursor>0)params.set('id','gt.'+cursor);
+    }else{
+      params.set('offset',String((page-1)*batch));
+    }
     const result=await db(ctx,'produtos?'+params.toString());
     if(result.error)return json({erro:result.error},result.status);
-    return json({pagina:page,produtos:result.data,mais:result.data.length===batch});
+    const items=result.data||[];
+    const last=items.length?Number(items[items.length-1].id):cursor;
+    if(items.length&&(!Number.isSafeInteger(last)||last<1))
+      return json({erro:'Falha de integridade: identificador inválido.'},502);
+    return json({pagina:page,produtos:items,mais:items.length===batch,proximo_cursor:last});
   }
   if(url.searchParams.get('categories')==='1'){
    const r=await readCatalogForAdmin(ctx,'id,categoria');
