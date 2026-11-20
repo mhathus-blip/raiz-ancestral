@@ -132,3 +132,31 @@ html:not(.raiz-original-v12) .season-banner .raiz-gold-wave{z-index:2}
 @media(max-width:850px){.raiz-auto-center .raiz-auto-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.raiz-auto-center .raiz-auto-grid{grid-template-columns:1fr}.raiz-auto-center{padding:16px}}
 @media(prefers-reduced-motion:reduce){html:not(.raiz-original-v12) main.wrap::after{filter:none}}
+
+/* Correção de visibilidade: restaurar AS FAIXAS LARGAS da V12 (imagem de referência).
+   Colocá-las na própria camada de fundo principal, não atrás de gradientes opacos. */
+html:not(.raiz-original-v12) main.wrap::before{
+ content:""!important;display:block!important;
+ position:absolute!important;top:0!important;bottom:-60px!important;
+ left:50%!important;right:auto!important;width:100vw!important;
+ transform:translateX(-50%)!important;z-index:0!important;
+ pointer-events:none!important;opacity:1!important;
+ background-color:#f6f0df!important;
+ background-image:
+   url("/assets/ondas-largas-v12.svg"),
+   linear-gradient(125deg,#e9ebc9,#f7efdc 52%,#e6ddc7)!important;
+ background-position:center top,center!important;
+ background-size:100% 1020px,cover!important;
+ background-repeat:repeat-y,no-repeat!important;
+}
+html:not(.raiz-original-v12) main.wrap::after{
+ opacity:.40!important;
+ background-size:100% 1020px!important;
+}
+@media(max-width:760px){
+ html:not(.raiz-original-v12) main.wrap::before{
+  background-size:auto 920px,cover!important;
+  background-position:center top,center!important;
+ }
+ html:not(.raiz-original-v12) main.wrap::after{opacity:.30!important}
+}
