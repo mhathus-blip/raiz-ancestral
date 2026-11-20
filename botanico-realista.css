@@ -2,7 +2,6 @@
    Preserve catálogo, Supabase, filtros, campanhas e autenticação. */
 :root{--forest:#153b24;--forest2:#287733;--cream:#fffbea;--ink:#153421;--gold:#dbb868}
 body{background:radial-gradient(ellipse at 12% 28%,#b9cb77 0,transparent 34%),radial-gradient(ellipse at 93% 50%,#a6c77b 0,transparent 36%),linear-gradient(125deg,#fbf7e8,#e4e5bd 45%,#fff5dd);color:var(--ink)}
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.2;background:url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=75') center/cover;mask-image:linear-gradient(90deg,#000 0%,transparent 30%,transparent 70%,#000 100%)}
 .wrap{width:min(1290px,calc(100% - 42px))}
 .site-header{background:rgba(253,250,230,.78)!important;border-bottom:1px solid rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(140%);box-shadow:0 4px 25px #243b211b}
 .topbar{min-height:86px}
@@ -10,8 +9,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .menu{background:linear-gradient(135deg,#fff9ecb9,#fffdf5a9);padding:8px 12px;border:1px solid #fff;border-radius:100px;box-shadow:inset 0 2px 5px #fff9,0 6px 22px #567c3120;gap:5px}
 .menu a{padding:9px 15px;border-radius:100px;color:#213e29}
 .menu a:first-child,.menu a:hover{background:linear-gradient(180deg,#8be044,#19772b 65%,#075521);color:white;box-shadow:inset 0 2px 3px #e5ffc9,0 2px 12px #3a992f9b}
-.hero{background:linear-gradient(90deg,rgba(248,247,212,.98),rgba(255,252,226,.79) 48%,transparent 70%),linear-gradient(125deg,#f9f1d8,#dce8bb)!important;min-height:425px;position:relative}
-.hero:before{inset:0 0 0 43%!important;opacity:1;background-image:linear-gradient(90deg,#f7f5d9 0%,rgba(250,249,223,.7) 18%,transparent 60%),url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=85')!important;background-position:center!important;background-size:cover!important;mask-image:linear-gradient(90deg,transparent 0%,#000 23%,#000 100%);border-radius:0!important}
+.hero{background:linear-gradient(90deg,rgba(238,237,187,.88),rgba(241,242,194,.67) 48%,transparent 71%),linear-gradient(125deg,#e4e7ac,#d5dda5)!important;min-height:425px;position:relative}
+.hero:before{inset:0 0 0 43%!important;opacity:1!important;background-position:center!important;background-size:cover!important;mask-image:linear-gradient(90deg,transparent 0%,#000 22%,#000 100%);filter:saturate(1.17) contrast(1.06);border-radius:0!important}
 .hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 75%,rgba(83,139,37,.14));z-index:0}
 .hero-grid{position:relative;z-index:1;min-height:425px;padding:48px 0;grid-template-columns:1.05fr .95fr}
 .eyebrow{font-weight:800;color:#6c5830;letter-spacing:3.5px}
@@ -43,3 +42,20 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 @media(max-width:650px){.wrap{width:calc(100% - 24px)}.topbar{gap:12px}.menu{justify-content:center}.menu a{padding:8px 10px}.hero{min-height:0}.hero:before{inset:0!important;opacity:.24;mask-image:none}.hero-grid{padding:35px 0;min-height:0}.hero h1{font-size:clamp(37px,9vw,49px)}.season-garimpos{border-radius:23px!important;margin:16px 12px!important}.filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px!important}.filters button{font-size:12px!important;padding:9px!important;min-height:64px}.category-photo{height:38px!important;width:38px!important}.garimpo{border-radius:23px!important}}
 @media(max-width:390px){.filters{grid-template-columns:1fr 1fr}.filters button{gap:4px}.category-photo{width:30px!important;height:30px!important}}
 @media(prefers-reduced-motion:reduce){.primary,.buy,.garimpo button{transition:none}}
+
+/* V2 — luz dourada orgânica, sem branco estourado; vidro com refração. */
+body{background:radial-gradient(ellipse at 9% 32%,rgba(96,145,37,.5),transparent 31%),radial-gradient(ellipse at 91% 38%,rgba(103,151,46,.42),transparent 36%),radial-gradient(ellipse at 53% 86%,#ebd8a6,transparent 45%),linear-gradient(125deg,#d6dd9d 0%,#f1edcf 48%,#bbc78f 100%)!important}
+.hero{background-color:#e1e5ad!important}
+.hero:after{background:linear-gradient(105deg,rgba(255,247,195,.16),transparent 63%),radial-gradient(ellipse at 22% 25%,rgba(255,255,220,.2),transparent 48%)}
+.hero h1{color:#153e24!important;text-shadow:0 1px 0 rgba(255,255,220,.6)}
+.hero-grid{min-height:385px!important;padding-top:35px!important;padding-bottom:35px!important}
+.season-garimpos{background:linear-gradient(145deg,rgba(255,255,242,.46),rgba(222,238,186,.28))!important;border:2px solid rgba(255,255,252,.95)!important;box-shadow:inset 0 3px 8px rgba(255,255,255,.98),inset 0 -6px 15px rgba(91,119,43,.16),0 12px 32px rgba(48,73,29,.22),0 0 0 1px rgba(234,220,146,.6)!important;backdrop-filter:blur(18px) saturate(1.4)}
+.garimpo,.product,.about{background:linear-gradient(130deg,rgba(255,255,255,.52),rgba(233,240,203,.34) 44%,rgba(255,253,229,.44))!important;border:2px solid rgba(255,255,255,.95)!important;box-shadow:inset 3px 5px 9px rgba(255,255,255,.94),inset -3px -5px 11px rgba(93,114,53,.11),0 9px 24px rgba(50,68,28,.18),0 0 0 1px rgba(202,195,127,.48)!important;backdrop-filter:blur(18px) saturate(1.35)}
+.garimpo{border-radius:43px!important}
+.filters button:not([aria-pressed=true]){background:linear-gradient(165deg,rgba(255,255,255,.65),rgba(239,240,211,.36))!important;border:2px solid rgba(255,255,255,.98)!important;box-shadow:inset 2px 4px 6px #fff,inset -3px -4px 9px rgba(76,104,38,.11),0 5px 12px rgba(36,63,20,.2),0 0 0 1px rgba(237,225,159,.55)!important;backdrop-filter:blur(13px)}
+.primary,.buy,.garimpo button,.filters button[aria-pressed=true]{position:relative;isolation:isolate;border:2px solid rgba(238,255,207,.95)!important;background:linear-gradient(180deg,#c3f58e 0%,#60ba3f 12%,#218628 38%,#09672b 76%,#074920 100%)!important;box-shadow:inset 0 3px 2px rgba(255,255,255,.96),inset 0 -5px 6px rgba(0,45,17,.72),inset 5px 0 7px rgba(187,255,135,.35),0 0 0 2px rgba(255,255,255,.63),0 7px 17px rgba(30,97,28,.35),0 4px 9px rgba(246,255,109,.5)!important;text-shadow:0 1px 2px rgba(0,49,15,.8)}
+.primary:before,.buy:before,.garimpo button:before{content:"";position:absolute;inset:3px 7px auto 7px;height:37%;pointer-events:none;border-radius:100% 100% 65% 65%;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.1) 66%,transparent);z-index:-1}
+.filters button[aria-pressed=true]:before{content:"";position:absolute;inset:3px 7px auto;height:35%;border-radius:100%;background:linear-gradient(180deg,rgba(255,255,255,.44),transparent);pointer-events:none}
+.menu{background:linear-gradient(145deg,rgba(255,255,255,.7),rgba(241,243,214,.42))!important;box-shadow:inset 0 3px 5px #fff,0 7px 18px #53652f36!important}
+@media(max-width:900px){.hero:before{inset:0 0 0 30%!important;opacity:.76!important}}
+@media(max-width:650px){.hero:before{inset:0!important;opacity:.25!important;mask-image:none!important}}
