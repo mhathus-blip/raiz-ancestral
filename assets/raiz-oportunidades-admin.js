@@ -20,7 +20,9 @@ async function api(path,method='GET',payload){
 function card(item){
  const box=document.createElement('article');box.className='opp-card';
  if(item.imagem_url){const img=document.createElement('img');img.alt='Imagem da oferta';img.src=item.imagem_url;img.loading='lazy';img.referrerPolicy='no-referrer';img.addEventListener('error',()=>img.remove());box.append(img)}
- box.append(t('b',item.nome),t('small','Preço indicativo: '+currency(item.preco_indicativo??item.preco)),t('small','Shopee • desconto ainda não verificado'));
+ box.append(t('b',item.nome),t('small','Preço indicativo: '+currency(item.preco_indicativo??item.preco)),t('small','Shopee • desconto anunciado não confirmado'));
+ const base=Number(item.preco_base),current=Number(item.preco_indicativo);
+ if(Number.isFinite(base)&&base>0&&Number.isFinite(current)&&current>0&&current<base){const diff=Math.round((base-current)/base*100);box.append(t('small','Queda observada de '+diff+'% desde a primeira consulta (R$ de referência: '+currency(base)+'). Não é desconto anunciado pela loja.'))}
  const url=safeUrl(item.link_afiliado);
  if(url){const a=t('a','Conferir anúncio');a.href=url;a.target='_blank';a.rel='sponsored noopener noreferrer';box.append(a)}
  return box;
