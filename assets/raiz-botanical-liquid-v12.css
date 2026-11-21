@@ -141,3 +141,80 @@ html:not(.raiz-original-v12) :is(button,a):focus-visible{
 @media(prefers-reduced-motion:reduce){
  html:not(.raiz-original-v12) :is(.hero .primary,.product .buy,.raiz-vitrine-card a,.garimpo button){transition:none!important}
 }
+
+
+/* V12.1 — acabamento botânico premium; isolado para revisão e reversível por ?tema=original.
+   Mantém ondas, campanhas, cartões, preços e catálogo do projeto. */
+html:not(.raiz-original-v12){
+  --raiz-forest-deep:#102c20;
+  --raiz-forest-soft:#234b35;
+  --raiz-gold:#c9a767;
+  --raiz-parchment:#f7f2e5;
+}
+html:not(.raiz-original-v12) body{
+  color:#203a29;
+  background-color:#112f22;
+  background-image:
+    url("/assets/folhagens-liquid-v12.svg"),
+    radial-gradient(ellipse at 15% 15%,rgba(99,143,96,.25),transparent 42%),
+    radial-gradient(ellipse at 89% 65%,rgba(202,168,102,.12),transparent 34%),
+    linear-gradient(150deg,#102e21,#214d35 48%,#102b20);
+  background-size:min(100%,1440px) auto,cover,cover,cover;
+  background-position:center top,center,center,center;
+  background-repeat:repeat-y,no-repeat,no-repeat,no-repeat;
+}
+html:not(.raiz-original-v12) main.wrap::before{
+  background:
+    url("/assets/folhagens-liquid-v12.svg") center top / 100% auto repeat-y,
+    linear-gradient(145deg,rgba(244,240,218,.95),rgba(233,234,206,.88),rgba(240,230,199,.93))!important;
+}
+html:not(.raiz-original-v12) .site-header{
+  background:linear-gradient(125deg,rgba(247,245,225,.93),rgba(233,237,210,.87))!important;
+  border-bottom:1px solid rgba(201,167,103,.52)!important;
+}
+html:not(.raiz-original-v12) .hero{
+  background:linear-gradient(112deg,rgba(247,241,214,.93),rgba(234,236,207,.88),rgba(201,219,182,.69))!important;
+}
+html:not(.raiz-original-v12) :is(.product,.raiz-vitrine-campanha .raiz-vitrine-card,.season-garimpos .garimpo){
+  background:linear-gradient(160deg,#fffdf7 0%,#f6f2e7 100%)!important;
+  border:1px solid rgba(201,167,103,.4)!important;
+  box-shadow:0 9px 26px rgba(18,46,31,.13),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+html:not(.raiz-original-v12) :is(.product,.raiz-vitrine-campanha .raiz-vitrine-card){
+  height:100%;
+}
+html:not(.raiz-original-v12) .product :is(.content,.price){min-width:0}
+html:not(.raiz-original-v12) :is(.product img,.raiz-vitrine-card img){
+  object-fit:contain!important;
+  background:#fffdf6!important;
+}
+html:not(.raiz-original-v12) :is(.hero .primary,.product .buy,.product .primary,.raiz-vitrine-card a,.garimpo button,.raiz-admin-atalhos a){
+  background:linear-gradient(180deg,rgba(75,124,85,.94) 0%,#285c3e 43%,#16432d 100%)!important;
+  border:1px solid rgba(228,199,133,.85)!important;
+  color:#fffdf2!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.27);
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.42),inset 0 -2px 3px rgba(3,33,16,.22),0 5px 14px rgba(19,60,32,.2)!important;
+}
+html:not(.raiz-original-v12) :is(.hero .primary,.product .buy,.raiz-vitrine-card a,.garimpo button):hover{
+  transform:translateY(-1px);
+  box-shadow:inset 0 2px 2px rgba(255,255,255,.48),0 8px 17px rgba(19,60,32,.27),0 0 0 1px rgba(205,170,101,.35)!important;
+}
+html:not(.raiz-original-v12):root:not(.raiz-liquid-off) #categorias.filters button[aria-pressed="true"]{
+  background:linear-gradient(155deg,#477a52,#1a5635 65%,#123e29)!important;
+  border-color:#d4b77c!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.46),0 6px 16px rgba(20,75,37,.21)!important;
+}
+html:not(.raiz-original-v12) .site-footer{
+  background:linear-gradient(125deg,#0e2c1e,#214831)!important;
+  border-top:2px solid rgba(201,167,103,.72);
+}
+html:not(.raiz-original-v12) :is(.product .price,.detail-price,.raiz-vitrine-preco){font-variant-numeric:tabular-nums}
+@media(max-width:760px){
+ html:not(.raiz-original-v12) body{background-size:auto 920px,cover,cover,cover}
+ html:not(.raiz-original-v12) .product{border-radius:17px!important}
+ html:not(.raiz-original-v12) :is(.hero .primary,.product .buy,.raiz-vitrine-card a){min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+ html:not(.raiz-original-v12) :is(.product,.product .buy,.hero .primary){animation:none!important;transition:none!important;transform:none!important}
+}
