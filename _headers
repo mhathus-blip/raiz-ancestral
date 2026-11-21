@@ -1,0 +1,5 @@
+/admin/*
+  Cache-Control: no-store, max-age=0
+
+/admin
+  Cache-Control: no-store, max-age=0
