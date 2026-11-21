@@ -29,7 +29,7 @@ export async function onRequest({request,env}){
  if(!["GET","POST","PATCH"].includes(request.method))return answer({erro:"Método não permitido."},405);
  const ctx=await context(request,env);if(ctx.error)return answer({erro:ctx.error},ctx.status);
  if(request.method==="GET"){
-  const result=await query(ctx,"raiz_oportunidades?select=id,origem,item_externo,nome,link_afiliado,imagem_url,preco_indicativo,categoria_sugerida,status,produto_id,consultado_em,revisado_em&order=consultado_em.desc&limit=100");
+  const result=await query(ctx,"raiz_oportunidades?select=id,origem,item_externo,nome,link_afiliado,imagem_url,preco_indicativo,preco_base,categoria_sugerida,status,produto_id,consultado_em,revisado_em&order=consultado_em.desc&limit=100");
   return result.error?answer({erro:result.error},result.status):answer({oportunidades:result.data||[]});
  }
  if(!String(request.headers.get("Content-Type")||"").includes("application/json"))return answer({erro:"Envie JSON."},415);
@@ -42,13 +42,22 @@ export async function onRequest({request,env}){
   const categoria=String(input?.categoria_sugerida||"").trim();
   const price=input?.preco_indicativo===null||input?.preco_indicativo===""?null:Number(input?.preco_indicativo);
   if(!/^\d{3,20}$/.test(id)||nome.length<3||nome.length>250||categoria.length>100||!validHttps(link,true)||link.length>1800||(foto&&(!validHttps(foto)||foto.length>1800))||price!==null&&(!Number.isFinite(price)||price<=0||price>1000000))return answer({erro:"Dados inconsistentes. Confira ID, URL Shopee, nome e preço."},400);
-  const item={origem:"shopee_api",item_externo:id,nome,link_afiliado:link,imagem_url:foto||null,preco_indicativo:price,categoria_sugerida:categoria||"A classificar",status:"pendente"};
+  const existing=await query(ctx,"raiz_oportunidades?select=id,status,preco_base,preco_indicativo&origem=eq.shopee_api&item_externo=eq."+id+"&limit=1");
+  if(existing.error)return answer({erro:existing.error},existing.status);
+  if(existing.data?.length){
+   const old=existing.data[0];
+   if(old.status!=="pendente")return answer({erro:"Anúncio já revisado anteriormente; não reabrir automaticamente."},409);
+   const changes={preco_indicativo:price,consultado_em:new Date().toISOString()};
+   const r=await query(ctx,"raiz_oportunidades?id=eq."+old.id+"&status=eq.pendente","PATCH",changes);
+   return r.error?answer({erro:r.error},r.status):answer({ok:true,atualizada:true,oportunidade:r.data?.[0]});
+  }
+  const item={origem:"shopee_api",item_externo:id,nome,link_afiliado:link,imagem_url:foto||null,preco_indicativo:price,preco_base:price,categoria_sugerida:categoria||"A classificar",status:"pendente"};
   const r=await query(ctx,"raiz_oportunidades","POST",item);
   return r.error?answer({erro:r.error},r.status):answer({ok:true,oportunidade:r.data?.[0]},201);
  }
  const id=Number(input?.id),status=String(input?.status||"");
  if(!Number.isSafeInteger(id)||id<=0||!["descartada","selecionada","pendente"].includes(status))return answer({erro:"Revisão inválida."},400);
- if(status==="selecionada"&&!Number.isSafeInteger(Number(input?.produto_id)))return answer({erro:"Selecione após cadastrar o produto como rascunho."},400);
+ if(status==="selecionada"&&(!Number.isSafeInteger(Number(input?.produto_id))||Number(input?.produto_id)<=0))return answer({erro:"Selecione após cadastrar o produto como rascunho."},400);
  const changes={status,revisado_em:new Date().toISOString(),...(status==="selecionada"?{produto_id:Number(input.produto_id)}:{})};
  const result=await query(ctx,"raiz_oportunidades?id=eq."+id+"&status=eq.pendente","PATCH",changes);
  return result.error?answer({erro:result.error},result.status):result.data?.length?answer({ok:true,oportunidade:result.data[0]}):answer({erro:"Oportunidade já revisada ou não encontrada."},409);
