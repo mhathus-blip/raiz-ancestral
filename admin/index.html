@@ -2752,18 +2752,28 @@ async function load(){
  try{
   const days=Number(by('raiz-stats-period').value);
   let stats=null,source='',firstError='';
-  // Preferir endpoint do próprio site; em falhas da rede/proxy tentar a API oficial Supabase
-  // com o JWT já validado no login ADM. A RLS e a função exigem is_raiz_admin().
-  try{
-   const response=await fetch('/api/estatisticas-admin?dias='+days,{
-    method:'GET',headers:{Authorization:'Bearer '+token,Accept:'application/json'},
-    cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(12000)
-   });
-   let data;
-   try{data=await response.json()}catch{throw Error('Resposta do Cloudflare não é JSON (HTTP '+response.status+').')}
-   if(!response.ok||!data?.ok||!data?.dados)throw Error(data?.erro||'Cloudflare retornou HTTP '+response.status);
-   stats=data.dados;source='Cloudflare';
-  }catch(e){firstError=e.message||String(e)}
+  // Rota de nome neutro primeiro: bloqueadores podem classificar URLs de estatísticas
+  // como rastreamento. Ambos os endpoints exigem JWT e verificação is_raiz_admin.
+  const urls=['/api/painel-resumo?dias='+days,'/api/estatisticas-admin?dias='+days];
+  const falhas=[];
+  for(const url of urls){
+   try{
+    const response=await fetch(url,{
+     method:'GET',headers:{Authorization:'Bearer '+token,Accept:'application/json'},
+     cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(12000)
+    });
+    let data;
+    try{data=await response.json()}catch{throw Error('Resposta não reconhecida (HTTP '+response.status+').')}
+    if(response.status===401||response.status===403)throw Error('Acesso administrativo expirado ou não autorizado. Entre novamente no ADM.');
+    if(!response.ok||!data?.ok||!data?.dados)throw Error(data?.erro||'Servidor retornou HTTP '+response.status);
+    stats=data.dados;source='Cloudflare';break;
+   }catch(e){
+    const desc=e?.name==='TimeoutError'?'Tempo de resposta excedido':e?.name==='TypeError'?'Conexão bloqueada ou indisponível':(e?.message||String(e));
+    falhas.push(desc);
+    if(desc.includes('Acesso administrativo expirado'))throw Error(desc);
+   }
+  }
+  firstError=[...new Set(falhas)].join(' / ');
   if(!stats){
    try{
     if(typeof SUPABASE_URL!=='string'||typeof SUPABASE_KEY!=='string')throw Error('Configuração pública do Supabase indisponível.');
@@ -2782,7 +2792,13 @@ async function load(){
   }
   draw(stats);
   status('Estatísticas atualizadas via '+source+'. A coleta começa na prévia V12; os cliques anteriores não são recuperados.');
- }catch(e){status('Não foi possível carregar estatísticas: '+e.message)}
+ }catch(e){
+  const reason=String(e?.message||e);
+  const network=/Failed to fetch|Conexão bloqueada|NetworkError|Load failed|Tempo de resposta excedido/i.test(reason);
+  status(network
+   ? 'Estatísticas indisponíveis por falha de conexão. Atualize a página; no Brave, confira se o Escudo bloqueou as solicitações do próprio site. Detalhes: '+reason
+   : 'Não foi possível carregar estatísticas: '+reason);
+ }
  finally{running=false;by('raiz-stats-refresh').disabled=false}
 }
 by('raiz-stats-refresh').addEventListener('click',load);
