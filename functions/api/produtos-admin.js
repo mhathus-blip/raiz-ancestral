@@ -12,6 +12,7 @@ function suggestCategory(name){
  const has=re=>re.test(text);
  if(has(/\b(adubo|fertilizante|npk|bokashi|substrato|ureia|húmus|humus|calcario)\b/))return 'Jardinagem e Fertilizantes';
  if(has(/\b(tesoura de poda|pulverizador|regador|enxada|pa de jardim|ferramenta de jardinagem)\b/))return 'Ferramentas para Jardinagem';
+ if(has(/\b(alpiste|painco|comedouro|bebedouro|poleiro|gaiola|viveiro|ninho para|casinha para|mistura para passaros)\b/) || (has(/\b(ave|aves|passaro|passaros|calopsita|periquito|canario|papagaio|pintassilgo|coleiro|agapornis|mandarim)\b/) && has(/\b(racao|alimento|alimentacao|mistura|sementes|semente|comedouro|bebedouro|ninho|casinha|poleiro|gaiola|viveiro)\b/)))return 'Aves e Animais de Jardim';
  if(has(/\b(semente|sementes|muda|mudas|horta|hortaliça|hortalica|germinacao)\b/))return 'Hortas e Sementes';
  if(has(/\b(vaso decorativo|arranjo artificial|buque artificial|decoracao|ornamento|arvore artificial)\b/))return 'Decoração Natural';
  if(has(/\b(rosa natural|orquidea viva|flor natural|flores vivas)\b/))return 'Flores';
@@ -126,7 +127,7 @@ export async function onRequest({request,env}){
   if(url.searchParams.get('categories')==='1'){
    const r=await readCatalogForAdmin(ctx,'id,categoria');
    if(r.error)return json({erro:r.error},r.status);
-   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
+   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
   const page=Number(url.searchParams.get('page')||1);
   const term=String(url.searchParams.get('q')||'').trim();
