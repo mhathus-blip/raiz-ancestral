@@ -9,6 +9,7 @@ create table if not exists public.raiz_oportunidades (
   link_afiliado text not null check (length(link_afiliado) between 12 and 1800),
   imagem_url text check (imagem_url is null or length(imagem_url)<=1800),
   preco_indicativo numeric(12,2) check (preco_indicativo is null or preco_indicativo>0),
+  preco_base numeric(12,2) check (preco_base is null or preco_base>0),
   categoria_sugerida text,
   status text not null default 'pendente' check(status in ('pendente','descartada','selecionada')),
   produto_id bigint references public.produtos(id) on delete set null,
