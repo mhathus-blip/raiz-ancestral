@@ -17,6 +17,7 @@ function suggestCategory(name){
  if(has(/\b(rosa natural|orquidea viva|flor natural|flores vivas)\b/))return 'Flores';
  if(has(/\b(shampoo|sabonete|creme corporal|hidratante|cosmetico|oleo para pele)\b/))return 'Beleza e Cuidados Naturais';
  if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/) && !has(/\b(barra|barras|barrinha|barrinhas)\b/))return 'Suplementos Naturais';
+ if(has(/\b(xicara|xicaras|caneca|canecas|copo|copos|garrafa|garrafas|bule|bules|chaleira|chaleiras|infusor|infusores|coador(?:es)? de cha|jarra|jarras|kit(?:s)? (?:de )?cha|conjunto(?:s)? (?:de )?(?:xicara|cha)|bandeja(?:s)? (?:para|de) cha|termica|termicas|termico|termicos)\b/))return 'Acessórios para Chá e Bebidas';
  if(has(/\b(cha|chas|camomila|hibisco|infusao|erva doce|hortela|capim limao)\b/))return 'Chás e Ervas';
  if(has(/\b(barra|barras|barrinha|barrinhas|cereal|granola|aveia|palha italiana|pasta de amendoim|amendoim|castanha|snack|farinha|chia|linhaca|mel puro|cookie|biscoito)\b/))return 'Alimentos Naturais';
  return 'A classificar';
@@ -125,7 +126,7 @@ export async function onRequest({request,env}){
   if(url.searchParams.get('categories')==='1'){
    const r=await readCatalogForAdmin(ctx,'id,categoria');
    if(r.error)return json({erro:r.error},r.status);
-   return json({categorias:[...new Set((r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
+   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
   const page=Number(url.searchParams.get('page')||1);
   const term=String(url.searchParams.get('q')||'').trim();
