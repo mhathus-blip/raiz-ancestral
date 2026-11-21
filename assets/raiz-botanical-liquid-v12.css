@@ -218,3 +218,11 @@ html:not(.raiz-original-v12) :is(.product .price,.detail-price,.raiz-vitrine-pre
 @media(prefers-reduced-motion:reduce){
  html:not(.raiz-original-v12) :is(.product,.product .buy,.hero .primary){animation:none!important;transition:none!important;transform:none!important}
 }
+
+
+/* V12.2 — o cabeçalho acompanha a rolagem natural e libera espaço aos produtos.
+   Mantém logotipo e navegação na posição original, sem barra flutuante. */
+html:not(.raiz-original-v12) .site-header{
+  position:relative!important;
+  top:auto!important;
+}
