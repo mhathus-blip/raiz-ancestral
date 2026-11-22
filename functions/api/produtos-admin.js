@@ -98,6 +98,7 @@ function dupLink(value){
   const u=new URL(value);if(u.protocol!=='https:')return '';
   const host=u.hostname.toLowerCase().replace(/^www\./,'');
   const path=u.pathname.replace(/\/+$/,'').toLowerCase();
+  if(!path||path==='/')return '';
   // Parâmetros de rastreamento não mudam o anúncio.
   return host+path;
  }catch{return ''}
@@ -252,9 +253,18 @@ export async function onRequest({request,env}){
  if(!Number.isSafeInteger(id)||id<1)return json({erro:'ID inválido.'},400);
  const checked=validate(input?.alteracoes,true);
  if(checked.error)return json({erro:checked.error},400);
- const exists=await db(ctx,'produtos?select=id&id=eq.'+id);
+ const exists=await db(ctx,'produtos?select=id,nome,loja,link_afiliado,shopee_product_id&id=eq.'+id);
  if(exists.error)return json({erro:exists.error},exists.status);
  if(exists.data.length!==1)return json({erro:'Produto não encontrado.'},404);
+ const previous=exists.data[0];
+ const identityChanged=['nome','loja','link_afiliado','shopee_product_id'].some(key=>Object.prototype.hasOwnProperty.call(checked.value,key)&&String(checked.value[key]||'').trim()!==String(previous[key]||'').trim());
+ if(identityChanged){
+  const probe={...previous,...checked.value};
+  const duplicates=await checkDupe(ctx,probe,id);
+  if(duplicates.error)return json({erro:duplicates.error},duplicates.status);
+  const strong=duplicates.matches.find(p=>p.bloqueante);
+  if(strong)return json({erro:'Esse produto corresponde a um anúncio existente (ID '+strong.id+'). Revise o cadastro antes de atualizar.',produto_existente:strong.id,correspondencias:duplicates.matches},409);
+ }
  // Não publicar novo anúncio sem uma imagem válida; uma sugestão nunca é aplicada automaticamente.
  if(checked.value.ativo===true){
   const current=await db(ctx,'produtos?select=id,imagem_url&id=eq.'+id);
