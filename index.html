@@ -974,6 +974,53 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 
 <link rel="stylesheet" href="/assets/raiz-botanical-liquid-v12.css">
 <link rel="stylesheet" href="/assets/v12-refinamento-glass.css?v=20261120">
+
+<style id="raiz-fix-cards-alinhados-v134">
+/* V13.4 — grade pública alinhada; não altera dados, ofertas ou lógica dos botões.
+   A regra é intencionalmente aplicada depois do CSS liquid para prevalecer. */
+#produtos.products{
+  display:grid!important;
+  grid-auto-flow:row;
+  align-items:stretch!important;
+  grid-auto-rows:auto;
+}
+#produtos.products > article.product.produto{
+  display:flex!important;
+  flex-direction:column!important;
+  align-self:stretch!important;
+  height:100%!important;
+  min-height:0;
+  margin-block:0!important;
+}
+#produtos.products > .product > .content{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 auto!important;
+  min-width:0;
+}
+#produtos.products > .product .content h3{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:4;
+  overflow:hidden;
+  overflow-wrap:anywhere;
+}
+#produtos.products > .product .content .price{
+  margin-top:auto!important;
+}
+#produtos.products > .product .content .buy{
+  margin-top:0!important;
+  flex-shrink:0;
+}
+#produtos.products > .product > .share-card{
+  flex-shrink:0;
+}
+@media(max-width:760px){
+  #produtos.products > .product .content h3{
+    -webkit-line-clamp:3;
+  }
+}
+</style>
 </head>
 <body>
 <a href="#catalogo" class="raiz-pular-catalogo">Pular diretamente para os produtos</a>
