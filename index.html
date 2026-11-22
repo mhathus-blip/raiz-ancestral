@@ -970,6 +970,41 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 /* V12.4: categoria de aves preservando o formato dos filtros existentes */
 #categorias .raiz-category-bird{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;flex:0 0 58px;border-radius:50%;background:#e5eddb;border:2px solid #dfc99f;font-size:29px}
 @media(max-width:650px){#categorias .raiz-category-bird{width:45px;height:45px;flex-basis:45px;font-size:23px}}
+
+/* V13.12: aviso transparente de uso de IA no cabeçalho público.
+   Não promete menores preços nem descontos garantidos. */
+.site-header .raiz-ai-headline{
+ position:relative;isolation:isolate;
+ border-top:1px solid rgba(211,231,211,.55);
+ background:linear-gradient(105deg,#163f2b 0%,#245b3d 54%,#173f2d 100%);
+ color:#f0f7e8;
+}
+.site-header .raiz-ai-headline:before{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:linear-gradient(128deg,rgba(255,255,255,.10),transparent 24%,rgba(230,194,119,.09) 65%,transparent);
+}
+.site-header .raiz-ai-headline-inner{
+ display:flex;align-items:center;justify-content:center;gap:10px;
+ min-height:40px;padding:8px 12px;
+}
+.site-header .raiz-ai-mark{
+ display:grid;place-items:center;flex-shrink:0;
+ width:25px;height:25px;border:1px solid rgba(229,209,137,.65);
+ border-radius:50%;color:#f4d58b;font-size:14px;
+ background:rgba(255,255,255,.10);box-shadow:inset 0 1px rgba(255,255,255,.2);
+}
+.site-header .raiz-ai-headline p{
+ margin:0;font:500 12px/1.5 Arial,Helvetica,sans-serif;
+ text-align:center;letter-spacing:.08px;
+}
+.site-header .raiz-ai-headline strong{font-weight:750;color:#fff4ca}
+.site-header .raiz-ai-headline p span{color:#d5e4d5}
+@media(max-width:760px){
+ .site-header .raiz-ai-headline-inner{align-items:flex-start;gap:8px;padding:9px 6px}
+ .site-header .raiz-ai-mark{margin-top:1px;width:23px;height:23px}
+ .site-header .raiz-ai-headline p{text-align:left;font-size:11px;line-height:1.5}
+}
+
 </style>
 
 <link rel="stylesheet" href="/assets/raiz-botanical-liquid-v12.css">
@@ -1025,7 +1060,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 <body>
 <a href="#catalogo" class="raiz-pular-catalogo">Pular diretamente para os produtos</a>
 <div id="inicio" aria-hidden="true" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none"></div>
-<header class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div></header>
+<header class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div><div class="raiz-ai-headline" role="note" aria-label="Transparência sobre inteligência artificial"><div class="wrap raiz-ai-headline-inner"><span class="raiz-ai-mark" aria-hidden="true">✦</span><p><strong>Inteligência artificial a favor das suas escolhas.</strong> Usamos IA para apoiar a busca e a organização de ofertas de lojas parceiras. <span>Confira sempre preços, descontos e disponibilidade diretamente na loja antes de comprar.</span></p></div></div></header>
 <select id="season-mode" hidden aria-hidden="true"><option value="auto" selected>Automático</option></select>
 <section class="season-banner" aria-label="Temporada especial"><span class="season-decor left" aria-hidden="true">❧</span><div class="season-inner"><div class="season-kicker" id="season-kicker"></div><h2 id="season-title"></h2><p id="season-description"></p><a href="#catalogo" id="season-link">Explorar a vitrine</a><div class="season-countdown" id="season-countdown" aria-label="Contagem regressiva para a Black Friday"><span id="countdown-label">Faltam</span><strong><span id="cd-days">--</span><small>dias</small></strong><strong><span id="cd-hours">--</span><small>horas</small></strong><strong><span id="cd-mins">--</span><small>min</small></strong><strong><span id="cd-secs">--</span><small>seg</small></strong></div></div><span class="season-decor right" aria-hidden="true">✦</span><div class="raiz-gold-wave" aria-hidden="true"></div></section>
 <section class="hero"><div class="wrap hero-grid"><div><div class="eyebrow">Natureza em sua vida</div><h1>Plantas, natureza e bem-estar mais perto de você.</h1><p>Descubra flores, chás, sementes, produtos naturais e ferramentas para cultivar seu cantinho verde.</p><a class="primary" href="#catalogo">Explorar produtos →</a><div class="trust"><span>🍃 Seleção de produtos</span><span>🛍️ Lojas parceiras</span><span>🌱 Amor pela natureza</span></div></div></div></section>
