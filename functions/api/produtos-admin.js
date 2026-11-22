@@ -152,7 +152,7 @@ export async function onRequest({request,env}){
   if(term)params.set('nome','ilike.*'+term.replace(/[%*,()]/g,'')+'*');
   const r=await db(ctx,'produtos?'+params.toString());
   if(r.error)return json({erro:r.error},r.status);
-  return json({pagina:page,produtos:r.data,mais:r.data.length===30});
+  return json({pagina:page,produtos:r.data,mais:r.data.length===pageSize});
  }
  if(!String(request.headers.get('content-type')||'').includes('application/json'))return json({erro:'Envie JSON.'},415);
  let raw;try{raw=await request.text();if(raw.length>12000)return json({erro:'Dados grandes demais.'},413)}
