@@ -531,3 +531,97 @@ body.raiz-v13-active{overflow:hidden!important}
 @media(prefers-reduced-transparency:reduce){
  #raiz-v13 .v138-categories,#raiz-v13 .v13-card,#raiz-v13 .v13-kpi,#raiz-v13 .v131-product{background:#f7faf2!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 }
+
+
+/* V13.9 — 3D glass mais evidente: profundidade, borda prismática e tilt por cursor.
+   Sem dependências. O movimento só roda em dispositivos com mouse fino. */
+#raiz-v13 .v13-kpis,
+#raiz-v13 .v13-grid,
+#raiz-v13 .v131-products,
+#raiz-v13 .v13-action-grid,
+#raiz-v13 .v138-category-chips{
+ perspective:1150px;
+ perspective-origin:center 45%;
+}
+#raiz-v13 .v13-kpi,
+#raiz-v13 .v131-product,
+#raiz-v13 .v13-quick,
+#raiz-v13 .v138-category-chips button{
+ transform-style:preserve-3d;
+ will-change:auto;
+ transform:translateZ(0);
+ transition:transform .45s cubic-bezier(.18,1,.25,1),box-shadow .34s,border-color .34s,filter .34s!important;
+}
+#raiz-v13 .v13-kpi,
+#raiz-v13 .v131-product,
+#raiz-v13 .v13-card{
+ background:
+  linear-gradient(153deg,rgba(255,255,255,.58) 0%,rgba(247,255,246,.23) 42%,rgba(199,243,214,.27) 100%)!important;
+ border:1px solid rgba(255,255,255,.98)!important;
+ box-shadow:
+  inset 0 3px 2px rgba(255,255,255,1),
+  inset 2px 0 1px rgba(255,255,255,.78),
+  inset -3px -5px 12px rgba(53,125,82,.15),
+  0 7px 0 -3px rgba(83,144,102,.24),
+  0 20px 33px rgba(8,65,34,.18),
+  0 0 0 1px rgba(106,161,121,.26)!important;
+}
+#raiz-v13 .v13-kpi::after,
+#raiz-v13 .v131-product::after,
+#raiz-v13 .v13-card::after{
+ background:
+  linear-gradient(135deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.23) 13%,transparent 29%),
+  linear-gradient(174deg,rgba(255,255,255,.78) 0%,transparent 14%),
+  radial-gradient(ellipse 60% 30% at var(--v138-x,45%) var(--v138-y,15%),rgba(255,255,255,.35),transparent 85%)!important;
+ mix-blend-mode:screen;
+ opacity:.88!important;
+}
+#raiz-v13 .v131-product .v131-picture{transform:translateZ(18px);transition:transform .4s}
+#raiz-v13 .v131-product .v131-info{transform:translateZ(12px);position:relative;z-index:6}
+#raiz-v13 .v131-product .v131-actions{transform:translateZ(16px);position:relative;z-index:7}
+#raiz-v13 .v13-kpi strong{position:relative;z-index:6;display:inline-block;transform:translateZ(12px)}
+#raiz-v13 .v13-kpi:hover,
+#raiz-v13 .v131-product:hover{
+ transform:translate3d(0,-10px,24px) rotateX(var(--v139-rx,0deg)) rotateY(var(--v139-ry,0deg))!important;
+ box-shadow:
+  inset 0 3px 2px #fff,
+  inset -3px -6px 17px rgba(93,180,126,.19),
+  0 13px 0 -6px rgba(69,145,94,.21),
+  0 30px 51px rgba(7,78,42,.27),
+  0 0 27px rgba(112,233,165,.36)!important;
+ border-color:rgba(220,255,228,1)!important;
+}
+#raiz-v13 .v13-quick:hover,
+#raiz-v13 .v138-category-chips button:hover{
+ transform:translate3d(0,-6px,12px) rotateX(var(--v139-rx,0deg)) rotateY(var(--v139-ry,0deg))!important;
+ box-shadow:inset 0 2px 1px #fff,inset 0 -4px 7px rgba(57,146,91,.12),0 7px 0 -4px rgba(55,130,82,.18),0 18px 28px rgba(14,91,46,.22),0 0 19px rgba(119,236,164,.24)!important;
+}
+#raiz-v13 .v138-category-chips button[aria-pressed="true"]{
+ border-color:rgba(234,255,237,.96)!important;
+ box-shadow:inset 0 2px 1px rgba(255,255,255,.75),inset 0 -3px 7px rgba(2,53,25,.25),0 5px 0 -2px rgba(14,88,47,.45),0 12px 22px rgba(17,116,63,.26),0 0 18px rgba(108,238,159,.4)!important;
+}
+#raiz-v13 .v13-button,
+#raiz-v13 .v131-tabs button,
+#raiz-v13 .v131-actions button,
+#raiz-v13 .v131-head-actions button{
+ border-bottom:2px solid rgba(94,159,112,.42)!important;
+ box-shadow:inset 0 2px 1px #fff,inset 0 -3px 5px rgba(77,148,100,.16),0 5px 0 -2px rgba(73,140,94,.16),0 10px 19px rgba(12,73,40,.15)!important;
+}
+#raiz-v13 .v13-button:hover,
+#raiz-v13 .v131-tabs button:hover,
+#raiz-v13 .v131-actions button:hover,
+#raiz-v13 .v131-head-actions button:hover{
+ transform:translate3d(0,-5px,8px)!important;
+ box-shadow:inset 0 2px 1px #fff,0 7px 0 -3px rgba(72,131,92,.19),0 19px 25px rgba(7,83,40,.25),0 0 20px rgba(139,244,175,.3)!important;
+}
+#raiz-v13 .v136-liquid-indicator{
+ box-shadow:inset 0 3px 2px rgba(255,255,255,.94),inset 0 -4px 10px rgba(11,100,50,.26),0 6px 0 -3px rgba(118,251,169,.34),0 14px 29px rgba(70,237,144,.37),0 0 26px rgba(135,255,184,.36);
+}
+@media (hover:none),(pointer:coarse){
+ #raiz-v13 .v13-kpi:hover,#raiz-v13 .v131-product:hover,#raiz-v13 .v13-quick:hover,#raiz-v13 .v138-category-chips button:hover{transform:none!important}
+ #raiz-v13 .v131-product .v131-picture,#raiz-v13 .v131-product .v131-info,#raiz-v13 .v131-product .v131-actions{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+ #raiz-v13 .v13-kpi,#raiz-v13 .v131-product,#raiz-v13 .v13-quick,#raiz-v13 .v138-category-chips button{will-change:auto!important;transform:none!important}
+ #raiz-v13 .v13-kpi:hover,#raiz-v13 .v131-product:hover,#raiz-v13 .v13-quick:hover,#raiz-v13 .v138-category-chips button:hover{transform:none!important}
+}
