@@ -140,15 +140,19 @@ export async function onRequest({request,env}){
   const page=Number(url.searchParams.get('page')||1);
   const term=String(url.searchParams.get('q')||'').trim();
   const estado=String(url.searchParams.get('estado')||'todos');
-  if(!Number.isSafeInteger(page)||page<1||page>100000||term.length>100||!['todos','ativos','inativos','fantasmas','suspeitos'].includes(estado))return json({erro:'Filtro inválido.'},400);
-  const offset=(page-1)*30;
-  const params=new URLSearchParams({select:'id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id,created_at,disponibilidade,disponibilidade_observacao,disponibilidade_verificada_em',order:'id.desc',limit:'30',offset:String(offset)});
+  const precoFiltro=String(url.searchParams.get('preco')||'todos');
+  if(!Number.isSafeInteger(page)||page<1||page>100000||term.length>100||!['todos','ativos','inativos','fantasmas','suspeitos'].includes(estado)||!['todos','sem'].includes(precoFiltro))return json({erro:'Filtro inválido.'},400);
+  const pageSize=Number(url.searchParams.get('page_size')||30);
+  if(![6,30].includes(pageSize))return json({erro:'Tamanho de página inválido.'},400);
+  const offset=(page-1)*pageSize;
+  const params=new URLSearchParams({select:'id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id,created_at,disponibilidade,disponibilidade_observacao,disponibilidade_verificada_em',order:'id.desc',limit:String(pageSize),offset:String(offset)});
   if(estado==='ativos'||estado==='inativos')params.set('ativo','eq.'+(estado==='ativos'));
   if(estado==='fantasmas'||estado==='suspeitos')params.set('disponibilidade','eq.'+(estado==='fantasmas'?'fantasma':'suspeito'));
+  if(precoFiltro==='sem')params.set('or','(preco.is.null,preco.lte.0)');
   if(term)params.set('nome','ilike.*'+term.replace(/[%*,()]/g,'')+'*');
   const r=await db(ctx,'produtos?'+params.toString());
   if(r.error)return json({erro:r.error},r.status);
-  return json({pagina:page,produtos:r.data,mais:r.data.length===30});
+  return json({pagina:page,produtos:r.data,mais:r.data.length===pageSize});
  }
  if(!String(request.headers.get('content-type')||'').includes('application/json'))return json({erro:'Envie JSON.'},415);
  let raw;try{raw=await request.text();if(raw.length>12000)return json({erro:'Dados grandes demais.'},413)}
