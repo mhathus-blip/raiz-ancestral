@@ -1,3 +1,11 @@
+function isMfaVerified(token){
+ try{
+  const payload=token.split('.')[1];
+  if(!payload)return false;
+  const data=JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
+  return data.aal==='aal2';
+ }catch{return false}
+}
 /* Alias com nome neutro para evitar filtros de bloqueio de URLs de analytics.
  * Mesma segurança: JWT + is_raiz_admin + RLS; nenhuma leitura pública.
  */
@@ -8,6 +16,7 @@ const answer=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'n
 export async function onRequestGet({request,env}){
  const token=String(request.headers.get('authorization')||'').match(/^Bearer\s+(.+)$/i)?.[1];
  if(!token||token.length>6000)return answer({erro:'Faça login administrativo.'},401);
+ if(!isMfaVerified(token))return answer({erro:'Verificação em duas etapas necessária.'},403);
  const period=Number(new URL(request.url).searchParams.get('dias')||30);
  if(![7,30,90].includes(period))return answer({erro:'Período inválido.'},400);
  const base=String(env.SUPABASE_URL||'').replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
