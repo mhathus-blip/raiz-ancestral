@@ -142,8 +142,10 @@ export async function onRequest({request,env}){
   const estado=String(url.searchParams.get('estado')||'todos');
   const precoFiltro=String(url.searchParams.get('preco')||'todos');
   if(!Number.isSafeInteger(page)||page<1||page>100000||term.length>100||!['todos','ativos','inativos','fantasmas','suspeitos'].includes(estado)||!['todos','sem'].includes(precoFiltro))return json({erro:'Filtro inválido.'},400);
-  const offset=(page-1)*30;
-  const params=new URLSearchParams({select:'id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id,created_at,disponibilidade,disponibilidade_observacao,disponibilidade_verificada_em',order:'id.desc',limit:'30',offset:String(offset)});
+  const pageSize=Number(url.searchParams.get('page_size')||30);
+  if(![6,30].includes(pageSize))return json({erro:'Tamanho de página inválido.'},400);
+  const offset=(page-1)*pageSize;
+  const params=new URLSearchParams({select:'id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id,created_at,disponibilidade,disponibilidade_observacao,disponibilidade_verificada_em',order:'id.desc',limit:String(pageSize),offset:String(offset)});
   if(estado==='ativos'||estado==='inativos')params.set('ativo','eq.'+(estado==='ativos'));
   if(estado==='fantasmas'||estado==='suspeitos')params.set('disponibilidade','eq.'+(estado==='fantasmas'?'fantasma':'suspeito'));
   if(precoFiltro==='sem')params.set('or','(preco.is.null,preco.lte.0)');
