@@ -974,6 +974,9 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 
 /* V13.14 — frase institucional sutil no rodapé, sem crédito de desenvolvimento. */
 .site-footer .raiz-footer-tech-note{margin-top:11px;font-size:11px;line-height:1.45;color:rgba(232,239,220,.62);letter-spacing:.02em}
+
+/* V13.15 — fallback de imagem nos cards, sem alterar o layout da vitrine. */
+#produtos.products .raiz-card-image-fallback{width:100%;height:215px;min-height:215px;display:grid;place-items:center;background:#e9efe5;color:#45614a;text-align:center;font-size:13px;font-weight:600;padding:15px;cursor:pointer}
 </style>
 
 <link rel="stylesheet" href="/assets/raiz-botanical-liquid-v12.css">
@@ -1540,8 +1543,11 @@ if (ordemAtual === "diario" && !termos.length && !somenteFavoritos) {
           imagem.height = 290;
           imagem.referrerPolicy = "no-referrer";
           imagem.addEventListener("error", () => {
-            imagem.removeAttribute("src");
-            imagem.alt = "Imagem indisponível";
+            // V13.15: imagem removida pela loja parceira não deixa ícone quebrado.
+            const placeholder=elemento("div", "detail-noimage raiz-card-image-fallback", "🌿 Imagem indisponível");
+            placeholder.setAttribute("aria-label", "Imagem indisponível. Ver detalhes de " + (produto.nome||"produto"));
+            ativarDetalhes(placeholder, produto);
+            imagem.replaceWith(placeholder);
           }, { once: true });
           ativarDetalhes(imagem, produto);
           card.append(imagem);
