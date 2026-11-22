@@ -49,10 +49,22 @@ async function daily(){
  const today=new Date().toLocaleDateString('sv-SE',{timeZone:'America/Sao_Paulo'});
  try{if(localStorage.getItem('raiz-ghost-daily-date')===today)return}catch{}
  try{
-  const d=await api('/api/produtos-admin?estado=ativos&page=1');
-  const ids=(d.produtos||[]).filter(p=>String(p.loja||'').toLowerCase()==='shopee'&&/^\d{3,20}$/.test(String(p.shopee_product_id||''))).slice(0,4).map(p=>Number(p.id));
-  if(!ids.length){msg('Nenhum ID Shopee válido entre os 30 produtos ativos mais recentes.');return}
+  // Percorre lotes de até 500 por cursor, alternando os 4 produtos verificados a cada dia.
+  // O progresso fica somente neste navegador; não varre o catálogo a cada visita.
+  const saved=(()=>{try{return JSON.parse(localStorage.getItem('raiz-ghost-cursor-v1')||'{}')}catch{return {}}})();
+  let cursor=Number.isSafeInteger(saved.cursor)&&saved.cursor>=0?saved.cursor:0;
+  let index=Number.isSafeInteger(saved.index)&&saved.index>=0?saved.index:0;
+  let d=await api('/api/produtos-admin?export=1&cursor='+cursor);
+  let eligible=(d.produtos||[]).filter(p=>p.ativo&&String(p.loja||'').toLowerCase()==='shopee'&&/^\d{3,20}$/.test(String(p.shopee_product_id||'')));
+  if(index>=eligible.length){
+   cursor=d.mais?Number(d.proximo_cursor)||0:0;index=0;
+   d=await api('/api/produtos-admin?export=1&cursor='+cursor);
+   eligible=(d.produtos||[]).filter(p=>p.ativo&&String(p.loja||'').toLowerCase()==='shopee'&&/^\d{3,20}$/.test(String(p.shopee_product_id||'')));
+  }
+  const ids=eligible.slice(index,index+4).map(p=>Number(p.id));
+  if(!ids.length){msg('Sem IDs Shopee válidos no lote selecionado.');return}
   await verify(ids);
+  try{localStorage.setItem('raiz-ghost-cursor-v1',JSON.stringify({cursor,index:index+ids.length}))}catch{}
   try{localStorage.setItem('raiz-ghost-daily-date',today)}catch{}
  }catch(e){msg('Busca diária parcial: '+e.message)}
 }
