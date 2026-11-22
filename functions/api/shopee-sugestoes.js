@@ -74,7 +74,9 @@ export async function onRequestPost({request,env}){
    if(sc.score<40||sc.conflicting)continue;
    const id=String(p.itemId);
    const price=Number(p.priceMin);
-   const value={itemId:id,nome:String(p.productName).slice(0,250),imagem_url:validHttps(p.imageUrl)?String(p.imageUrl):'',preco:Number.isFinite(price)&&price>0?Number(price.toFixed(2)):null,correspondencia:sc.score,quantidade_compativel:!sc.conflicting};
+   const offerLink=String(p.offerLink||'');
+   const validAffiliate=validHttps(offerLink)&&(()=>{try{return ['s.shopee.com.br','www.shopee.com.br','shopee.com.br'].includes(new URL(offerLink).hostname)}catch{return false}})();
+   const value={itemId:id,nome:String(p.productName).slice(0,250),imagem_url:validHttps(p.imageUrl)?String(p.imageUrl):'',preco:Number.isFinite(price)&&price>0?Number(price.toFixed(2)):null,link_afiliado:validAffiliate?offerLink:'',correspondencia:sc.score,quantidade_compativel:!sc.conflicting};
    const prev=seen.get(id);if(!prev||value.correspondencia>prev.correspondencia)seen.set(id,value);
   }
   if(seen.size>=6)break;
