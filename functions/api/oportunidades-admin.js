@@ -30,7 +30,11 @@ export async function onRequest({request,env}){
  const ctx=await context(request,env);if(ctx.error)return answer({erro:ctx.error},ctx.status);
  if(request.method==="GET"){
   const result=await query(ctx,"raiz_oportunidades?select=id,origem,loja,item_externo,nome,link_afiliado,imagem_url,preco_indicativo,preco_base,categoria_sugerida,status,produto_id,consultado_em,revisado_em&order=consultado_em.desc&limit=100");
-  return result.error?answer({erro:result.error},result.status):answer({oportunidades:result.data||[]});
+  if(result.error)return answer({erro:result.error},result.status);
+  // Histórico privado da execução programada, sob a mesma RLS administrativa.
+  const runs=await query(ctx,"raiz_garimpo_execucoes?select=janela_utc,iniciado_em,concluido_em,situacao,termos_consultados,encontrados,novos,atualizados,observacao&order=janela_utc.desc&limit=1");
+  const alerts=await query(ctx,"raiz_oportunidades?select=id&status=eq.pendente&detectado_automaticamente=eq.true&visto_em=is.null&limit=500");
+  return answer({oportunidades:result.data||[],monitor:{ultimo:runs.error?null:(runs.data?.[0]||null),nao_vistas:alerts.error?null:(alerts.data?.length||0),integridade:!runs.error&&!alerts.error}});
  }
  if(!String(request.headers.get("Content-Type")||"").includes("application/json"))return answer({erro:"Envie JSON."},415);
  let input;try{const raw=await request.text();if(raw.length>5500)return answer({erro:"Dados grandes demais."},413);input=JSON.parse(raw)}catch{return answer({erro:"JSON inválido."},400)}
@@ -60,6 +64,10 @@ export async function onRequest({request,env}){
   const item={origem,loja,item_externo:id,nome,link_afiliado:link,imagem_url:foto||null,preco_indicativo:price,preco_base:price,categoria_sugerida:categoria||"A classificar",status:"pendente"};
   const r=await query(ctx,"raiz_oportunidades","POST",item);
   return r.error?answer({erro:r.error},r.status):answer({ok:true,oportunidade:r.data?.[0]},201);
+ }
+ if(input?.acao==="marcar_alertas_vistos"){
+  const result=await query(ctx,"raiz_oportunidades?status=eq.pendente&detectado_automaticamente=eq.true&visto_em=is.null","PATCH",{visto_em:new Date().toISOString()});
+  return result.error?answer({erro:result.error},result.status):answer({ok:true,marcados:result.data?.length||0});
  }
  const id=Number(input?.id),status=String(input?.status||"");
  if(!Number.isSafeInteger(id)||id<=0||!["descartada","selecionada","pendente"].includes(status))return answer({erro:"Revisão inválida."},400);
