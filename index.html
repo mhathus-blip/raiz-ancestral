@@ -1706,7 +1706,19 @@ const botao = elemento("a", "buy", textoBotao);
         }
       } catch (erro) {
         console.error(erro);
-        mostrarMensagem("Não foi possível carregar os produtos. Tente novamente mais tarde.");
+        // V13.15 — recuperação manual após falha transitória no Supabase.
+        // Não modifica produtos nem links; permite retentar sem recarregar o site.
+        mostrarMensagem("Não foi possível carregar os produtos neste momento.");
+        const aviso=container.querySelector(".message");
+        if(aviso){
+          const retry=document.createElement("button");
+          retry.type="button";
+          retry.textContent="↻ Tentar carregar produtos novamente";
+          retry.setAttribute("aria-label","Tentar carregar o catálogo novamente");
+          retry.style.cssText="display:block;margin-top:12px;padding:10px 16px;border:1px solid #376342;border-radius:24px;background:#28563a;color:#fff;font-weight:700;cursor:pointer";
+          retry.addEventListener("click",()=>{retry.disabled=true;void carregarProdutos()},{once:true});
+          aviso.append(retry);
+        }
       }
     }
 
