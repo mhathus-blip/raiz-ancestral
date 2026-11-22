@@ -1882,6 +1882,9 @@ const botao = elemento("a", "buy", textoBotao);
    const qr=String(result.totp.qr_code||'');
    if(qr.startsWith('data:image/svg+xml')||qr.startsWith('data:image/png;base64,')){
     $('raiz-mfa-qr').src=qr;$('raiz-mfa-qr').hidden=false;
+   }else if(qr.trimStart().startsWith('<svg')){
+    $('raiz-mfa-qr').src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(qr);
+    $('raiz-mfa-qr').hidden=false;
    }
    setup.hidden=false;codeForm.hidden=false;feedback.textContent='Digite o código do aplicativo para concluir.';
   }catch(err){feedback.textContent=err.message||'Não foi possível iniciar MFA.'}
