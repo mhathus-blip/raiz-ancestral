@@ -266,3 +266,38 @@ body.raiz-v13-active{overflow:hidden!important}
 @media(prefers-reduced-motion:reduce){
  #raiz-v13 .v13-card,#raiz-v13 .v13-kpi,#raiz-v13 .v131-product{transition:none!important}
 }
+
+
+/* V13.5 — simulador sazonal e backup dentro das abas funcionais */
+#raiz-v13 #v13-campaign-preview{margin-bottom:16px}
+#raiz-v13 .v13-campaign-preview .season-toolbar{
+ display:flex!important;
+ gap:10px;
+ flex-wrap:wrap;
+ align-items:center;
+ justify-content:flex-start;
+ margin:12px 0;
+ padding:15px;
+ border:1px solid rgba(255,255,255,.91);
+ border-radius:14px;
+ color:#275138;
+ background:linear-gradient(145deg,rgba(248,255,244,.8),rgba(229,243,219,.65));
+ box-shadow:inset 0 2px rgba(255,255,255,.88),0 5px 16px rgba(31,78,45,.08);
+}
+#raiz-v13 .v13-campaign-preview .season-toolbar select,
+#raiz-v13 .v13-campaign-preview .season-toolbar input,
+#raiz-v13 .v13-campaign-preview .season-toolbar button{
+ max-width:100%;
+ border-radius:10px;
+ border:1px solid rgba(132,168,132,.58);
+ background:#fffdf7;
+ color:#284936;
+ padding:9px 12px;
+}
+#raiz-v13 .v13-campaign-preview .season-banner{margin-top:12px;border-radius:14px}
+#raiz-v13 #raiz-vitrine-campanha{max-width:none;margin:16px 0!important;scroll-margin-top:20px}
+#raiz-v13 #raiz-vitrine-campanha[hidden]{display:none!important}
+#raiz-v13 .v13-alert-shortcut{cursor:pointer;font-family:inherit;white-space:nowrap}
+#raiz-v13 .v13-alert-shortcut:hover{filter:brightness(1.05);box-shadow:0 3px 11px rgba(31,87,44,.16)}
+#raiz-v13 [data-module="backup"] .raiz-auto-backup{margin:10px 0 14px!important}
+@media(max-width:740px){#raiz-v13 .v13-campaign-preview .season-toolbar{padding:10px}#raiz-v13 .v13-campaign-preview .season-toolbar label{font-size:12px}}
