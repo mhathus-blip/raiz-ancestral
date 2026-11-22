@@ -5,6 +5,9 @@
 const answer=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 export async function onRequestPost({request,env}){
  if(!String(request.headers.get('content-type')||'').startsWith('application/json'))return answer({ok:false},415);
+ // Rejeita chamadas iniciadas por outros sites, inclusive quando Origin estiver ausente.
+ const fetchSite=String(request.headers.get('sec-fetch-site')||'').toLowerCase();
+ if(fetchSite && fetchSite!=='same-origin' && fetchSite!=='none')return answer({ok:false},403);
  const origin=request.headers.get('origin');
  if(origin){try{const u=new URL(origin),host=new URL(request.url);if(u.origin!==host.origin)return answer({ok:false},403)}catch{return answer({ok:false},403)}}
  let raw;

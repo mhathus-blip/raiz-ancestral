@@ -144,6 +144,14 @@ async function checkDupe(ctx,input,excludeId=0){
 }
 export async function onRequest({request,env}){
  if(!['GET','POST','PATCH'].includes(request.method))return json({erro:'Método não permitido.'},405);
+ // Defesa adicional: escrita apenas da origem do ADM.
+ // JWT e is_raiz_admin continuam obrigatórios.
+ if(request.method!=='GET'){
+  const fetchSite=String(request.headers.get('sec-fetch-site')||'').toLowerCase();
+  if(fetchSite && fetchSite!=='same-origin' && fetchSite!=='none')return json({erro:'Origem não permitida.'},403);
+  const origin=request.headers.get('origin');
+  if(origin && origin!==new URL(request.url).origin)return json({erro:'Origem não permitida.'},403);
+ }
  const ctx=await auth(request,env);if(ctx.error)return json({erro:ctx.error},ctx.status);
  if(request.method==='GET'){
   const url=new URL(request.url);
