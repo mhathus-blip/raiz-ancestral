@@ -89,11 +89,75 @@ async function readCatalogForAdmin(ctx,columns){
  }
  return {data:items};
 }
+/* V13.11 — verificação administrativa contra duplicidade.
+   Comparação conservadora: ID Shopee e link são fortes; nomes próximos são avisos
+   (não se assume que variações de tamanho/sabor sejam o mesmo produto). */
+const dupNorm=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+function dupLink(value){
+ try{
+  const u=new URL(value);if(u.protocol!=='https:')return '';
+  const host=u.hostname.toLowerCase().replace(/^www\./,'');
+  const path=u.pathname.replace(/\/+$/,'').toLowerCase();
+  // Parâmetros de rastreamento não mudam o anúncio.
+  return host+path;
+ }catch{return ''}
+}
+function dupShopeeId(value){
+ const id=String(value||'').trim();
+ return /^\d{3,20}$/.test(id)?id:'';
+}
+function dupScore(a,b){
+ if(!a||!b)return 0;
+ if(a===b)return 1;
+ const x=new Set(a.split(' ').filter(t=>t.length>1));
+ const y=new Set(b.split(' ').filter(t=>t.length>1));
+ if(x.size<3||y.size<3)return 0;
+ const shared=[...x].filter(t=>y.has(t)).length;
+ const overlap=shared/Math.max(x.size,y.size);
+ return overlap>=.75?Number(overlap.toFixed(2)):0;
+}
+function dupeMatches(rows,input,excludeId=0){
+ const shop=dupNorm(input.loja);
+ const name=dupNorm(input.nome);
+ const link=dupLink(input.link_afiliado);
+ const shopee=shop==='shopee'?dupShopeeId(input.shopee_product_id):'';
+ const found=[];
+ for(const p of rows){
+  if(Number(p.id)===excludeId)continue;
+  const sameShop=dupNorm(p.loja)===shop;
+  const idMatch=!!(shopee&&sameShop&&dupShopeeId(p.shopee_product_id)===shopee);
+  const linkMatch=!!(link&&dupLink(p.link_afiliado)===link);
+  const score=sameShop?dupScore(name,dupNorm(p.nome)):0;
+  const exactName=!!(sameShop&&name&&name===dupNorm(p.nome));
+  if(!idMatch&&!linkMatch&&!exactName&&score<.82)continue;
+  const reason=idMatch?'ID_SHOPEE':linkMatch?'LINK':exactName?'NOME_IGUAL':'NOME_SEMELHANTE';
+  found.push({id:p.id,nome:p.nome,loja:p.loja,ativo:p.ativo===true,motivo:reason,similaridade:exactName?100:Math.round(score*100),bloqueante:idMatch||linkMatch||exactName});
+ }
+ found.sort((a,b)=>Number(b.bloqueante)-Number(a.bloqueante)||b.similaridade-a.similaridade||Number(b.id)-Number(a.id));
+ return found.slice(0,8);
+}
+async function checkDupe(ctx,input,excludeId=0){
+ const result=await readCatalogForAdmin(ctx,'id,nome,loja,link_afiliado,shopee_product_id,ativo');
+ if(result.error)return result;
+ return {matches:dupeMatches(result.data||[],input,excludeId)};
+}
 export async function onRequest({request,env}){
  if(!['GET','POST','PATCH'].includes(request.method))return json({erro:'Método não permitido.'},405);
  const ctx=await auth(request,env);if(ctx.error)return json({erro:ctx.error},ctx.status);
  if(request.method==='GET'){
   const url=new URL(request.url);
+  if(url.searchParams.get('duplicados')==='1'){
+   const nome=String(url.searchParams.get('nome')||'').trim();
+   const loja=String(url.searchParams.get('loja')||'').trim();
+   const link=String(url.searchParams.get('link')||'').trim();
+   const shopeeId=String(url.searchParams.get('shopee_id')||'').trim();
+   const exclude=Number(url.searchParams.get('excluir')||0);
+   if(nome.length>250||loja.length>55||link.length>1800||shopeeId.length>60||!Number.isSafeInteger(exclude)||exclude<0||(!nome&&!link&&!shopeeId))
+    return json({erro:'Consulta de duplicidade inválida.'},400);
+   const result=await checkDupe(ctx,{nome,loja,link_afiliado:link,shopee_product_id:shopeeId},exclude);
+   if(result.error)return json({erro:result.error},result.status);
+   return json({correspondencias:result.matches,verificado:true});
+  }
   // Exportação administrativa em lotes, SEM mutação e sem expor token no arquivo.
   // Exige a mesma verificação Supabase Auth + is_raiz_admin das outras ações.
   if(url.searchParams.get('export')==='1'){
@@ -164,13 +228,11 @@ export async function onRequest({request,env}){
  if(request.method==='POST'){
   const checked=validate(input);
   if(checked.error)return json({erro:checked.error},400);
-  // Evita inserção duplicada por link ou nome. A pesquisa é feita sob a RLS do administrador.
-  const existing=await readCatalogForAdmin(ctx,'id,nome,link_afiliado,loja');
-  if(existing.error)return json({erro:existing.error},existing.status);
-  const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-  const duplicado=(existing.data||[]).find(p=>String(p.link_afiliado||'').trim()===checked.value.link_afiliado||
-    (String(p.loja||'').toLowerCase()===String(checked.value.loja||'').toLowerCase()&&norm(p.nome)===norm(checked.value.nome)));
-  if(duplicado)return json({erro:'Já existe um anúncio semelhante no catálogo (ID '+duplicado.id+'). Revise antes de cadastrar.',produto_existente:duplicado.id},409);
+  // Checagem obrigatória no servidor, mesmo que o navegador ignore o aviso.
+  const checkedDuplicates=await checkDupe(ctx,checked.value);
+  if(checkedDuplicates.error)return json({erro:checkedDuplicates.error},checkedDuplicates.status);
+  const strong=checkedDuplicates.matches.find(p=>p.bloqueante);
+  if(strong)return json({erro:'Produto já cadastrado (ID '+strong.id+'). Abra o cadastro existente para revisar.',produto_existente:strong.id,correspondencias:checkedDuplicates.matches},409);
   const provided=String(checked.value.categoria||'').trim();
   const suggested=suggestCategory(checked.value.nome);
   const categoria=(!provided||provided==='A classificar')?suggested:provided;
