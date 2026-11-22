@@ -2538,7 +2538,7 @@ form.addEventListener('submit',async e=>{
  // Reconsultar imediatamente antes de qualquer confirmação ou gravação.
  const matches=await dupCheck();
  if(matches===null){status('Não foi possível concluir a verificação de duplicidade. Revise a conexão e tente novamente.');return}
- if(!editing&&matches.some(m=>m.bloqueante)){
+ if(matches.some(m=>m.bloqueante)){
   status('Cadastro impedido: já existe produto com o mesmo ID, link ou nome. Use “Abrir existente”.');
   by('raiz-prod-duplicate-panel').scrollIntoView({behavior:'smooth',block:'center'});
   return;
