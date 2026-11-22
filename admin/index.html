@@ -1173,6 +1173,9 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
   <p>Cadastre novos produtos como <strong>rascunhos inativos</strong>, edite informações ou ative/desative anúncios com confirmação. As alterações aprovadas afetam o catálogo compartilhado com o site público.</p>
   <div class="toolbar">
     <label>Buscar pelo nome<input id="raiz-prod-search" type="search" placeholder="Ex.: camomila, fertilizante"></label>
+    <label for="raiz-prod-status-filter">Situação
+      <select id="raiz-prod-status-filter" aria-label="Filtrar produtos por situação"><option value="inativos">Inativos / Rascunhos</option><option value="ativos">Ativos / Publicados</option><option value="todos">Todos</option></select>
+    </label>
     <button type="button" id="raiz-prod-load">Buscar</button>
     <button type="button" id="raiz-prod-new" class="subtle">+ Novo produto</button>
   </div>
@@ -2346,7 +2349,7 @@ async function load(){
  freeze(true);status('Carregando produtos...');
  try{
   const q=by('raiz-prod-search').value.trim();
-  const data=await api('GET',null,'?page='+page+'&q='+encodeURIComponent(q));
+  const data=await api('GET',null,'?page='+page+'&q='+encodeURIComponent(q)+'&estado='+encodeURIComponent(by('raiz-prod-status-filter').value));
   rows=data.produtos||[];hasNext=!!data.mais;
   const fragment=document.createDocumentFragment();
   for(const product of rows){
@@ -2362,7 +2365,7 @@ async function load(){
   list.replaceChildren(fragment);
   if(!rows.length){const p=document.createElement('p');p.textContent='Nenhum produto encontrado.';list.append(p)}
   by('raiz-prod-page').textContent='Página '+page;
-  status(rows.length+' produto(s) carregado(s).');
+  status(rows.length+' produto(s) carregado(s) nesta página, filtro: '+by('raiz-prod-status-filter').selectedOptions[0].textContent+'.');
  }catch(e){status('Erro: '+e.message)}finally{freeze(false);by('raiz-prod-prev').disabled=page<=1;by('raiz-prod-next').disabled=!hasNext}
 }
 function show(product){
@@ -2379,6 +2382,19 @@ function show(product){
 }
 by('raiz-prod-load').addEventListener('click',()=>{page=1;load()});
 by('raiz-prod-search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();page=1;load()}});
+by('raiz-prod-status-filter').addEventListener('change',()=>{page=1;form.hidden=true;editing=null;load()});
+window.addEventListener('raiz:admin-open-product',async event=>{
+ const id=Number(event.detail?.id);
+ if(!token||!Number.isSafeInteger(id)||id<1)return;
+ status('Abrindo produto #'+id+' para conferência...');
+ try{
+  const result=await api('GET',null,'?id='+id);
+  if(!result.produto)throw Error('Produto não encontrado.');
+  rows=[result.produto,...rows.filter(p=>Number(p.id)!==id)];
+  show(result.produto);
+  status('Produto #'+id+' aberto para revisão. Confira os dados antes de salvar.');
+ }catch(err){status('Não foi possível abrir o produto #'+id+': '+err.message)}
+});
 
 function updateReview(){
  const name=String(form.elements.namedItem('nome').value||'').trim();

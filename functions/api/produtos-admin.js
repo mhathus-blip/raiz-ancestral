@@ -129,11 +129,21 @@ export async function onRequest({request,env}){
    if(r.error)return json({erro:r.error},r.status);
    return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
+  const idParam=url.searchParams.get('id');
+  if(idParam!==null){
+   const id=Number(idParam);
+   if(!Number.isSafeInteger(id)||id<1)return json({erro:'ID de produto inválido.'},400);
+   const r=await db(ctx,'produtos?select=id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id,created_at&id=eq.'+id+'&limit=1');
+   if(r.error)return json({erro:r.error},r.status);
+   return r.data?.length?json({produto:r.data[0]}):json({erro:'Produto não encontrado.'},404);
+  }
   const page=Number(url.searchParams.get('page')||1);
   const term=String(url.searchParams.get('q')||'').trim();
-  if(!Number.isSafeInteger(page)||page<1||page>100000||term.length>100)return json({erro:'Filtro inválido.'},400);
+  const estado=String(url.searchParams.get('estado')||'todos');
+  if(!Number.isSafeInteger(page)||page<1||page>100000||term.length>100||!['todos','ativos','inativos'].includes(estado))return json({erro:'Filtro inválido.'},400);
   const offset=(page-1)*30;
   const params=new URLSearchParams({select:'id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id,created_at',order:'id.desc',limit:'30',offset:String(offset)});
+  if(estado!=='todos')params.set('ativo','eq.'+(estado==='ativos'));
   if(term)params.set('nome','ilike.*'+term.replace(/[%*,()]/g,'')+'*');
   const r=await db(ctx,'produtos?'+params.toString());
   if(r.error)return json({erro:r.error},r.status);
