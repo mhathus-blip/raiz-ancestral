@@ -1810,6 +1810,12 @@ const botao = elemento("a", "buy", textoBotao);
         <input id="raiz-mfa-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="000000">
         <button type="submit" id="raiz-mfa-check">Verificar e entrar</button>
       </form>
+      <div id="raiz-mfa-postverify" hidden style="padding:12px 0">
+        <p style="font-size:13px;line-height:1.55"><strong>✅ Código validado!</strong> Você pode entrar no ADM ou cadastrar um segundo autenticador como reserva.</p>
+        <p style="font-size:12px;color:#754e2f">Para recuperação, use outro dispositivo ou armazenamento seguro independente do celular principal.</p>
+        <button type="button" id="raiz-mfa-backup-enroll">🔐 Cadastrar autenticador reserva</button>
+        <button type="button" id="raiz-mfa-enter-now" class="subtle">Entrar no ADM agora</button>
+      </div>
       <p id="raiz-mfa-status" role="status" aria-live="polite"></p>
       <button type="button" class="subtle" id="raiz-mfa-back">← Voltar ao login</button>
     </section>
@@ -1825,7 +1831,7 @@ const botao = elemento("a", "buy", textoBotao);
  const status=$('raiz-admin-status'),feedback=$('raiz-mfa-status'),submit=$('raiz-admin-submit');
  const enrollArea=$('raiz-mfa-enrollment'),setup=$('raiz-mfa-setup'),codeForm=$('raiz-mfa-code-form');
  if(!modal||!form||!panel)return;
- let token='',factor='',pending=false;
+ let token='',factor='',pending=false,backupMode=false;
  const base=SUPABASE_URL,key=SUPABASE_KEY;
  const headers=t=>({apikey:key,Authorization:'Bearer '+t,'Content-Type':'application/json'});
  function assurance(t){
@@ -1837,15 +1843,24 @@ const botao = elemento("a", "buy", textoBotao);
   return await res.json();
  }
  function back(){
-  token='';factor='';pending=false;feedback.textContent='';$('raiz-mfa-code').value='';
+  token='';factor='';pending=false;backupMode=false;feedback.textContent='';$('raiz-mfa-code').value='';
   $('raiz-mfa-secret').value='';$('raiz-mfa-qr').removeAttribute('src');
-  setup.hidden=true;enrollArea.hidden=true;codeForm.hidden=true;panel.hidden=true;form.hidden=false;
+  setup.hidden=true;enrollArea.hidden=true;codeForm.hidden=true;$('raiz-mfa-postverify').hidden=true;panel.hidden=true;form.hidden=false;
   $('raiz-admin-password').value='';status.textContent='';$('raiz-admin-email').focus();
  }
  function grant(t){
   if(assurance(t)!=='aal2')throw Error('Segundo fator ainda não verificado (AAL2 obrigatório).');
-  token='';factor='';panel.hidden=true;modal.hidden=true;form.reset();
+  token='';factor='';backupMode=false;panel.hidden=true;modal.hidden=true;form.reset();
   window.dispatchEvent(new CustomEvent('raiz:admin-tests-unlocked',{detail:{accessToken:t}}));
+ }
+ function onVerified(t){
+  if(assurance(t)!=='aal2')throw Error('Segundo fator ainda não confirmado.');
+  token=t;factor='';backupMode=false;
+  setup.hidden=true;enrollArea.hidden=true;codeForm.hidden=true;
+  $('raiz-mfa-secret').value='';$('raiz-mfa-qr').removeAttribute('src');
+  $('raiz-mfa-postverify').hidden=false;
+  $('raiz-mfa-instruction').textContent='Autenticação em duas etapas concluída.';
+  feedback.textContent='';
  }
  async function login(e){
   e.preventDefault();if(pending)return;
@@ -1900,7 +1915,11 @@ const botao = elemento("a", "buy", textoBotao);
    if(!challenge.id)throw Error('Desafio MFA inválido.');
    const verified=await auth('/factors/'+encodeURIComponent(factor)+'/verify','POST',{challenge_id:challenge.id,code});
    if(!verified.access_token)throw Error('Token de segundo fator não retornado.');
-   grant(verified.access_token);
+   if(backupMode){
+    backupMode=false;
+    feedback.textContent='Autenticador reserva cadastrado e verificado. Acesso liberado.';
+    grant(verified.access_token);
+   }else onVerified(verified.access_token);
   }catch(err){feedback.textContent=err.message||'Código inválido ou expirado.'}
   finally{pending=false;$('raiz-mfa-check').disabled=false;$('raiz-mfa-code').value=''}
  }
@@ -1908,6 +1927,15 @@ const botao = elemento("a", "buy", textoBotao);
  form.addEventListener('submit',login);
  $('raiz-mfa-enroll').addEventListener('click',startEnrollment);
  codeForm.addEventListener('submit',verify);
+ $('raiz-mfa-backup-enroll').addEventListener('click',()=>{
+   if(!token||assurance(token)!=='aal2')return;
+   backupMode=true;
+   $('raiz-mfa-postverify').hidden=true;
+   enrollArea.hidden=false;setup.hidden=true;codeForm.hidden=true;
+   $('raiz-mfa-instruction').textContent='Cadastre o segundo autenticador em outro dispositivo seguro.';
+   feedback.textContent='Clique em Configurar autenticador para adicionar a reserva.';
+ });
+ $('raiz-mfa-enter-now').addEventListener('click',()=>{if(token)grant(token)});
  $('raiz-mfa-back').addEventListener('click',back);
 })();
 </script>
