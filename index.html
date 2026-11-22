@@ -971,60 +971,6 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 #categorias .raiz-category-bird{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;flex:0 0 58px;border-radius:50%;background:#e5eddb;border:2px solid #dfc99f;font-size:29px}
 @media(max-width:650px){#categorias .raiz-category-bird{width:45px;height:45px;flex-basis:45px;font-size:23px}}
 
-/* V13.12: aviso transparente de uso de IA no cabeçalho público.
-   Não promete menores preços nem descontos garantidos. */
-.site-header .raiz-ai-headline{
- position:relative;isolation:isolate;
- border-top:1px solid rgba(211,231,211,.55);
- background:linear-gradient(105deg,#163f2b 0%,#245b3d 54%,#173f2d 100%);
- color:#f0f7e8;
-}
-.site-header .raiz-ai-headline:before{
- content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
- background:linear-gradient(128deg,rgba(255,255,255,.10),transparent 24%,rgba(230,194,119,.09) 65%,transparent);
-}
-.site-header .raiz-ai-headline-inner{
- display:flex;align-items:center;justify-content:center;gap:10px;
- min-height:40px;padding:8px 12px;
-}
-.site-header .raiz-ai-mark{
- display:grid;place-items:center;flex-shrink:0;
- width:25px;height:25px;border:1px solid rgba(229,209,137,.65);
- border-radius:50%;color:#f4d58b;font-size:14px;
- background:rgba(255,255,255,.10);box-shadow:inset 0 1px rgba(255,255,255,.2);
-}
-.site-header .raiz-ai-headline p{
- margin:0;font:500 12px/1.5 Arial,Helvetica,sans-serif;
- text-align:center;letter-spacing:.08px;
-}
-.site-header .raiz-ai-headline strong{font-weight:750;color:#fff4ca}
-.site-header .raiz-ai-headline p span{color:#d5e4d5}
-@media(max-width:760px){
- .site-header .raiz-ai-headline-inner{align-items:flex-start;gap:8px;padding:9px 6px}
- .site-header .raiz-ai-mark{margin-top:1px;width:23px;height:23px}
- .site-header .raiz-ai-headline p{text-align:left;font-size:11px;line-height:1.5}
-}
-
-
-/* V13.13 — crédito discreto, transparente e não afiliado ao ChatGPT. */
-.site-footer .raiz-ai-footer-credit{
- margin-top:17px;padding:15px 14px;
- border:1px solid rgba(219,245,224,.19);border-radius:15px;
- background:linear-gradient(140deg,rgba(255,255,255,.09),rgba(170,218,186,.035) 72%);
- box-shadow:inset 0 1px 1px rgba(255,255,255,.13),0 8px 22px rgba(3,24,13,.10);
- display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
- font:500 12px/1.5 Arial,Helvetica,sans-serif;color:#edf5e9;text-align:center;
-}
-.site-footer .raiz-ai-footer-brand{
- display:inline-flex;align-items:center;gap:7px;
- border:1px solid rgba(245,247,238,.30);border-radius:100px;
- background:rgba(255,255,255,.10);padding:5px 12px 5px 7px;
- font-weight:700;color:#fff;white-space:nowrap;
-}
-.site-footer .raiz-ai-footer-brand img{width:22px;height:22px;object-fit:contain;border-radius:4px}
-.site-footer .raiz-ai-footer-credit small{flex-basis:100%;font-size:10px;color:#b9d0c1;font-weight:400}
-@media(max-width:580px){.site-footer .raiz-ai-footer-credit{gap:8px;padding:12px 10px}}
-
 </style>
 
 <link rel="stylesheet" href="/assets/raiz-botanical-liquid-v12.css">
@@ -1080,7 +1026,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 <body>
 <a href="#catalogo" class="raiz-pular-catalogo">Pular diretamente para os produtos</a>
 <div id="inicio" aria-hidden="true" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none"></div>
-<header class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div><div class="raiz-ai-headline" role="note" aria-label="Transparência sobre inteligência artificial"><div class="wrap raiz-ai-headline-inner"><span class="raiz-ai-mark" aria-hidden="true">✦</span><p><strong>Inteligência artificial a favor das suas escolhas.</strong> Usamos IA para apoiar a busca e a organização de ofertas de lojas parceiras. <span>Confira sempre preços, descontos e disponibilidade diretamente na loja antes de comprar.</span></p></div></div></header>
+<header class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div></header>
 <select id="season-mode" hidden aria-hidden="true"><option value="auto" selected>Automático</option></select>
 <section class="season-banner" aria-label="Temporada especial"><span class="season-decor left" aria-hidden="true">❧</span><div class="season-inner"><div class="season-kicker" id="season-kicker"></div><h2 id="season-title"></h2><p id="season-description"></p><a href="#catalogo" id="season-link">Explorar a vitrine</a><div class="season-countdown" id="season-countdown" aria-label="Contagem regressiva para a Black Friday"><span id="countdown-label">Faltam</span><strong><span id="cd-days">--</span><small>dias</small></strong><strong><span id="cd-hours">--</span><small>horas</small></strong><strong><span id="cd-mins">--</span><small>min</small></strong><strong><span id="cd-secs">--</span><small>seg</small></strong></div></div><span class="season-decor right" aria-hidden="true">✦</span><div class="raiz-gold-wave" aria-hidden="true"></div></section>
 <section class="hero"><div class="wrap hero-grid"><div><div class="eyebrow">Natureza em sua vida</div><h1>Plantas, natureza e bem-estar mais perto de você.</h1><p>Descubra flores, chás, sementes, produtos naturais e ferramentas para cultivar seu cantinho verde.</p><a class="primary" href="#catalogo">Explorar produtos →</a><div class="trust"><span>🍃 Seleção de produtos</span><span>🛍️ Lojas parceiras</span><span>🌱 Amor pela natureza</span></div></div></div></section>
@@ -1115,7 +1061,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 <a href="https://k.kwai.com/u/@raizancestral/CCG0qF7t" target="_blank" rel="noopener noreferrer" aria-label="Kwai do Raiz Ancestral" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="6"/><circle cx="9" cy="9" r="1.4"/><circle cx="15" cy="9" r="1.4"/><circle cx="12" cy="14" r="2.2"/><path d="M10 17.5h4"/></svg></a>
 <a href="https://www.tiktok.com/@raiz.ancestral8" target="_blank" rel="noopener noreferrer" aria-label="TikTok do Raiz Ancestral" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2v12.3a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14 2c.4 3.6 2.6 5.6 6 5.8v3.3c-2.4 0-4.5-.8-6-2.3"/></svg></a>
 <a href="https://www.facebook.com/profile.php?id=61595295473291&amp;locale=pt_BR" target="_blank" rel="noopener noreferrer" aria-label="Facebook do Raiz Ancestral" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3H13a4 4 0 0 0-4 4v3H6v4h3v8h4v-8h3l.6-4H13V7c0-.6.4-1 1-1h1.5z"/></svg></a>
-</div></div></div><div class="legal"><p>© 2026 Raiz Ancestral.</p><p>Este site contém links de afiliados. Podemos receber comissão por compras qualificadas, sem custo adicional para você.</p><p>Preços, disponibilidade e condições devem ser confirmados na loja parceira.</p><div class="raiz-ai-footer-credit" aria-label="Crédito de desenvolvimento assistido por inteligência artificial"><span>Site desenvolvido com auxílio de inteligência artificial</span><span class="raiz-ai-footer-brand"><img src="https://chatgpt.com/favicon.ico" alt="" width="22" height="22" loading="lazy" referrerpolicy="no-referrer"><span>ChatGPT</span></span><small>Projeto independente. Sem vínculo, patrocínio ou endosso da OpenAI.</small></div></div></div></footer>
+</div></div></div><div class="legal"><p>© 2026 Raiz Ancestral.</p><p>Este site contém links de afiliados. Podemos receber comissão por compras qualificadas, sem custo adicional para você.</p><p>Preços, disponibilidade e condições devem ser confirmados na loja parceira.</p></div></div></footer>
 <div id="detalhes-produto" class="detail-overlay" hidden aria-hidden="true"><section class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-heading"><button id="fechar-detalhes" class="detail-close" type="button" aria-label="Fechar detalhes">×</button><div id="detalhes-conteudo"></div></section></div>
 <script>
     // Cole aqui SOMENTE a chave PUBLICÁVEL (sb_publishable_...), nunca uma chave secreta.
