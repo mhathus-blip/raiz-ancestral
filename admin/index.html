@@ -1222,6 +1222,11 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
       <label>Destaque<select name="destaque"><option value="false">Não</option><option value="true">Sim</option></select></label>
     </div>
     <div class="actions"><button id="raiz-prod-save" type="submit">Salvar produto</button><button id="raiz-prod-cancel" type="button" class="subtle">Cancelar edição</button></div>
+    <section id="raiz-prod-duplicate-panel" aria-label="Verificação de produtos repetidos" style="margin:12px 0;padding:13px 15px;border-radius:15px;border:1px solid #aac5ae;background:linear-gradient(130deg,rgba(216,239,222,.85),rgba(237,248,236,.72));box-shadow:inset 0 1px rgba(255,255,255,.85),0 7px 19px rgba(25,81,46,.1)">
+      <strong style="color:#244b33">🛡️ Verificação inteligente de produtos repetidos</strong>
+      <p id="raiz-prod-duplicate-status" role="status" aria-live="polite" style="margin:6px 0;color:#405d48;font-size:12px">Informe o nome, o link ou o ID da Shopee para conferir anúncios semelhantes.</p>
+      <div id="raiz-prod-duplicate-matches" style="display:grid;gap:8px"></div>
+    </section>
     <div id="raiz-prod-review" role="status" aria-live="polite" style="padding:10px;border-radius:8px;background:#f4eedf;font-size:13px">Preencha os dados e confira o resumo antes de salvar.</div>
     <p style="font-size:12px;color:#746752">Novos produtos são salvos conforme a visibilidade selecionada. Para ativar no primeiro cadastro, confira os dados, a imagem HTTPS e confirme a publicação. O padrão continua Inativo / Rascunho.</p>
   </form>
@@ -2334,6 +2339,61 @@ if(!root||!form)return;
 let token='',page=1,hasNext=false,editing=null,rows=[],working=false;
 const status=message=>{by('raiz-prod-status').textContent=message};
 const money=v=>v==null||v===''?'Consultar preço na loja':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+/* V13.11 — aviso antes do salvamento: não grava nem altera produtos. */
+const dupStatus=by('raiz-prod-duplicate-status'),dupMatches=by('raiz-prod-duplicate-matches');
+let dupTimer=0,dupSerial=0,dupVerified=false,dupCurrent=[];
+const dupInputs=['nome','loja','link_afiliado','shopee_product_id'];
+function dupSnapshot(){
+ return {nome:String(form.elements.namedItem('nome').value||'').trim(),loja:String(form.elements.namedItem('loja').value||'').trim(),link:String(form.elements.namedItem('link_afiliado').value||'').trim(),shopee_id:String(form.elements.namedItem('shopee_product_id').value||'').trim(),excluir:editing||0};
+}
+function dupReason(m){
+ return ({ID_SHOPEE:'Mesmo ID do produto na Shopee',LINK:'Mesmo link de anúncio',NOME_IGUAL:'Mesmo nome de produto',NOME_SEMELHANTE:'Nome muito parecido'})[m.motivo]||'Possível duplicidade';
+}
+function dupRender(matches){
+ dupMatches.replaceChildren();
+ for(const item of matches){
+  const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:11px;border:1px solid rgba(118,161,126,.35);background:rgba(255,255,255,.47)';
+  const info=document.createElement('div');info.style.cssText='flex:1;min-width:200px';
+  const title=document.createElement('strong');title.textContent='#'+item.id+' — '+item.nome;
+  const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526451;margin-top:3px';
+  detail.textContent=dupReason(item)+' · '+(item.ativo?'Ativo':'Inativo')+(item.bloqueante?' · Cadastro bloqueado':' · Conferir antes de salvar');
+  info.append(title,detail);
+  const open=document.createElement('button');open.type='button';open.className='subtle';open.textContent='✎ Abrir existente';
+  open.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('raiz:admin-open-product',{detail:{id:Number(item.id)}})));
+  row.append(info,open);dupMatches.append(row);
+ }
+}
+async function dupCheck(){
+ const serial=++dupSerial;
+ const fields=dupSnapshot();
+ dupVerified=false;dupCurrent=[];
+ if(!token){dupStatus.textContent='Entre como administrador para verificar produtos cadastrados.';dupMatches.replaceChildren();return null}
+ if(!fields.nome&&!fields.link&&!fields.shopee_id){dupStatus.textContent='Informe nome, link ou ID da Shopee para verificar.';dupMatches.replaceChildren();return null}
+ dupStatus.textContent='Comparando com os produtos cadastrados…';
+ const query=new URLSearchParams({duplicados:'1',...fields});
+ try{
+  const result=await api('GET',null,'?'+query.toString());
+  if(serial!==dupSerial)return null;
+  dupVerified=true;
+  dupCurrent=Array.isArray(result.correspondencias)?result.correspondencias:[];
+  dupRender(dupCurrent);
+  dupStatus.textContent=dupCurrent.length?('⚠️ Encontrado(s) '+dupCurrent.length+' anúncio(s) para revisar.'+(dupCurrent.some(p=>p.bloqueante)?' Um cadastro idêntico já existe; não será possível criar outro.':'')):'✓ Nenhum anúncio repetido identificado por ID, link ou nome semelhante.';
+  return dupCurrent;
+ }catch(err){
+  if(serial!==dupSerial)return null;
+  dupStatus.textContent='Não foi possível verificar duplicidades: '+err.message+'. O cadastro ficará bloqueado até uma consulta válida.';
+  dupMatches.replaceChildren();
+  return null;
+ }
+}
+function dupSchedule(){
+ clearTimeout(dupTimer);
+ ++dupSerial;dupVerified=false;dupCurrent=[];
+ dupStatus.textContent='Verificação pendente…';
+ dupMatches.replaceChildren();
+ dupTimer=setTimeout(()=>{dupCheck()},500);
+}
+
 async function api(method,data,query=''){
  const opts={method,headers:{Authorization:'Bearer '+token},cache:'no-store'};
  if(method!=='GET'){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(data)}
@@ -2389,7 +2449,7 @@ function show(product){
  }
  if(!product){form.elements.namedItem('ativo').value='false';form.elements.namedItem('destaque').value='false'}
  else{form.elements.namedItem('ativo').value=String(!!product.ativo);form.elements.namedItem('destaque').value=String(!!product.destaque)}
- form.hidden=false;updateReview();form.scrollIntoView({behavior:'smooth',block:'start'});
+ form.hidden=false;updateReview();dupSchedule();form.scrollIntoView({behavior:'smooth',block:'start'});
 }
 by('raiz-prod-load').addEventListener('click',()=>{page=1;load()});
 by('raiz-prod-search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();page=1;load()}});
@@ -2423,6 +2483,9 @@ function updateReview(){
  }else{img.hidden=true;img.removeAttribute('src');hint.textContent='Imagem não informada — o catálogo mostrará imagem indisponível.'}
 }
 form.addEventListener('input',updateReview);
+form.addEventListener('input',event=>{if(dupInputs.includes(event.target.name))dupSchedule()});
+form.addEventListener('change',event=>{if(dupInputs.includes(event.target.name))dupSchedule()});
+
 form.addEventListener('change',updateReview);
 by('raiz-prod-image').addEventListener('error',()=>{
  by('raiz-prod-image').hidden=true;
@@ -2471,6 +2534,18 @@ form.addEventListener('submit',async e=>{
  values.preco=form.elements.namedItem('preco').value.trim()===''?null:Number(form.elements.namedItem('preco').value);
  values.ativo=form.elements.namedItem('ativo').value==='true';
  values.destaque=form.elements.namedItem('destaque').value==='true';
+ clearTimeout(dupTimer);
+ // Reconsultar imediatamente antes de qualquer confirmação ou gravação.
+ const matches=await dupCheck();
+ if(matches===null){status('Não foi possível concluir a verificação de duplicidade. Revise a conexão e tente novamente.');return}
+ if(!editing&&matches.some(m=>m.bloqueante)){
+  status('Cadastro impedido: já existe produto com o mesmo ID, link ou nome. Use “Abrir existente”.');
+  by('raiz-prod-duplicate-panel').scrollIntoView({behavior:'smooth',block:'center'});
+  return;
+ }
+ if(matches.some(m=>!m.bloqueante)){
+  if(!confirm('Foram encontrados produtos com nomes semelhantes. Você conferiu embalagem, tamanho, sabor e marca, e deseja continuar?'))return;
+ }
  const original=rows.find(x=>Number(x.id)===editing);
  if(editing&&original&&original.ativo!==values.ativo){
   if(!confirm(values.ativo?'Ativar este produto na vitrine pública?':'Desativar este produto da vitrine pública?'))return;
