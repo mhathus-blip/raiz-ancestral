@@ -3,12 +3,23 @@
 'use strict';
 const anchor=document.getElementById('raiz-gerenciar-produtos');if(!anchor)return;
 const root=document.createElement('section');root.hidden=true;root.id='raiz-oportunidades-admin';
-root.innerHTML='<h2>🔎 Central de oportunidades</h2><p>Busque anúncios na API Shopee e decida o que merece entrar no catálogo. <strong>Preço indicativo não comprova desconto.</strong> Nenhum produto é publicado automaticamente.</p><div class="opp-toolbar"><label>Buscar oportunidades<input id="opp-query" type="search" maxlength="140" placeholder="Ex.: infusor para chá"></label><button type="button" id="opp-find">Pesquisar</button><button type="button" id="opp-refresh">Atualizar fila</button></div><div class="opp-auto"><label><input type="checkbox" id="opp-automatic"> Fazer busca diária quando eu abrir o ADM neste navegador</label><label>Assuntos da busca (até três separados por vírgula)<input type="text" id="opp-topics" maxlength="180" value="chá natural, infusor para chá, sementes para horta"></label><small>Não é rastreamento 24 horas. Monitoramento contínuo por servidor requer agendamento próprio.</small></div><p id="opp-status" role="status" aria-live="polite"></p><div id="opp-findings" class="opp-grid"></div><h3>📋 Aguardando decisão</h3><div id="opp-pending" class="opp-grid"></div><p>Ao aprovar, um produto é cadastrado como <strong>rascunho inativo</strong>. A publicação continua dependendo da sua decisão no cadastro de produtos.</p>';
+root.innerHTML='<h2>🔎 Central de oportunidades</h2><p>Busque anúncios na API Shopee e decida o que merece entrar no catálogo. <strong>Preço indicativo não comprova desconto.</strong> Nenhum produto é publicado automaticamente.</p><div class="opp-toolbar"><label>Buscar oportunidades<input id="opp-query" type="search" maxlength="140" placeholder="Ex.: infusor para chá"></label><button type="button" id="opp-find">Pesquisar</button><button type="button" id="opp-refresh">Atualizar fila</button></div><div class="opp-auto"><label><input type="checkbox" id="opp-automatic"> Fazer busca diária quando eu abrir o ADM neste navegador</label><label>Assuntos da busca (até três separados por vírgula)<input type="text" id="opp-topics" maxlength="180" value="chá natural, infusor para chá, sementes para horta"></label><small>Não é rastreamento 24 horas. Monitoramento contínuo por servidor requer agendamento próprio.</small></div><p id="opp-status" role="status" aria-live="polite"></p><button type="button" id="opp-view-created" hidden>🔎 Ver produto cadastrado</button><div id="opp-findings" class="opp-grid"></div><h3>📋 Aguardando decisão</h3><div id="opp-pending" class="opp-grid"></div><p>Ao aprovar, um produto é cadastrado como <strong>rascunho inativo</strong>. A publicação continua dependendo da sua decisão no cadastro de produtos.</p>';
 anchor.parentNode.insertBefore(root,anchor);
 const css=document.createElement('style');
 css.textContent='#raiz-oportunidades-admin{margin:18px auto;padding:20px;max-width:1180px;border-radius:22px;background:#fffdf3;color:#24432e;border:1px solid #ccb079}#raiz-oportunidades-admin h2{font:700 28px Georgia,serif}#raiz-oportunidades-admin .opp-toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:end}#raiz-oportunidades-admin .opp-toolbar label{flex:1 1 230px}#raiz-oportunidades-admin label{font-size:13px;font-weight:600}#raiz-oportunidades-admin input[type=search],#raiz-oportunidades-admin input[type=text],#raiz-oportunidades-admin select{display:block;width:100%;padding:10px;border:1px solid #9fb6a0;border-radius:9px;background:#fff;color:#1b3927}#raiz-oportunidades-admin button{border-radius:10px;border:1px solid #245236;background:#255d3a;color:#fff;min-height:42px;padding:8px 13px;cursor:pointer}#raiz-oportunidades-admin button:disabled{opacity:.5}#raiz-oportunidades-admin .opp-auto{margin:15px 0;padding:12px;background:#e9f0e3;border-radius:12px}#raiz-oportunidades-admin .opp-auto small{display:block}#raiz-oportunidades-admin .opp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}#raiz-oportunidades-admin .opp-card{display:flex;flex-direction:column;gap:9px;background:#fff;border:1px solid #d3d9cb;border-radius:13px;padding:12px}#raiz-oportunidades-admin .opp-card img{width:100%;height:125px;object-fit:contain}#raiz-oportunidades-admin .opp-card b{overflow-wrap:anywhere}#raiz-oportunidades-admin .opp-actions{display:flex;flex-wrap:wrap;gap:7px}#raiz-oportunidades-admin .opp-actions a{display:inline-flex;align-items:center;padding:9px;border-radius:10px;background:#e8e9dd;font-size:12px}';
 document.head.append(css);
 const el=id=>document.getElementById(id), msg=s=>el('opp-status').textContent=s;
+let lastCreatedId=null;
+function showCreated(id){
+ lastCreatedId=Number.isSafeInteger(Number(id))&&Number(id)>0?Number(id):null;
+ const button=el('opp-view-created');
+ button.hidden=!lastCreatedId;
+ if(lastCreatedId)button.textContent='🔎 Ver produto cadastrado #'+lastCreatedId;
+}
+el('opp-view-created').addEventListener('click',()=>{
+ if(!lastCreatedId)return;
+ window.dispatchEvent(new CustomEvent('raiz:admin-open-product',{detail:{id:lastCreatedId}}));
+});
 let token='',categories=[];
 function currency(v){return Number.isFinite(Number(v))&&Number(v)>0?Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Não informado'}
 function safeUrl(raw){try{const u=new URL(raw);return u.protocol==='https:'&&['s.shopee.com.br','shopee.com.br','www.shopee.com.br'].includes(u.hostname)?u.href:null}catch{return null}}
@@ -63,7 +74,8 @@ async function load(){
    approve.disabled=true;
    try{
     const d=await api('/api/produtos-admin','POST',{nome:p.nome,loja:'Shopee',categoria:sel.value,link_afiliado:p.link_afiliado,imagem_url:p.imagem_url,descricao:'Anúncio selecionado para revisão; confirme preço, marca e quantidade antes da publicação.',preco:null,shopee_product_id:p.item_externo,ativo:false,destaque:false});
-    const id=Number(d.produto?.id);if(!Number.isSafeInteger(id))throw Error('Produto possivelmente cadastrado; confira no cadastro antes de tentar novamente.');
+    const id=Number(d.produto?.id);if(!Number.isSafeInteger(id)||id<=0)throw Error('Produto possivelmente cadastrado; confira no cadastro antes de tentar novamente.');
+    showCreated(id);
     try{await api('/api/oportunidades-admin','PATCH',{id:p.id,status:'selecionada',produto_id:id})}catch{msg('Rascunho #'+id+' criado, mas houve falha em atualizar a fila; confira o cadastro.');return}
     msg('Produto #'+id+' cadastrado como INATIVO. Confira no painel antes de ativar.');await load();
    }catch(e){msg(e.message)}finally{approve.disabled=false}
