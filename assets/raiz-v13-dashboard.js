@@ -233,5 +233,26 @@ nav.addEventListener('pointermove',event=>{
 if(typeof ResizeObserver==='function')new ResizeObserver(positionLiquidIndicator).observe(nav);
 window.addEventListener('resize',positionLiquidIndicator,{passive:true});
 
+/* V13.8: reflexo especular acompanha o cursor sem animar o layout;
+   um único listener delegado, limitado a um frame de atualização. */
+let glassFrame=0,glassTarget=null,glassX=50,glassY=35;
+app.addEventListener('pointermove',event=>{
+ if(event.pointerType==='touch'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const panel=event.target.closest('.v13-card,.v13-kpi,.v131-product');
+ if(!panel||!app.contains(panel))return;
+ const box=panel.getBoundingClientRect();
+ if(!box.width||!box.height)return;
+ glassTarget=panel;
+ glassX=Math.max(0,Math.min(100,(event.clientX-box.left)/box.width*100));
+ glassY=Math.max(0,Math.min(100,(event.clientY-box.top)/box.height*100));
+ if(glassFrame)return;
+ glassFrame=requestAnimationFrame(()=>{
+  glassFrame=0;
+  if(glassTarget){
+   glassTarget.style.setProperty('--v138-x',glassX.toFixed(1)+'%');
+   glassTarget.style.setProperty('--v138-y',glassY.toFixed(1)+'%');
+  }
+ });
+},{passive:true});
 window.addEventListener('keydown',e=>{if(e.key==='Escape')app.classList.remove('v13-menu-open')});
 })();
