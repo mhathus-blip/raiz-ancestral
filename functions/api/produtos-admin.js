@@ -14,7 +14,7 @@ function suggestCategory(name){
  if(has(/\b(tesoura de poda|pulverizador|regador|enxada|pa de jardim|ferramenta de jardinagem)\b/))return 'Ferramentas para Jardinagem';
  if(has(/\b(alpiste|painco|comedouro|bebedouro|poleiro|gaiola|viveiro|ninho para|casinha para|mistura para passaros)\b/) || (has(/\b(ave|aves|passaro|passaros|calopsita|periquito|canario|papagaio|pintassilgo|coleiro|agapornis|mandarim)\b/) && has(/\b(racao|alimento|alimentacao|mistura|sementes|semente|comedouro|bebedouro|ninho|casinha|poleiro|gaiola|viveiro)\b/)))return 'Aves e Animais de Jardim';
  if(has(/\b(semente|sementes|muda|mudas|horta|hortaliça|hortalica|germinacao)\b/))return 'Hortas e Sementes';
- if(has(/\b(vaso decorativo|arranjo artificial|buque artificial|decoracao|ornamento|arvore artificial)\b/))return 'Decoração Natural';
+ if(has(/\b(vaso decorativo|arranjo artificial|buque artificial|decoracao|ornamento|arvore artificial)\b/))return 'Decoração Natural e Artificial';
  if(has(/\b(rosa natural|orquidea viva|flor natural|flores vivas)\b/))return 'Flores';
  if(has(/\b(shampoo|sabonete|creme corporal|hidratante|cosmetico|oleo para pele)\b/))return 'Beleza e Cuidados Naturais';
  if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/) && !has(/\b(barra|barras|barrinha|barrinhas)\b/))return 'Suplementos Naturais';
@@ -127,7 +127,7 @@ export async function onRequest({request,env}){
   if(url.searchParams.get('categories')==='1'){
    const r=await readCatalogForAdmin(ctx,'id,categoria');
    if(r.error)return json({erro:r.error},r.status);
-   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
+   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean).map(c=>c==='Decoração Natural'?'Decoração Natural e Artificial':c)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
   const idParam=url.searchParams.get('id');
   if(idParam!==null){
@@ -149,7 +149,8 @@ export async function onRequest({request,env}){
   const params=new URLSearchParams({select:'id,nome,descricao,imagem_url,preco,loja,categoria,link_afiliado,ativo,destaque,shopee_product_id,created_at,disponibilidade,disponibilidade_observacao,disponibilidade_verificada_em',order:'id.desc',limit:String(pageSize),offset:String(offset)});
   if(estado==='ativos'||estado==='inativos')params.set('ativo','eq.'+(estado==='ativos'));
   if(estado==='fantasmas'||estado==='suspeitos')params.set('disponibilidade','eq.'+(estado==='fantasmas'?'fantasma':'suspeito'));
-  if(categoria)params.set('categoria','eq.'+categoria);
+  if(categoria==='Decoração Natural e Artificial')params.set('categoria','in.(Decoração Natural,Decoração Natural e Artificial)');
+  else if(categoria)params.set('categoria','eq.'+categoria);
   if(precoFiltro==='sem')params.set('or','(preco.is.null,preco.lte.0)');
   if(term)params.set('nome','ilike.*'+term.replace(/[%*,()]/g,'')+'*');
   const r=await db(ctx,'produtos?'+params.toString());
