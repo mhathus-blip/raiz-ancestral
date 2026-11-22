@@ -1027,12 +1027,31 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
     -webkit-line-clamp:3;
   }
 }
+
+/* V13.17 — contador real, discreto e responsivo de visitas por sessão no cabeçalho. */
+.site-header .menu .raiz-visitas-publicas{
+  display:inline-flex;flex-direction:column;justify-content:center;flex:0 0 auto;
+  min-width:113px;max-width:140px;padding:7px 11px;gap:3px;
+  border:1px solid rgba(188,153,69,.57);border-radius:13px;
+  background:linear-gradient(138deg,rgba(18,71,44,.92),rgba(9,50,34,.97));
+  box-shadow:inset 0 1px 0 rgba(255,242,196,.22),0 3px 9px rgba(5,34,22,.13);
+  color:#f8edd0;font-family:Arial,sans-serif;font-size:11px;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.site-header .menu .raiz-visitas-titulo{font-size:10px;letter-spacing:.01em;white-space:nowrap;color:#eee3bd}
+.site-header .menu .raiz-visitas-numeros{display:flex;gap:10px;align-items:center;justify-content:center}
+.site-header .menu .raiz-visitas-numeros>span{display:flex;flex-direction:column;gap:1px;min-width:35px}
+.site-header .menu .raiz-visitas-numeros strong{font-size:15px;line-height:1.05;color:#f1d38a;font-weight:750}
+.site-header .menu .raiz-visitas-numeros small{font-size:9px;color:#e2d9c4}
+.site-header .menu .raiz-visitas-numeros>span+span{border-left:1px solid rgba(224,198,122,.38);padding-left:10px}
+@media(max-width:1100px){.site-header .menu .raiz-visitas-publicas{min-width:105px;padding:6px 8px}}
+@media(max-width:760px){.site-header .menu .raiz-visitas-publicas{width:100%;max-width:230px;flex-direction:row;align-items:center;justify-content:space-around;gap:10px;margin:4px auto 0;padding:7px 10px}.site-header .menu .raiz-visitas-numeros{gap:9px}}
 </style>
 </head>
 <body>
 <a href="#catalogo" class="raiz-pular-catalogo">Pular diretamente para os produtos</a>
 <div id="inicio" aria-hidden="true" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none"></div>
-<header class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a></nav></div></header>
+<header class="site-header"><div class="wrap topbar"><a class="brand" href="#inicio"><span class="brand-icon" aria-hidden="true">🌿</span><span class="brand-name">Raiz Ancestral<small>NATUREZA EM SUA VIDA</small></span></a><div class="header-center" aria-label="Identidade Raiz Ancestral"><span class="header-sprig" aria-hidden="true">❧</span><span class="header-emblem"><img class="header-logo-image" src="logo-raiz-ancestral.png" alt="Raiz Ancestral — Natureza em sua vida" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="header-logo-fallback" style="display:none;flex-direction:column;align-items:center"><span class="header-emblem-icon" aria-hidden="true">🌿</span><span class="header-emblem-title">Raiz Ancestral</span><span class="header-emblem-sub">NATUREZA EM SUA VIDA</span></span></span><span class="header-sprig mirror" aria-hidden="true">❧</span></div><nav class="menu" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a><a href="#sobre">Sobre</a><div id="raiz-visitas-publicas" class="raiz-visitas-publicas" role="group" aria-label="Visitas reais ao Raiz Ancestral" title="Visitas por sessão, contabilizadas a partir da instalação. Não são pessoas únicas."><span class="raiz-visitas-titulo">◉ Visitas à loja</span><div class="raiz-visitas-numeros"><span><strong id="raiz-visitas-hoje" aria-live="polite">—</strong><small>Hoje</small></span><span><strong id="raiz-visitas-mes" aria-live="polite">—</strong><small>Este mês</small></span></div></div></nav></div></header>
 <select id="season-mode" hidden aria-hidden="true"><option value="auto" selected>Automático</option></select>
 <section class="season-banner" aria-label="Temporada especial"><span class="season-decor left" aria-hidden="true">❧</span><div class="season-inner"><div class="season-kicker" id="season-kicker"></div><h2 id="season-title"></h2><p id="season-description"></p><a href="#catalogo" id="season-link">Explorar a vitrine</a><div class="season-countdown" id="season-countdown" aria-label="Contagem regressiva para a Black Friday"><span id="countdown-label">Faltam</span><strong><span id="cd-days">--</span><small>dias</small></strong><strong><span id="cd-hours">--</span><small>horas</small></strong><strong><span id="cd-mins">--</span><small>min</small></strong><strong><span id="cd-secs">--</span><small>seg</small></strong></div></div><span class="season-decor right" aria-hidden="true">✦</span><div class="raiz-gold-wave" aria-hidden="true"></div></section>
 <section class="hero"><div class="wrap hero-grid"><div><div class="eyebrow">Natureza em sua vida</div><h1>Plantas, natureza e bem-estar mais perto de você.</h1><p>Descubra flores, chás, sementes, produtos naturais e ferramentas para cultivar seu cantinho verde.</p><a class="primary" href="#catalogo">Explorar produtos →</a><div class="trust"><span>🍃 Seleção de produtos</span><span>🛍️ Lojas parceiras</span><span>🌱 Amor pela natureza</span></div></div></div></section>
@@ -1956,4 +1975,56 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
 </script>
 <!-- Cloudflare Web Analytics — prévia Raiz Ancestral; métricas agregadas, sem cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f822cccbe7024813bae083e20fb47f3a"}'></script>
+<script>
+/* Visitas reais: cada sessão de navegação soma no máximo uma visita por dia.
+ * Os dados começam na ativação; sem números simulados ou identificadores pessoais.
+ */
+(function(){
+  'use strict';
+  const today=document.getElementById('raiz-visitas-hoje');
+  const month=document.getElementById('raiz-visitas-mes');
+  const box=document.getElementById('raiz-visitas-publicas');
+  if(!today||!month||!box)return;
+  const fmt=n=>Math.max(0,Number(n)||0).toLocaleString('pt-BR');
+  function show(data){
+    if(!data||data.ok!==true||!Number.isFinite(Number(data.hoje))||!Number.isFinite(Number(data.mes)))return false;
+    today.textContent=fmt(data.hoje);
+    month.textContent=fmt(data.mes);
+    box.title='Visitas por sessão, não visitantes únicos. Contagem iniciada em 22/11/2026; valores sujeitos a atualização.';
+    return true;
+  }
+  async function read(){
+    const res=await fetch('/api/visitas',{method:'GET',cache:'no-store',credentials:'omit'});
+    if(!res.ok)throw Error('Visitas indisponíveis');
+    return show(await res.json());
+  }
+  async function start(){
+    let id='';
+    try{
+      id=sessionStorage.getItem('raiz-visita-sessao-v1')||'';
+      if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)){
+        id=crypto.randomUUID();
+        sessionStorage.setItem('raiz-visita-sessao-v1',id);
+      }
+    }catch(e){/* Armazenamento bloqueado: mostrar dados sem registrar. */}
+    if(id){
+      try{
+        const res=await fetch('/api/visitas',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({sessao:id}),
+          credentials:'omit',
+          cache:'no-store',
+          keepalive:true
+        });
+        if(res.ok && show(await res.json()))return;
+      }catch(e){/* Se a contagem falhar, ainda tenta mostrar a última soma. */}
+    }
+    try{if(await read())return;}catch(e){}
+    box.title='Estatísticas temporariamente indisponíveis';
+    today.textContent='—';month.textContent='—';
+  }
+  void start();
+})();
+</script>
 </body></html>
