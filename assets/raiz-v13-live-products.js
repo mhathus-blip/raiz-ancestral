@@ -60,7 +60,7 @@ async function getPage(){
   const products=await Promise.allSettled(ids.map(id=>api('/api/produtos-admin?id='+id)));
   const term=search.value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
   const found=products.filter(p=>p.status==='fulfilled'&&p.value.produto).map(p=>p.value.produto)
-   .filter(p=>(!term||norm(p.nome).includes(term))&&(!category||String(p.categoria||'').trim()===category));
+   .filter(p=>(!term||norm(p.nome).includes(term))&&(!category||String(p.categoria||'').trim()===category||(category==='Decoração Natural e Artificial'&&String(p.categoria||'').trim()==='Decoração Natural')));
   const start=(page-1)*6;
   return {produtos:found.slice(start,start+6),mais:found.length>start+6};
  }
