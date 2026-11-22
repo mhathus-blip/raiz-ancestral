@@ -625,3 +625,100 @@ body.raiz-v13-active{overflow:hidden!important}
  #raiz-v13 .v13-kpi,#raiz-v13 .v131-product,#raiz-v13 .v13-quick,#raiz-v13 .v138-category-chips button{will-change:auto!important;transform:none!important}
  #raiz-v13 .v13-kpi:hover,#raiz-v13 .v131-product:hover,#raiz-v13 .v13-quick:hover,#raiz-v13 .v138-category-chips button:hover{transform:none!important}
 }
+
+
+/* V13.10 — profundidade mantida, interações serenas e glass ligeiramente mais escuro.
+   Reduz o clareamento nas seleções e no hover sem sacrificar o relevo. */
+#raiz-v13 .v13-card,
+#raiz-v13 .v13-kpi,
+#raiz-v13 .v131-product,
+#raiz-v13 .v138-categories{
+ background:linear-gradient(145deg,rgba(218,239,223,.70),rgba(194,226,202,.50) 48%,rgba(167,204,177,.48))!important;
+ border-color:rgba(213,241,222,.77)!important;
+ -webkit-backdrop-filter:blur(14px) saturate(135%);
+ backdrop-filter:blur(14px) saturate(135%);
+ box-shadow:inset 0 2px 1px rgba(255,255,255,.72),inset 0 -3px 10px rgba(32,93,54,.16),0 6px 0 -3px rgba(54,111,72,.24),0 16px 29px rgba(12,60,34,.18),0 0 0 1px rgba(83,137,99,.24)!important;
+}
+#raiz-v13 .v13-card::before,
+#raiz-v13 .v13-kpi::before,
+#raiz-v13 .v131-product::before{
+ background:radial-gradient(ellipse 49% 51% at var(--v138-x,50%) var(--v138-y,35%),rgba(211,244,220,.13),transparent 72%);
+}
+#raiz-v13 .v13-card:hover::before,
+#raiz-v13 .v13-kpi:hover::before,
+#raiz-v13 .v131-product:hover::before{opacity:.23}
+#raiz-v13 .v13-card::after,
+#raiz-v13 .v13-kpi::after,
+#raiz-v13 .v131-product::after{
+ background:linear-gradient(157deg,rgba(255,255,255,.36) 0%,rgba(255,255,255,.06) 16%,transparent 34%),linear-gradient(176deg,rgba(237,255,240,.35),transparent 14%)!important;
+ opacity:.42!important;mix-blend-mode:normal;
+}
+#raiz-v13 .v13-card:hover::after,
+#raiz-v13 .v13-kpi:hover::after,
+#raiz-v13 .v131-product:hover::after{opacity:.48!important}
+#raiz-v13 .v13-card,
+#raiz-v13 .v13-kpi,
+#raiz-v13 .v131-product{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease!important}
+#raiz-v13 .v131-product .v131-picture,
+#raiz-v13 .v131-product .v131-info,
+#raiz-v13 .v131-product .v131-actions,
+#raiz-v13 .v13-kpi strong{transform:none!important}
+#raiz-v13 .v13-card:hover,
+#raiz-v13 .v13-kpi:hover,
+#raiz-v13 .v131-product:hover{
+ transform:translateY(-2px)!important;
+ filter:none!important;
+ border-color:rgba(188,225,201,.87)!important;
+ box-shadow:inset 0 2px 1px rgba(255,255,255,.73),inset 0 -3px 10px rgba(32,93,54,.16),0 7px 0 -3px rgba(54,111,72,.25),0 19px 31px rgba(12,60,34,.2),0 0 0 1px rgba(76,133,94,.29)!important;
+}
+#raiz-v13 .v13-button,
+#raiz-v13 .v13-quick,
+#raiz-v13 .v131-tabs button,
+#raiz-v13 .v131-actions button,
+#raiz-v13 .v131-head-actions button,
+#raiz-v13 .v131-bottom button,
+#raiz-v13 .v138-category-chips button{
+ transition:transform .22s ease,box-shadow .23s ease,background .23s ease!important;
+ filter:none!important;
+}
+#raiz-v13 .v13-button:hover,
+#raiz-v13 .v13-quick:hover,
+#raiz-v13 .v131-tabs button:hover,
+#raiz-v13 .v131-actions button:hover,
+#raiz-v13 .v131-head-actions button:hover,
+#raiz-v13 .v131-bottom button:hover,
+#raiz-v13 .v138-category-chips button:hover{
+ transform:translateY(-1px)!important;
+ filter:none!important;
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.72),0 5px 0 -3px rgba(53,112,74,.18),0 11px 19px rgba(12,69,38,.17)!important;
+}
+#raiz-v13 .v13-quick,
+#raiz-v13 .v138-category-chips button,
+#raiz-v13 .v131-tabs button{
+ background:linear-gradient(145deg,rgba(226,244,231,.69),rgba(177,214,187,.49))!important;
+ border-color:rgba(205,234,214,.73)!important;
+}
+#raiz-v13 .v138-category-chips button[aria-pressed="true"],
+#raiz-v13 .v131-tabs button[aria-selected="true"]{
+ background:linear-gradient(145deg,rgba(43,113,72,.94),rgba(28,89,54,.9))!important;
+ border-color:rgba(127,195,151,.74)!important;
+ color:#f1fff2!important;
+ text-shadow:none!important;
+ box-shadow:inset 0 1px 1px rgba(216,248,225,.35),0 5px 13px rgba(18,76,43,.21)!important;
+}
+#raiz-v13 .v13-nav button[aria-current="page"]{
+ background:rgba(49,112,74,.15)!important;text-shadow:none!important;
+}
+#raiz-v13 .v136-liquid-indicator{
+ background:linear-gradient(130deg,rgba(74,161,106,.24),rgba(17,94,59,.28),rgba(108,154,104,.15));
+ border-color:rgba(140,220,166,.47);
+ box-shadow:inset 0 1px 1px rgba(226,255,230,.48),0 4px 13px rgba(18,101,59,.22),0 0 10px rgba(76,192,121,.12)!important;
+ animation:none!important;
+ transition:transform .36s ease,height .25s ease,width .25s ease,opacity .25s ease!important;
+}
+#raiz-v13 .v136-liquid-indicator:before{background:linear-gradient(rgba(235,255,237,.3),transparent)}
+#raiz-v13 .v136-liquid-indicator:after{opacity:.25}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){
+ #raiz-v13 .v13-card:hover,#raiz-v13 .v13-kpi:hover,#raiz-v13 .v131-product:hover,
+ #raiz-v13 .v13-button:hover,#raiz-v13 .v13-quick:hover,#raiz-v13 .v138-category-chips button:hover{transform:none!important}
+}
