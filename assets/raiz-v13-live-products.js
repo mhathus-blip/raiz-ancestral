@@ -6,12 +6,13 @@ const overview=app.querySelector('[data-view="overview"] .v13-view');if(!overvie
 const widget=document.createElement('section');widget.id='v131-live';widget.className='v13-card v131-live';
 widget.innerHTML='<div class="v131-heading"><div><span class="v131-overline">✦ CATÁLOGO EM TEMPO REAL</span><h3>🌿 Painel vivo dos produtos</h3><p>Fotos, anúncios e edição direta do catálogo.</p></div><div class="v131-head-actions"><button type="button" data-live-refresh>↻ Atualizar</button><a href="/" target="_blank" rel="noopener noreferrer">↗ Abrir vitrine</a></div></div>'+
 '<div class="v131-tabs" role="tablist" aria-label="Visualizar produtos"><button type="button" role="tab" aria-selected="true" data-live-tab="recentes">🕒 Recentes</button><button type="button" role="tab" aria-selected="false" data-live-tab="maisclicados">📈 Mais clicados</button><button type="button" role="tab" aria-selected="false" data-live-tab="rascunhos">📝 Rascunhos</button><button type="button" role="tab" aria-selected="false" data-live-tab="sempreco">💰 Sem preço</button><button type="button" role="tab" aria-selected="false" data-live-tab="vitrine">🛍️ Vitrine pública</button></div>'+
+'<div class="v138-categories" aria-label="Filtrar por categoria"><div class="v138-categories-title"><strong>✧ Categorias dos produtos</strong><span id="v138-category-caption">Buscando categorias…</span></div><div class="v138-category-chips" id="v138-category-chips" role="group" aria-label="Selecionar categoria"><button type="button" data-category="" aria-pressed="true">▦ Todas as categorias</button></div></div>'+
 '<div class="v131-toolbar"><label for="v131-search">🔎 Buscar <input id="v131-search" type="search" maxlength="100" placeholder="Nome do produto..."></label><span id="v131-summary" role="status" aria-live="polite">Aguardando autenticação...</span></div>'+
 '<div class="v131-scroll-area" id="v131-scroll-area" tabindex="0" role="region" aria-label="Produtos com rolagem vertical"><div class="v131-products" id="v131-products"></div><div class="v131-load-more" id="v131-load-more" aria-live="polite">Role para carregar mais produtos</div><div id="v131-sentinel" aria-hidden="true"></div></div><div class="v131-bottom"><span id="v131-count">Produtos exibidos conforme você rola</span><button type="button" data-open="products">Gerenciar catálogo</button></div>';
 const anchor=overview.querySelector('.v13-grid');if(anchor)anchor.insertAdjacentElement('afterend',widget);else overview.append(widget);
 const el=id=>document.getElementById(id),grid=el('v131-products'),status=el('v131-summary'),search=el('v131-search');
-let token='',tab='recentes',page=1,next=false,serial=0,busy=false,shown=0;
-const scrollArea=el('v131-scroll-area'),loadMore=el('v131-load-more'),sentinel=el('v131-sentinel');
+let token='',tab='recentes',category='',page=1,next=false,serial=0,busy=false,shown=0;
+const scrollArea=el('v131-scroll-area'),loadMore=el('v131-load-more'),sentinel=el('v131-sentinel'),chips=el('v138-category-chips');
 const safe=s=>{try{const u=new URL(s);return u.protocol==='https:'&&!u.username&&!u.password&&u.hostname?u.href:null}catch{return null}};
 const text=(tag,value,klass)=>{const e=document.createElement(tag);e.textContent=String(value??'');if(klass)e.className=klass;return e};
 const money=value=>Number.isFinite(Number(value))&&Number(value)>0?Number(value).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Consultar preço na loja';
@@ -33,6 +34,25 @@ function card(p){
  if(link){const a=text('a','↗ Anúncio');a.href=link;a.target='_blank';a.rel='sponsored noopener noreferrer';actions.append(a)}
  box.append(picture,info,actions);return box;
 }
+const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+async function loadCategories(){
+ try{
+  const data=await api('/api/produtos-admin?categories=1');
+  if(!token)return;
+  const names=[...new Set((data.categorias||[]).map(v=>String(v||'').trim()).filter(Boolean))];
+  chips.replaceChildren();
+  const choices=[['','▦ Todas as categorias'],...names.map(n=>[n,n])];
+  for(const [value,label] of choices){
+   const button=text('button',label);button.type='button';button.dataset.category=value;
+   button.setAttribute('aria-pressed',String(value===category));
+   chips.append(button);
+  }
+  if(category&&!names.includes(category)){category='';load(true)}
+  el('v138-category-caption').textContent=names.length+' categorias disponíveis · escolha uma para localizar e editar';
+ }catch(err){
+  el('v138-category-caption').textContent='Categorias indisponíveis: '+err.message;
+ }
+}
 async function getPage(){
  if(tab==='maisclicados'){
   const d=await api('/api/painel-resumo?dias=30');
@@ -40,12 +60,13 @@ async function getPage(){
   const products=await Promise.allSettled(ids.map(id=>api('/api/produtos-admin?id='+id)));
   const term=search.value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
   const found=products.filter(p=>p.status==='fulfilled'&&p.value.produto).map(p=>p.value.produto)
-   .filter(p=>!term||String(p.nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').includes(term));
+   .filter(p=>(!term||norm(p.nome).includes(term))&&(!category||String(p.categoria||'').trim()===category));
   const start=(page-1)*6;
   return {produtos:found.slice(start,start+6),mais:found.length>start+6};
  }
  const params=new URLSearchParams({page:String(page),page_size:'6',estado:tab==='rascunhos'?'inativos':tab==='vitrine'?'ativos':'todos'});
  if(tab==='sempreco')params.set('preco','sem');
+ if(category)params.set('categoria',category);
  if(search.value.trim())params.set('q',search.value.trim());
  return api('/api/produtos-admin?'+params);
 }
@@ -86,12 +107,18 @@ const observer=new IntersectionObserver(entries=>{
  if(entries.some(e=>e.isIntersecting)&&token&&next&&!busy)load();
 },{root:scrollArea,rootMargin:'170px 0px',threshold:0});
 observer.observe(sentinel);
+chips.addEventListener('click',event=>{
+ const button=event.target.closest('button[data-category]');if(!button)return;
+ category=button.dataset.category||'';
+ for(const chip of chips.querySelectorAll('button[data-category]'))chip.setAttribute('aria-pressed',String(chip===button));
+ load(true);
+});
 widget.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.liveTab){tab=b.dataset.liveTab;for(const item of widget.querySelectorAll('[data-live-tab]'))item.setAttribute('aria-selected',String(item===b));load(true);return}
- if(b.hasAttribute('data-live-refresh'))load(true);
+ if(b.hasAttribute('data-live-refresh')){loadCategories();load(true)}
 });
 let delay;search.addEventListener('input',()=>{clearTimeout(delay);delay=setTimeout(()=>load(true),340)});
 scrollArea.addEventListener('scroll',()=>{if(token&&next&&!busy&&scrollArea.scrollTop+scrollArea.clientHeight>=scrollArea.scrollHeight-190)load()},{passive:true});
-window.addEventListener('raiz:admin-tests-unlocked',event=>{token=String(event.detail?.accessToken||'');if(token)load(true)});
+window.addEventListener('raiz:admin-tests-unlocked',event=>{token=String(event.detail?.accessToken||'');if(token){loadCategories();load(true)}});
 })();
