@@ -32,7 +32,7 @@ app.innerHTML='<div class="v13-backdrop" id="v13-backdrop"></div>'+
  '<main class="v13-main"><header class="v13-top">'+
  '<button type="button" class="v13-button v13-nav-toggle" id="v13-menu-button" aria-label="Abrir menu">☰</button>'+
  '<div class="v13-head-text"><b id="v13-head-title">Visão geral</b><small id="v13-head-subtitle">Controle operacional</small></div>'+
- '<div class="v13-top-actions"><span class="v13-chip" id="v13-top-alerts">Verificando alertas</span>'+
+ '<div class="v13-top-actions"><button type="button" class="v13-chip v13-alert-shortcut" id="v13-top-alerts" title="Abrir oportunidades e alertas">Verificando alertas</button>'+
  '<button type="button" class="v13-button v13-optional" id="v13-compact" aria-pressed="false">▦ Compacto</button>'+
  '<button type="button" class="v13-button" id="v13-refresh">↻ Atualizar</button>'+
  '<button type="button" class="v13-button primary" id="v13-new-product">+ Produto</button></div></header>'+
@@ -74,12 +74,41 @@ function mount(){
   for(const key of ids){const section=id(key);if(section){section.hidden=false;dst.append(section)}}
  }
  const automation=modules.get('automation'),backup=modules.get('backup');
+ const campaigns=modules.get('campaigns');
+ // V12 deixou controles de simulação fora da janela principal. Preserva os nós
+ // e seus listeners, apenas realocando-os após o login para a aba correta.
+ const simulator=node('article','v13-card v13-campaign-preview');
+ simulator.id='v13-campaign-preview';
+ simulator.append(node('h3','','🎨 Simulador de campanhas e vitrine sazonal'),
+  node('p','','Escolha a campanha e a data para visualizar sua decoração e a seleção temática. A simulação não publica alterações.'));
+ const toolbar=document.querySelector('body > .season-toolbar')||document.querySelector('.season-toolbar');
+ if(toolbar)simulator.append(toolbar);
+ const hint=node('p','v13-hint','Selecione uma campanha no simulador para ver sua prévia aqui.');
+ hint.id='v13-campaign-hint';
+ simulator.append(hint);
+ const banner=document.querySelector('.season-banner');
+ if(banner)simulator.append(banner);
+ campaigns.prepend(simulator);
+ const vitrine=id('raiz-vitrine-campanha');
+ if(vitrine)campaigns.append(vitrine);
+ const updateCampaignHint=()=>{
+  const active=document.body.dataset.season||'normal';
+  hint.textContent=vitrine&&!vitrine.hidden?'Prévia temática carregada. Confira os anúncios antes de qualquer publicação.':
+   active==='normal'?'Nenhuma campanha temática ativa na data simulada. Escolha uma comemoração acima.':
+   'Campanha '+active+' selecionada. A seleção temática pode ficar vazia se não houver produtos correspondentes.';
+ };
+ new MutationObserver(updateCampaignHint).observe(document.body,{attributes:true,attributeFilter:['data-season']});
+ if(vitrine)new MutationObserver(updateCampaignHint).observe(vitrine,{attributes:true,attributeFilter:['hidden']});
+ updateCampaignHint();
  const extra=node('article','v13-card');
  extra.append(node('h3','','⚙ Estado da varredura automática'),node('p','','O agendamento independente do navegador precisa estar ativo no servidor. A verificação diária ao abrir o ADM continua configurável nas ferramentas abaixo.'));
  const run=node('p','v13-hint','Verificando histórico...');run.id='v13-automation-run';extra.append(run);
  const go=node('button','v13-button primary','Abrir central de oportunidades');go.type='button';go.dataset.open='opportunities';extra.append(go);automation.append(extra);
- const backupCard=node('article','v13-card');backupCard.append(node('h3','','⬡ Backup e relatórios'),node('p','','O backup JSON completo permanece disponível na seção Campanhas, sem alterar o banco de dados.'));
- const back=node('button','v13-button primary','Abrir exportação');back.type='button';back.dataset.open='campaigns';backupCard.append(back);backup.append(backupCard);
+ const backupCard=node('article','v13-card');backupCard.append(node('h3','','⬡ Backup e relatórios'),node('p','','Baixe uma cópia completa do cadastro, sem publicar ou alterar produtos. A exportação depende do acesso administrativo.'));
+ const backupArea=id('raiz-auto-backup-json')?.closest('.raiz-auto-backup');
+ if(backupArea)backupCard.append(backupArea);
+ else backupCard.append(node('p','v13-hint','Ferramenta de exportação não encontrada; não foi possível habilitar o backup.'));
+ const back=node('button','v13-button','Conferir auditoria de preços');back.type='button';back.dataset.open='prices';backupCard.append(back);backup.append(backupCard);
  const old=id('raiz-admin-atalhos');if(old)old.hidden=true;
  mounted=true;
 }
@@ -142,10 +171,19 @@ async function refresh(){
 app.addEventListener('click',event=>{
  const target=event.target.closest('[data-open]');if(target){open(target.dataset.open);return}
  const link=event.target.closest('a[href^="#"]');if(!link)return;
- const map={'#raiz-gerenciar-produtos':'products','#raiz-estatisticas':'stats','#raiz-auditoria-precos':'prices','#raiz-shopee-api-preview':'prices','#raiz-central-automacoes':'campaigns','#raiz-oportunidades-admin':'opportunities','#raiz-fantasmas-admin':'ghosts'};
- const tab=map[link.getAttribute('href')];if(tab){event.preventDefault();open(tab)}
+ const map={'#raiz-gerenciar-produtos':'products','#raiz-estatisticas':'stats','#raiz-auditoria-precos':'prices','#raiz-reconciliacao-precos':'prices','#raiz-shopee-api-preview':'prices','#raiz-central-automacoes':'campaigns','#raiz-oportunidades-admin':'opportunities','#raiz-fantasmas-admin':'ghosts','#raiz-vitrine-campanha':'campaigns'};
+ const anchor=link.getAttribute('href'),tab=map[anchor];
+ if(!tab)return;
+ event.preventDefault();open(tab);
+ const destination=document.querySelector(anchor);
+ if(anchor==='#raiz-vitrine-campanha'&&(!destination||destination.hidden)){
+  id('v13-campaign-hint').textContent='A vitrine temática ainda não está disponível. Escolha uma campanha no simulador acima.';
+  id('season-mode')?.focus();return;
+ }
+ if(destination&&!destination.hidden)destination.scrollIntoView({behavior:'smooth',block:'start'});
 });
 id('v13-refresh').addEventListener('click',refresh);
+id('v13-top-alerts').addEventListener('click',()=>open('opportunities'));
 id('v13-new-product').addEventListener('click',()=>{open('products');id('raiz-prod-new')?.click()});
 id('v13-menu-button').addEventListener('click',()=>app.classList.toggle('v13-menu-open'));
 id('v13-backdrop').addEventListener('click',()=>app.classList.remove('v13-menu-open'));
@@ -156,7 +194,7 @@ id('v13-compact').addEventListener('click',()=>{
  try{localStorage.setItem('raiz-v13-compact',compact?'1':'0')}catch{}
 });
 try{if(localStorage.getItem('raiz-v13-compact')==='1'){app.classList.add('v13-compact');id('v13-compact').setAttribute('aria-pressed','true');id('v13-compact').textContent='▦ Confortável'}}catch{}
-window.addEventListener('raiz:admin-open-product',()=>open('products'));
+window.addEventListener('raiz:admin-open-product',()=>open('products'),{capture:true});
 window.addEventListener('raiz:admin-tests-unlocked',e=>{
  token=String(e.detail?.accessToken||'');if(!token)return;
  mount();document.body.classList.add('raiz-v13-active');app.hidden=false;
