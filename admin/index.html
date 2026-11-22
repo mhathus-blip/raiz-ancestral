@@ -2364,7 +2364,17 @@ async function load(){
    row.append(info,edit);fragment.append(row);
   }
   list.replaceChildren(fragment);
-  if(!rows.length){const p=document.createElement('p');p.textContent='Nenhum produto encontrado.';list.append(p)}
+  if(!rows.length){
+   const estado=by('raiz-prod-status-filter').value;
+   const p=document.createElement('p');
+   p.textContent=estado==='inativos'?'Nenhum rascunho inativo nesta busca. Seus produtos ativos continuam disponíveis no filtro “Ativos / Publicados”.':'Nenhum produto corresponde aos filtros selecionados.';
+   list.append(p);
+   if(estado==='inativos'){
+    const view=document.createElement('button');view.type='button';view.className='subtle';view.textContent='📦 Mostrar produtos ativos';
+    view.addEventListener('click',()=>{by('raiz-prod-status-filter').value='ativos';page=1;load()});
+    list.append(view);
+   }
+  }
   by('raiz-prod-page').textContent='Página '+page;
   status(rows.length+' produto(s) carregado(s) nesta página, filtro: '+by('raiz-prod-status-filter').selectedOptions[0].textContent+'.');
  }catch(e){status('Erro: '+e.message)}finally{freeze(false);by('raiz-prod-prev').disabled=page<=1;by('raiz-prod-next').disabled=!hasNext}
