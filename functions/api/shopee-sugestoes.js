@@ -5,7 +5,7 @@
 const reply=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const validHttps=v=>{try{let u=new URL(v);return u.protocol==='https:'&&!u.username&&!u.password&&!!u.hostname}catch{return false}};
-const words=s=>[...new Set(normalize(s).split(' ').filter(v=>v.length>=3&&!['com','sem','para','kit','unidades','unidade','pacote','produto','natural'].includes(v)))];
+const words=s=>[...new Set(normalize(s).split(' ').filter(v=>v.length>=2&&(!['com','sem','para','unidades','unidade','pacote','produto','natural'].includes(v)||normalize(s)===v)))];
 const codes=s=>(normalize(s).match(/\b\d+(?:g|kg|ml|l|un|und|unid|unidades|unidade|pcs)\b/g)||[]);
 function nameScore(a,b){
  const aw=words(a),bn=normalize(b);
@@ -21,7 +21,7 @@ function queryTerms(name){
  const terms=words(name).filter(x=>!/^\d/.test(x));
  if(terms.length>=2)arr.push(terms.slice(0,4).join(' ').slice(0,75));
  if(terms.length>=3)arr.push(terms.slice(0,3).join(' ').slice(0,55));
- return [...new Set(arr.map(x=>x.trim()).filter(x=>x.length>=5))].slice(0,3);
+ return [...new Set(arr.map(x=>x.trim()).filter(x=>x.length>=2))].slice(0,3);
 }
 async function offers(appId,secret,term){
  const query='query { productOfferV2(keyword: '+JSON.stringify(term)+') { nodes { itemId productName imageUrl priceMin priceMax offerLink } } }';
@@ -57,7 +57,7 @@ export async function onRequestPost({request,env}){
  try{const raw=await request.text();if(raw.length>1800)return reply({erro:'Consulta grande demais.'},413);body=JSON.parse(raw)}
  catch{return reply({erro:'Dados inválidos.'},400)}
  const name=String(body?.nome||'').trim();
- if(name.length<6||name.length>140)return reply({erro:'Informe nome entre 6 e 140 caracteres.'},400);
+ if(name.length<2||name.length>140)return reply({erro:'Informe nome entre 2 e 140 caracteres.'},400);
  const appId=String(env.SHOPEE_APP_ID||'').trim(),secret=String(env.SHOPEE_APP_SECRET||'').trim();
  if(!appId||!secret)return reply({erro:'Integração de afiliados da Shopee não está configurada.',diagnostico:'SHOPEE_CREDENCIAIS_AUSENTES'},503);
  const terms=queryTerms(name),attempts=[],seen=new Map();
