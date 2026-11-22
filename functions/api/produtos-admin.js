@@ -1,3 +1,11 @@
+function isMfaVerified(token){
+ try{
+  const payload=token.split('.')[1];
+  if(!payload)return false;
+  const data=JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
+  return data.aal==='aal2';
+ }catch{return false}
+}
 /* Raiz Ancestral V12 — Admin produtos, Etapa 19.
  * Somente admin verificado via JWT + RPC is_raiz_admin.
  * Usa RLS do Supabase com token pessoal de administrador; sem service role.
@@ -56,6 +64,7 @@ async function auth(request,env){
  const raw=String(request.headers.get('authorization')||'');
  const token=raw.match(/^Bearer\s+(.+)$/i)?.[1];
  if(!token||token.length>6000)return {error:'Entre como administrador.',status:401};
+ if(!isMfaVerified(token))return {error:'É necessário verificar o código do autenticador (MFA).',status:403};
  const base=String(env.SUPABASE_URL||'').replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
  const key=String(env.SUPABASE_PUBLISHABLE_KEY||env.SUPABASE_ANON_KEY||'').trim();
  if(!/^https:\/\/[^/]+\.supabase\.co$/.test(base)||!key)return {error:'Conexão administrativa não configurada.',status:503};
