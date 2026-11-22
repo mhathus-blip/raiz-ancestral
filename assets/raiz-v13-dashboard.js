@@ -203,5 +203,56 @@ window.addEventListener('raiz:admin-tests-unlocked',e=>{
  open(hash.startsWith('v13-')?hash.slice(4):names[hash]||'overview');
  refresh();
 });
+
+/* V13.6 — indicador líquido elástico inspirado nas transições do vídeo de referência.
+   Elemento decorativo: botões reais continuam acionáveis e acessíveis. */
+const liquidIndicator=node('span','v136-liquid-indicator');
+liquidIndicator.setAttribute('aria-hidden','true');
+nav.prepend(liquidIndicator);
+let liquidReady=false;
+function positionLiquidIndicator(){
+ const active=nav.querySelector('button[aria-current="page"]');
+ if(!active||app.hidden)return;
+ liquidIndicator.style.setProperty('--liquid-y',active.offsetTop+'px');
+ liquidIndicator.style.setProperty('--liquid-h',active.offsetHeight+'px');
+ liquidIndicator.style.setProperty('--liquid-w',active.offsetWidth+'px');
+ if(!liquidReady){
+  liquidIndicator.classList.add('v136-ready');
+  liquidReady=true;
+ }
+}
+const liquidObserver=new MutationObserver(()=>requestAnimationFrame(positionLiquidIndicator));
+liquidObserver.observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-current']});
+nav.addEventListener('pointermove',event=>{
+ const button=event.target.closest('button');
+ if(!button||!nav.contains(button))return;
+ const rect=button.getBoundingClientRect();
+ button.style.setProperty('--liquid-x',((event.clientX-rect.left)/rect.width*100).toFixed(1)+'%');
+ button.style.setProperty('--liquid-py',((event.clientY-rect.top)/rect.height*100).toFixed(1)+'%');
+});
+if(typeof ResizeObserver==='function')new ResizeObserver(positionLiquidIndicator).observe(nav);
+window.addEventListener('resize',positionLiquidIndicator,{passive:true});
+
+/* V13.8: reflexo especular acompanha o cursor sem animar o layout;
+   um único listener delegado, limitado a um frame de atualização. */
+let glassFrame=0,glassTarget=null,glassX=50,glassY=35;
+app.addEventListener('pointermove',event=>{
+ if(event.pointerType==='touch'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const panel=event.target.closest('.v13-card,.v13-kpi,.v131-product');
+ if(!panel||!app.contains(panel))return;
+ const box=panel.getBoundingClientRect();
+ if(!box.width||!box.height)return;
+ glassTarget=panel;
+ glassX=Math.max(0,Math.min(100,(event.clientX-box.left)/box.width*100));
+ glassY=Math.max(0,Math.min(100,(event.clientY-box.top)/box.height*100));
+ if(glassFrame)return;
+ glassFrame=requestAnimationFrame(()=>{
+  glassFrame=0;
+  if(glassTarget){
+   glassTarget.style.setProperty('--v138-x',glassX.toFixed(1)+'%');
+   glassTarget.style.setProperty('--v138-y',glassY.toFixed(1)+'%');
+  }
+ });
+},{passive:true});
 window.addEventListener('keydown',e=>{if(e.key==='Escape')app.classList.remove('v13-menu-open')});
 })();
