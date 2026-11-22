@@ -1174,7 +1174,7 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
   <div class="toolbar">
     <label>Buscar pelo nome<input id="raiz-prod-search" type="search" placeholder="Ex.: camomila, fertilizante"></label>
     <label for="raiz-prod-status-filter">Situação
-      <select id="raiz-prod-status-filter" aria-label="Filtrar produtos por situação"><option value="inativos">Inativos / Rascunhos</option><option value="ativos">Ativos / Publicados</option><option value="todos">Todos</option></select>
+      <select id="raiz-prod-status-filter" aria-label="Filtrar produtos por situação"><option value="inativos">Inativos / Rascunhos</option><option value="ativos">Ativos / Publicados</option><option value="todos">Todos</option><option value="suspeitos">⚠️ Suspeitos</option><option value="fantasmas">👻 Fantasmas</option></select>
     </label>
     <button type="button" id="raiz-prod-load">Buscar</button>
     <button type="button" id="raiz-prod-new" class="subtle">+ Novo produto</button>
@@ -2356,7 +2356,7 @@ async function load(){
    const row=document.createElement('div');row.className='prod-row';
    const info=document.createElement('div');info.className='meta';
    const name=document.createElement('b');name.textContent='#'+product.id+' — '+product.nome;
-   const desc=document.createElement('small');desc.textContent=(product.loja||'')+' · '+money(product.preco)+' · '+(product.ativo?'Ativo':'Inativo')+(product.destaque?' · Destaque':'');
+   const desc=document.createElement('small');desc.textContent=(product.loja||'')+' · '+money(product.preco)+' · '+(product.ativo?'Ativo':'Inativo')+(product.disponibilidade==='fantasma'?' · 👻 Fantasma':product.disponibilidade==='suspeito'?' · ⚠️ Suspeito':'')+(product.destaque?' · Destaque':'');
    info.append(name,desc);
    const edit=document.createElement('button');edit.type='button';edit.className='subtle';edit.textContent='Editar';
    edit.addEventListener('click',()=>show(product));
@@ -2953,4 +2953,5 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
 })();
 </script>
 <script defer src="/assets/raiz-oportunidades-admin.js"></script>
+<script defer src="/assets/raiz-fantasmas-admin.js"></script>
 </body></html>
