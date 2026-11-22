@@ -134,3 +134,16 @@ body.raiz-v13-active{overflow:hidden!important}
 @keyframes v131-card-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes v131-aurora{from{transform:translate(-10px,-12px)}to{transform:translate(26px,20px)}}
 @keyframes v131-logo-breathe{0%,100%{box-shadow:0 0 10px rgba(193,221,133,.18),inset 0 1px 10px rgba(247,241,194,.2)}50%{box-shadow:0 0 26px rgba(193,221,133,.37),inset 0 1px 13px rgba(247,241,194,.27)}}
+
+/* V13.2 — grade com rolagem própria e carregamento contínuo, sem paginação manual */
+#raiz-v13 .v131-scroll-area{max-height:min(66vh,690px);min-height:260px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:5px 9px 5px 4px;scrollbar-width:thin;scrollbar-color:#92b69a rgba(240,248,238,.75);scroll-behavior:smooth;border-radius:13px}
+#raiz-v13 .v131-scroll-area:focus-visible{outline:2px solid #6ba17b;outline-offset:2px}
+#raiz-v13 .v131-scroll-area::-webkit-scrollbar{width:9px}
+#raiz-v13 .v131-scroll-area::-webkit-scrollbar-thumb{background:linear-gradient(#a7cba5,#75a783);border-radius:8px}
+#raiz-v13 .v131-scroll-area::-webkit-scrollbar-track{background:rgba(239,248,232,.58);border-radius:8px}
+#raiz-v13 .v131-load-more{text-align:center;color:#5e8068;font-size:12px;padding:12px 6px 4px}
+#raiz-v13 #v131-sentinel{height:2px;pointer-events:none}
+#raiz-v13 .v131-bottom{margin-top:10px;justify-content:space-between;padding:0 6px}
+#raiz-v13 .v131-product{animation-duration:.3s}
+@media(max-width:650px){#raiz-v13 .v131-scroll-area{max-height:min(62vh,590px);min-height:210px;padding-right:4px}}
+@media(prefers-reduced-motion:reduce){#raiz-v13 .v131-scroll-area{scroll-behavior:auto}}

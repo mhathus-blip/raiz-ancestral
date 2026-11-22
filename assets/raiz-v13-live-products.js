@@ -7,10 +7,11 @@ const widget=document.createElement('section');widget.id='v131-live';widget.clas
 widget.innerHTML='<div class="v131-heading"><div><span class="v131-overline">✦ CATÁLOGO EM TEMPO REAL</span><h3>🌿 Painel vivo dos produtos</h3><p>Fotos, anúncios e edição direta do catálogo.</p></div><div class="v131-head-actions"><button type="button" data-live-refresh>↻ Atualizar</button><a href="/" target="_blank" rel="noopener noreferrer">↗ Abrir vitrine</a></div></div>'+
 '<div class="v131-tabs" role="tablist" aria-label="Visualizar produtos"><button type="button" role="tab" aria-selected="true" data-live-tab="recentes">🕒 Recentes</button><button type="button" role="tab" aria-selected="false" data-live-tab="maisclicados">📈 Mais clicados</button><button type="button" role="tab" aria-selected="false" data-live-tab="rascunhos">📝 Rascunhos</button><button type="button" role="tab" aria-selected="false" data-live-tab="sempreco">💰 Sem preço</button><button type="button" role="tab" aria-selected="false" data-live-tab="vitrine">🛍️ Vitrine pública</button></div>'+
 '<div class="v131-toolbar"><label for="v131-search">🔎 Buscar <input id="v131-search" type="search" maxlength="100" placeholder="Nome do produto..."></label><span id="v131-summary" role="status" aria-live="polite">Aguardando autenticação...</span></div>'+
-'<div class="v131-products" id="v131-products"></div><div class="v131-bottom"><button type="button" data-live-prev disabled>← Anterior</button><span id="v131-page">Página 1</span><button type="button" data-live-next disabled>Próxima →</button><button type="button" data-open="products">Gerenciar catálogo</button></div>';
+'<div class="v131-scroll-area" id="v131-scroll-area" tabindex="0" role="region" aria-label="Produtos com rolagem vertical"><div class="v131-products" id="v131-products"></div><div class="v131-load-more" id="v131-load-more" aria-live="polite">Role para carregar mais produtos</div><div id="v131-sentinel" aria-hidden="true"></div></div><div class="v131-bottom"><span id="v131-count">Produtos exibidos conforme você rola</span><button type="button" data-open="products">Gerenciar catálogo</button></div>';
 const anchor=overview.querySelector('.v13-grid');if(anchor)anchor.insertAdjacentElement('afterend',widget);else overview.append(widget);
 const el=id=>document.getElementById(id),grid=el('v131-products'),status=el('v131-summary'),search=el('v131-search');
-let token='',tab='recentes',page=1,next=false,serial=0;
+let token='',tab='recentes',page=1,next=false,serial=0,busy=false,shown=0;
+const scrollArea=el('v131-scroll-area'),loadMore=el('v131-load-more'),sentinel=el('v131-sentinel');
 const safe=s=>{try{const u=new URL(s);return u.protocol==='https:'&&!u.username&&!u.password&&u.hostname?u.href:null}catch{return null}};
 const text=(tag,value,klass)=>{const e=document.createElement(tag);e.textContent=String(value??'');if(klass)e.className=klass;return e};
 const money=value=>Number.isFinite(Number(value))&&Number(value)>0?Number(value).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Consultar preço na loja';
@@ -45,29 +46,48 @@ async function getPage(){
  if(search.value.trim())params.set('q',search.value.trim());
  return api('/api/produtos-admin?'+params);
 }
-async function load(){
- if(!token)return;
- const id=++serial;status.textContent='Consultando produtos...';grid.replaceChildren(text('p','Buscando anúncios...','v131-empty'));
- el('v131-page').textContent='Página '+page;el('v131-live').querySelector('[data-live-prev]').disabled=true;widget.querySelector('[data-live-next]').disabled=true;
- try{
-  const d=await getPage();if(id!==serial)return;
-  const products=Array.isArray(d.produtos)?d.produtos:[];
+async function load(reset=false){
+ if(!token||busy&&!reset)return;
+ if(reset){
+  serial++;page=1;next=true;shown=0;scrollArea.scrollTop=0;
   grid.replaceChildren();
-  for(const p of products)grid.append(card(p));
-  if(!products.length)grid.append(text('p',tab==='maisclicados'?'Nenhum produto com cliques nos últimos 30 dias.':'Nenhum produto corresponde aos filtros.','v131-empty'));
-  next=!!d.mais;
-  widget.querySelector('[data-live-prev]').disabled=page<=1;
-  widget.querySelector('[data-live-next]').disabled=!next;
-  status.textContent=products.length+' produto(s) · página '+page+(tab==='maisclicados'?' · ranking de 30 dias':'');
- }catch(err){if(id!==serial)return;grid.replaceChildren(text('p','Consulta indisponível: '+err.message,'v131-empty'));status.textContent='Falha na consulta'}
+ }
+ const ticket=serial;
+ if(!next)return;
+ busy=true;loadMore.textContent='Carregando mais produtos...';status.textContent='Consultando catálogo...';
+ try{
+  const d=await getPage();
+  if(ticket!==serial)return;
+  const products=Array.isArray(d.produtos)?d.produtos:[];
+  if(!products.length&&!shown)grid.append(text('p',tab==='maisclicados'?'Nenhum produto com cliques nos últimos 30 dias.':'Nenhum produto corresponde aos filtros.','v131-empty'));
+  const fragment=document.createDocumentFragment();
+  for(const p of products)fragment.append(card(p));
+  grid.append(fragment);
+  shown+=products.length;
+  next=!!d.mais&&products.length>0;
+  page++;
+  status.textContent=shown+' produto(s) exibido(s)'+(next?' · role para ver mais':' · fim da lista');
+  el('v131-count').textContent=shown+' produto(s) carregado(s)';
+  loadMore.textContent=next?'Role para carregar mais produtos':'✓ Todos os produtos desta seleção foram carregados';
+ }catch(err){
+  if(ticket!==serial)return;
+  loadMore.textContent='Falha ao carregar: '+err.message+'. Role novamente ou clique em Atualizar.';
+  status.textContent='Consulta interrompida após '+shown+' produtos';
+ }finally{
+  // Não liberar uma busca antiga para sobrescrever o estado de um novo filtro.
+  if(ticket===serial){busy=false;if(next&&scrollArea.scrollHeight<=scrollArea.clientHeight+100)queueMicrotask(()=>load());}
+ }
 }
+const observer=new IntersectionObserver(entries=>{
+ if(entries.some(e=>e.isIntersecting)&&token&&next&&!busy)load();
+},{root:scrollArea,rootMargin:'170px 0px',threshold:0});
+observer.observe(sentinel);
 widget.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
- if(b.dataset.liveTab){tab=b.dataset.liveTab;page=1;for(const item of widget.querySelectorAll('[data-live-tab]'))item.setAttribute('aria-selected',String(item===b));load();return}
- if(b.hasAttribute('data-live-prev')&&page>1){page--;load();return}
- if(b.hasAttribute('data-live-next')&&next){page++;load();return}
- if(b.hasAttribute('data-live-refresh'))load();
+ if(b.dataset.liveTab){tab=b.dataset.liveTab;for(const item of widget.querySelectorAll('[data-live-tab]'))item.setAttribute('aria-selected',String(item===b));load(true);return}
+ if(b.hasAttribute('data-live-refresh'))load(true);
 });
-let delay;search.addEventListener('input',()=>{clearTimeout(delay);delay=setTimeout(()=>{page=1;load()},340)});
-window.addEventListener('raiz:admin-tests-unlocked',event=>{token=String(event.detail?.accessToken||'');if(token)load()});
+let delay;search.addEventListener('input',()=>{clearTimeout(delay);delay=setTimeout(()=>load(true),340)});
+scrollArea.addEventListener('scroll',()=>{if(token&&next&&!busy&&scrollArea.scrollTop+scrollArea.clientHeight>=scrollArea.scrollHeight-190)load()},{passive:true});
+window.addEventListener('raiz:admin-tests-unlocked',event=>{token=String(event.detail?.accessToken||'');if(token)load(true)});
 })();
