@@ -1793,57 +1793,119 @@ const botao = elemento("a", "buy", textoBotao);
       <button type="submit" id="raiz-admin-submit">Entrar para testar</button>
       <p id="raiz-admin-status" class="raiz-admin-status" role="status" aria-live="polite"></p>
     </form>
-    <p style="font-size:12px;color:#69665b">Acesso permitido somente a contas autorizadas no Supabase. Testes alteram apenas esta tela.</p>
+    <section id="raiz-mfa-panel" hidden style="padding:12px 0">
+      <h3 style="font:700 19px Georgia,serif">🔐 Segunda etapa de segurança</h3>
+      <p id="raiz-mfa-instruction" style="font-size:13px">Digite o código do seu aplicativo autenticador.</p>
+      <div id="raiz-mfa-enrollment" hidden>
+        <p style="font-size:12px;color:#754e2f">Atenção: mesmo nesta prévia, cadastrar o autenticador altera a sua conta real do Supabase. Faça isso somente com acesso seguro ao seu celular.</p>
+        <button type="button" id="raiz-mfa-enroll" class="subtle">Configurar autenticador</button>
+        <div id="raiz-mfa-setup" hidden>
+          <p style="font-size:12px">Escaneie o QR code no Google ou Microsoft Authenticator. Se necessário, insira a chave manualmente.</p>
+          <img id="raiz-mfa-qr" alt="QR de configuração do autenticador" hidden style="max-width:200px;width:100%;margin:10px auto;background:white;padding:7px;border-radius:12px">
+          <label>Chave de configuração (não compartilhe)<input id="raiz-mfa-secret" type="text" readonly autocomplete="off" style="width:100%;font-family:monospace"></label>
+        </div>
+      </div>
+      <form id="raiz-mfa-code-form" hidden autocomplete="off">
+        <label for="raiz-mfa-code">Código de 6 dígitos</label>
+        <input id="raiz-mfa-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="000000">
+        <button type="submit" id="raiz-mfa-check">Verificar e entrar</button>
+      </form>
+      <p id="raiz-mfa-status" role="status" aria-live="polite"></p>
+      <button type="button" class="subtle" id="raiz-mfa-back">← Voltar ao login</button>
+    </section>
+    <p style="font-size:12px;color:#69665b">Acesso reservado a administradores autorizados.</p>
   </section>
 </div>
 <script>
-/* V12 etapa 4: autenticação via Supabase Auth e autorização por RPC controlada no banco.
-   Nunca usar o login da vitrine como proteção de escritas no Supabase: as políticas RLS
-   de cada tabela continuam obrigatórias. Nenhuma credencial é armazenada neste HTML. */
+/* V13 MFA: piloto de autenticação TOTP. Somente na branch de testes. */
 (function(){
-  const open=document.getElementById('raiz-admin-open');
-  const modal=document.getElementById('raiz-admin-modal');
-  const close=document.getElementById('raiz-admin-close');
-  const form=document.getElementById('raiz-admin-form');
-  const status=document.getElementById('raiz-admin-status');
-  const submit=document.getElementById('raiz-admin-submit');
-  if(!modal||!form)return;
-  function setModal(visible){
-    modal.hidden=!visible;
-    if(visible)document.getElementById('raiz-admin-email').focus();
-    else{form.reset();status.textContent='';}
-  }
-  // Login exclusivo da rota /admin/; não há botão no site público.
-  setModal(true);
-  // Sem fechar a tela de login antes de uma autorização válida.
-  form.addEventListener('submit',async e=>{
-    e.preventDefault();submit.disabled=true;status.textContent='Verificando acesso...';
-    const email=document.getElementById('raiz-admin-email').value.trim();
-    const password=document.getElementById('raiz-admin-password').value;
-    const apiKey=SUPABASE_KEY;
-    const base=SUPABASE_URL;
-    const timeout=AbortSignal.timeout(15000);
-    try{
-      // Sign-in uses only the project publishable key. Never embed a secret/service-role key.
-      const auth=await fetch(base+'/auth/v1/token?grant_type=password',{
-        method:'POST',headers:{'apikey':apiKey,'Content-Type':'application/json'},
-        body:JSON.stringify({email,password}),signal:timeout,cache:'no-store'
-      });
-      if(!auth.ok)throw new Error('Usuário, senha ou acesso não autorizado.');
-      const result=await auth.json();
-      if(typeof result.access_token!=='string')throw new Error('Login inválido.');
-      // Authorization is checked by Postgres using auth.uid(), not a client-side email list.
-      const verify=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{
-        method:'POST',headers:{apikey:apiKey,Authorization:'Bearer '+result.access_token,'Content-Type':'application/json'},
-        body:'{}',signal:timeout,cache:'no-store'
-      });
-      if(!verify.ok)throw new Error('Verificação de administrador indisponível. Configure a função segura no Supabase.');
-      if(await verify.json()!==true)throw new Error('Esta conta não está autorizada como administradora.');
-      window.dispatchEvent(new CustomEvent('raiz:admin-tests-unlocked',{detail:{accessToken:result.access_token}}));
-      setModal(false);
-    }catch(err){status.textContent=err.message||'Não foi possível autorizar o acesso.'}
-    finally{submit.disabled=false;document.getElementById('raiz-admin-password').value=''}
-  });
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const modal=$('raiz-admin-modal'),form=$('raiz-admin-form'),panel=$('raiz-mfa-panel');
+ const status=$('raiz-admin-status'),feedback=$('raiz-mfa-status'),submit=$('raiz-admin-submit');
+ const enrollArea=$('raiz-mfa-enrollment'),setup=$('raiz-mfa-setup'),codeForm=$('raiz-mfa-code-form');
+ if(!modal||!form||!panel)return;
+ let token='',factor='',pending=false;
+ const base=SUPABASE_URL,key=SUPABASE_KEY;
+ const headers=t=>({apikey:key,Authorization:'Bearer '+t,'Content-Type':'application/json'});
+ function assurance(t){
+  try{return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).aal||'aal1'}catch{return 'aal1'}
+ }
+ async function auth(path,method='GET',body){
+  const res=await fetch(base+'/auth/v1'+path,{method,headers:headers(token),body:body===undefined?undefined:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(15000)});
+  if(!res.ok)throw Error('Verificação indisponível (HTTP '+res.status+').');
+  return await res.json();
+ }
+ function back(){
+  token='';factor='';pending=false;feedback.textContent='';$('raiz-mfa-code').value='';
+  $('raiz-mfa-secret').value='';$('raiz-mfa-qr').removeAttribute('src');
+  setup.hidden=true;enrollArea.hidden=true;codeForm.hidden=true;panel.hidden=true;form.hidden=false;
+  $('raiz-admin-password').value='';status.textContent='';$('raiz-admin-email').focus();
+ }
+ function grant(t){
+  if(assurance(t)!=='aal2')throw Error('Segundo fator ainda não verificado (AAL2 obrigatório).');
+  token='';factor='';panel.hidden=true;modal.hidden=true;form.reset();
+  window.dispatchEvent(new CustomEvent('raiz:admin-tests-unlocked',{detail:{accessToken:t}}));
+ }
+ async function login(e){
+  e.preventDefault();if(pending)return;
+  pending=true;submit.disabled=true;status.textContent='Validando conta...';
+  try{
+   const res=await fetch(base+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({email:$('raiz-admin-email').value.trim(),password:$('raiz-admin-password').value}),cache:'no-store',signal:AbortSignal.timeout(15000)});
+   if(!res.ok)throw Error('Conta ou senha inválida.');
+   const session=await res.json();token=session.access_token;
+   if(!token)throw Error('Sessão inválida.');
+   const chk=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{method:'POST',headers:headers(token),body:'{}',cache:'no-store',signal:AbortSignal.timeout(15000)});
+   if(!chk.ok||await chk.json()!==true)throw Error('Conta não autorizada como administradora.');
+   if(assurance(token)==='aal2'){grant(token);return}
+   const user=await auth('/user');
+   const factors=Array.isArray(user.factors)?user.factors:[];
+   const found=factors.find(f=>f.factor_type==='totp'&&f.status==='verified');
+   panel.hidden=false;form.hidden=true;status.textContent='';
+   if(found){
+    factor=found.id;enrollArea.hidden=true;codeForm.hidden=false;
+    $('raiz-mfa-instruction').textContent='Digite os seis dígitos do aplicativo para acessar o painel.';
+    $('raiz-mfa-code').focus();
+   }else{
+    enrollArea.hidden=false;codeForm.hidden=true;
+    $('raiz-mfa-instruction').textContent='Nenhum fator TOTP cadastrado. Configure o aplicativo para testar o acesso protegido.';
+   }
+  }catch(err){token='';status.textContent=err.message||'Falha de login.'}
+  finally{pending=false;submit.disabled=false;$('raiz-admin-password').value=''}
+ }
+ async function startEnrollment(){
+  if(!token||pending)return;pending=true;$('raiz-mfa-enroll').disabled=true;feedback.textContent='Criando configuração...';
+  try{
+   const result=await auth('/factors','POST',{factor_type:'totp',friendly_name:'Raiz Ancestral ADM'});
+   if(!result.id||!result.totp?.secret)throw Error('O Supabase não retornou os dados do autenticador.');
+   factor=result.id;$('raiz-mfa-secret').value=result.totp.secret;
+   const qr=String(result.totp.qr_code||'');
+   if(qr.startsWith('data:image/svg+xml')||qr.startsWith('data:image/png;base64,')){
+    $('raiz-mfa-qr').src=qr;$('raiz-mfa-qr').hidden=false;
+   }
+   setup.hidden=false;codeForm.hidden=false;feedback.textContent='Digite o código do aplicativo para concluir.';
+  }catch(err){feedback.textContent=err.message||'Não foi possível iniciar MFA.'}
+  finally{pending=false;$('raiz-mfa-enroll').disabled=false}
+ }
+ async function verify(e){
+  e.preventDefault();if(!token||!factor||pending)return;
+  const code=$('raiz-mfa-code').value.trim();
+  if(!/^[0-9]{6}$/.test(code)){feedback.textContent='Informe os 6 dígitos.';return}
+  pending=true;$('raiz-mfa-check').disabled=true;feedback.textContent='Validando código...';
+  try{
+   const challenge=await auth('/factors/'+encodeURIComponent(factor)+'/challenge','POST',{});
+   if(!challenge.id)throw Error('Desafio MFA inválido.');
+   const verified=await auth('/factors/'+encodeURIComponent(factor)+'/verify','POST',{challenge_id:challenge.id,code});
+   if(!verified.access_token)throw Error('Token de segundo fator não retornado.');
+   grant(verified.access_token);
+  }catch(err){feedback.textContent=err.message||'Código inválido ou expirado.'}
+  finally{pending=false;$('raiz-mfa-check').disabled=false;$('raiz-mfa-code').value=''}
+ }
+ modal.hidden=false;form.hidden=false;panel.hidden=true;
+ form.addEventListener('submit',login);
+ $('raiz-mfa-enroll').addEventListener('click',startEnrollment);
+ codeForm.addEventListener('submit',verify);
+ $('raiz-mfa-back').addEventListener('click',back);
 })();
 </script>
 <script>
