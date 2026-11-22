@@ -18,18 +18,18 @@ O administrador pesquisa oportunidades de anúncios na Shopee, recebe sugestões
 - Sugestão de produto ≠ confirmação de identidade; marca, peso, variação, prazo, frete e preço exigem revisão.
 
 ## Arquivos
-- `supabase/migrations/20261121_raiz_oportunidades_admin.sql`: tabela privada com políticas RLS para administrador. **NÃO EXECUTADA**.
+- `supabase/migrations/20261121_raiz_oportunidades_admin.sql`: tabela privada com políticas RLS para administrador. **APLICADA EM 21/11/2026**, confirmada no Supabase (RLS ativa, 3 políticas, 0 oportunidades, 153 produtos preservados).
 - `functions/api/oportunidades-admin.js`: GET/POST/PATCH, sempre valida JWT e `is_raiz_admin`.
 - `assets/raiz-oportunidades-admin.js`: central privada de triagem.
 - `functions/api/shopee-sugestoes.js`: inclui link oficial de afiliado, somente se domínio Shopee autorizado.
 - `admin/index.html`: carrega o módulo novo sem alterar login existente.
 
 ## Ativação — exige aprovação separada
-1. Revisar SQL, políticas e custos no Supabase e aplicar a migration com ferramenta adequada.
+1. Concluído: estrutura da fila aplicada no Supabase e validação estática das políticas RLS.
 2. Validar login e permissões da tabela com conta autorizada e anônima.
 3. Verificar a integração real da Shopee com consulta a produto de teste e links HTTPS válidos.
 4. Testar cadastro de rascunho, rejeição, duplicatas e ausência de preço.
-5. Publicar a branch depois do aceite do proprietário; verificar Cloudflare e funcionamento no navegador.
+5. Publicar o módulo aprovado no painel; verificar a implantação na Cloudflare e validar o funcionamento em sessão autenticada.
 6. Para rastreio 24/7, configurar futuramente Workers Cron e fonte oficial com limites de consulta, controle de custo e credenciais protegidas.
 
 **Nenhum dado existente da tabela produtos foi modificado nesta etapa.**
