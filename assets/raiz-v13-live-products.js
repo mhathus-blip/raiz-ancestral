@@ -37,9 +37,12 @@ async function getPage(){
  if(tab==='maisclicados'){
   const d=await api('/api/painel-resumo?dias=30');
   const ids=(d.dados?.top_produtos||[]).map(p=>Number(p.id)).filter(i=>Number.isSafeInteger(i)&&i>0);
-  const subset=ids.slice((page-1)*6,page*6);
-  const products=await Promise.allSettled(subset.map(id=>api('/api/produtos-admin?id='+id)));
-  return {produtos:products.filter(p=>p.status==='fulfilled'&&p.value.produto).map(p=>p.value.produto),mais:ids.length>page*6};
+  const products=await Promise.allSettled(ids.map(id=>api('/api/produtos-admin?id='+id)));
+  const term=search.value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+  const found=products.filter(p=>p.status==='fulfilled'&&p.value.produto).map(p=>p.value.produto)
+   .filter(p=>!term||String(p.nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').includes(term));
+  const start=(page-1)*6;
+  return {produtos:found.slice(start,start+6),mais:found.length>start+6};
  }
  const params=new URLSearchParams({page:String(page),page_size:'6',estado:tab==='rascunhos'?'inativos':tab==='vitrine'?'ativos':'todos'});
  if(tab==='sempreco')params.set('preco','sem');
@@ -54,7 +57,7 @@ async function load(reset=false){
  }
  const ticket=serial;
  if(!next)return;
- busy=true;loadMore.textContent='Carregando mais produtos...';status.textContent='Consultando catálogo...';
+ busy=true;let succeeded=false;loadMore.textContent='Carregando mais produtos...';status.textContent='Consultando catálogo...';
  try{
   const d=await getPage();
   if(ticket!==serial)return;
@@ -66,6 +69,7 @@ async function load(reset=false){
   shown+=products.length;
   next=!!d.mais&&products.length>0;
   page++;
+  succeeded=true;
   status.textContent=shown+' produto(s) exibido(s)'+(next?' · role para ver mais':' · fim da lista');
   el('v131-count').textContent=shown+' produto(s) carregado(s)';
   loadMore.textContent=next?'Role para carregar mais produtos':'✓ Todos os produtos desta seleção foram carregados';
@@ -75,7 +79,7 @@ async function load(reset=false){
   status.textContent='Consulta interrompida após '+shown+' produtos';
  }finally{
   // Não liberar uma busca antiga para sobrescrever o estado de um novo filtro.
-  if(ticket===serial){busy=false;if(next&&scrollArea.scrollHeight<=scrollArea.clientHeight+100)queueMicrotask(()=>load());}
+  if(ticket===serial){busy=false;if(succeeded&&next&&scrollArea.scrollHeight<=scrollArea.clientHeight+100)queueMicrotask(()=>load());}
  }
 }
 const observer=new IntersectionObserver(entries=>{
