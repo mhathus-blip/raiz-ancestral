@@ -1,5 +1,6 @@
 -- Raiz Ancestral V12.5 — fila privada de oportunidades.
--- APLICAR SOMENTE APÓS REVISÃO. Não publica produtos nem ativa promoções.
+-- Aplicada em 2026-11-21 via Supabase MCP; arquivo mantido para versionamento.
+-- Não publica produtos nem ativa promoções.
 begin;
 create table if not exists public.raiz_oportunidades (
   id bigint generated always as identity primary key,
