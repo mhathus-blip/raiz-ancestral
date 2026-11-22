@@ -1858,8 +1858,14 @@ const botao = elemento("a", "buy", textoBotao);
   setup.hidden=true;enrollArea.hidden=true;codeForm.hidden=true;$('raiz-mfa-postverify').hidden=true;panel.hidden=true;form.hidden=false;
   $('raiz-admin-password').value='';status.textContent='';$('raiz-admin-email').focus();
  }
- function grant(t){
+ async function grant(t){
   if(assurance(t)!=='aal2')throw Error('Segundo fator ainda não verificado (AAL2 obrigatório).');
+  // Admin is verified only AFTER MFA, allowing server-side is_raiz_admin() to
+  // require aal2 without blocking the authentication/enrollment flow.
+  const check=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{
+   method:'POST',headers:headers(t),body:'{}',cache:'no-store',signal:AbortSignal.timeout(15000)
+  });
+  if(!check.ok||await check.json()!==true)throw Error('Conta não autorizada como administradora ou MFA não confirmado.');
   token='';factor='';backupMode=false;panel.hidden=true;modal.hidden=true;form.reset();
   window.dispatchEvent(new CustomEvent('raiz:admin-tests-unlocked',{detail:{accessToken:t}}));
  }
@@ -1880,9 +1886,9 @@ const botao = elemento("a", "buy", textoBotao);
    if(!res.ok)throw Error('Conta ou senha inválida.');
    const session=await res.json();token=session.access_token;
    if(!token)throw Error('Sessão inválida.');
-   const chk=await fetch(base+'/rest/v1/rpc/is_raiz_admin',{method:'POST',headers:headers(token),body:'{}',cache:'no-store',signal:AbortSignal.timeout(15000)});
-   if(!chk.ok||await chk.json()!==true)throw Error('Conta não autorizada como administradora.');
-   if(assurance(token)==='aal2'){grant(token);return}
+   // First-factor sessions cannot access the ADM. Authorization is checked
+   // only by grant() after TOTP so backend can enforce aal2.
+   if(assurance(token)==='aal2'){await grant(token);return}
    const user=await auth('/user');
    const factors=Array.isArray(user.factors)?user.factors:[];
    const found=factors.find(f=>f.factor_type==='totp'&&f.status==='verified');
@@ -1928,7 +1934,7 @@ const botao = elemento("a", "buy", textoBotao);
    if(backupMode){
     backupMode=false;
     feedback.textContent='Autenticador reserva cadastrado e verificado. Acesso liberado.';
-    grant(verified.access_token);
+    await grant(verified.access_token);
    }else onVerified(verified.access_token);
   }catch(err){feedback.textContent=err.message||'Código inválido ou expirado.'}
   finally{pending=false;$('raiz-mfa-check').disabled=false;$('raiz-mfa-code').value=''}
@@ -1945,7 +1951,12 @@ const botao = elemento("a", "buy", textoBotao);
    $('raiz-mfa-instruction').textContent='Cadastre o segundo autenticador em outro dispositivo seguro.';
    feedback.textContent='Clique em Configurar autenticador para adicionar a reserva.';
  });
- $('raiz-mfa-enter-now').addEventListener('click',()=>{if(token)grant(token)});
+ $('raiz-mfa-enter-now').addEventListener('click',async()=>{
+   if(!token||pending)return;
+   pending=true;$('raiz-mfa-enter-now').disabled=true;feedback.textContent='Confirmando permissão administrativa...';
+   try{await grant(token)}catch(err){feedback.textContent=err.message||'Não foi possível liberar o painel.'}
+   finally{pending=false;$('raiz-mfa-enter-now').disabled=false}
+ });
  $('raiz-mfa-back').addEventListener('click',back);
 })();
 </script>
