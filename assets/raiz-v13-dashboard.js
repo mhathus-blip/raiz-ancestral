@@ -203,5 +203,35 @@ window.addEventListener('raiz:admin-tests-unlocked',e=>{
  open(hash.startsWith('v13-')?hash.slice(4):names[hash]||'overview');
  refresh();
 });
+
+/* V13.6 — indicador líquido elástico inspirado nas transições do vídeo de referência.
+   Elemento decorativo: botões reais continuam acionáveis e acessíveis. */
+const liquidIndicator=node('span','v136-liquid-indicator');
+liquidIndicator.setAttribute('aria-hidden','true');
+nav.prepend(liquidIndicator);
+let liquidReady=false;
+function positionLiquidIndicator(){
+ const active=nav.querySelector('button[aria-current="page"]');
+ if(!active||app.hidden)return;
+ liquidIndicator.style.setProperty('--liquid-y',active.offsetTop+'px');
+ liquidIndicator.style.setProperty('--liquid-h',active.offsetHeight+'px');
+ liquidIndicator.style.setProperty('--liquid-w',active.offsetWidth+'px');
+ if(!liquidReady){
+  liquidIndicator.classList.add('v136-ready');
+  liquidReady=true;
+ }
+}
+const liquidObserver=new MutationObserver(()=>requestAnimationFrame(positionLiquidIndicator));
+liquidObserver.observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-current']});
+nav.addEventListener('pointermove',event=>{
+ const button=event.target.closest('button');
+ if(!button||!nav.contains(button))return;
+ const rect=button.getBoundingClientRect();
+ button.style.setProperty('--liquid-x',((event.clientX-rect.left)/rect.width*100).toFixed(1)+'%');
+ button.style.setProperty('--liquid-py',((event.clientY-rect.top)/rect.height*100).toFixed(1)+'%');
+});
+if(typeof ResizeObserver==='function')new ResizeObserver(positionLiquidIndicator).observe(nav);
+window.addEventListener('resize',positionLiquidIndicator,{passive:true});
+
 window.addEventListener('keydown',e=>{if(e.key==='Escape')app.classList.remove('v13-menu-open')});
 })();
