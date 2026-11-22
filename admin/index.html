@@ -2604,7 +2604,7 @@ by('raiz-prod-find-image').addEventListener('click',()=>{
 by('raiz-prod-suggest').addEventListener('click',async()=>{
  const info=by('raiz-prod-suggest-status'),list=by('raiz-prod-suggest-list');
  const name=String(form.elements.namedItem('nome').value||'').trim();
- if(name.length<6){info.textContent='Escreva primeiro o nome do produto (mínimo 6 caracteres).';return}
+ if(name.length<2){info.textContent='Digite pelo menos 2 caracteres para buscar produtos na Shopee.';return}
  const button=by('raiz-prod-suggest');
  button.disabled=true;list.replaceChildren();info.textContent='Consultando a API Shopee...';
  try{
