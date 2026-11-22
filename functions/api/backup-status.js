@@ -41,6 +41,7 @@ export async function onRequestGet({request,env}){
   if(!banco?.monitor_ativo)alertas.push("Uma ou mais rotinas de backup estão desativadas.");
   if(!diario||days(diario.dia,hoje)>1)alertas.push("O arquivo diário externo está atrasado.");
   if(!quinzenal||days(quinzenal.dia,hoje)>16)alertas.push("O arquivo quinzenal externo está atrasado.");
+  if(!auditoria && (hoje>"2026-11-23" || (hoje==="2026-11-23"&&Number(new Intl.DateTimeFormat("en-US",{timeZone:"America/Sao_Paulo",hour:"2-digit",hour12:false}).format(new Date()))>=5)))alertas.push("A auditoria programada ainda não registrou resultados.");
   if(auditoria?.status==="falha")alertas.push("A auditoria encontrou falha na execução dos backups.");
   if(auditoria?.dia&&days(auditoria.dia,hoje)>1)alertas.push("A verificação diária está atrasada.");
   return respond({ok:true,situacao:alertas.length?"atencao":"normal",alertas,
