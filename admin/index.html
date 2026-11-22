@@ -1064,6 +1064,12 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
 #raiz-gerenciar-produtos .raiz-prod-list-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 #raiz-gerenciar-produtos .raiz-prod-list-heading h3{margin:0;font:700 19px Georgia,serif;color:#23452d}
 #raiz-gerenciar-produtos .raiz-prod-list-heading span{font-size:12px;color:#5c6b52}
+/* V13.16 — atualização rápida da lista de produtos do ADM */
+#raiz-gerenciar-produtos #raiz-prod-refresh-list{margin-left:auto!important;padding:7px 13px!important;min-height:32px!important;border-radius:20px!important;font-size:12px!important;white-space:nowrap;background:rgba(56,104,65,.09)!important;border:1px solid rgba(54,99,61,.2)!important;color:#285536!important;transition:background .2s ease,box-shadow .2s ease}
+#raiz-gerenciar-produtos #raiz-prod-refresh-list:hover:not(:disabled){background:rgba(56,104,65,.17)!important;box-shadow:0 2px 8px rgba(16,60,29,.1)}
+#raiz-gerenciar-produtos #raiz-prod-refresh-list:disabled{opacity:.58;cursor:progress}
+@media(max-width:650px){#raiz-gerenciar-produtos #raiz-prod-refresh-list{margin-left:0!important}}
+
 #raiz-gerenciar-produtos .raiz-prod-list-wrapper .actions{margin:10px 0!important}
 @media(max-width:650px){#raiz-gerenciar-produtos{padding:12px!important}#raiz-gerenciar-produtos #raiz-prod-form:not([hidden]){padding:10px!important}}
 </style>
@@ -1231,7 +1237,7 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
     <p style="font-size:12px;color:#746752">Novos produtos são salvos conforme a visibilidade selecionada. Para ativar no primeiro cadastro, confira os dados, a imagem HTTPS e confirme a publicação. O padrão continua Inativo / Rascunho.</p>
   </form>
   <div class="raiz-prod-list-wrapper" aria-label="Lista dos produtos cadastrados">
-    <div class="raiz-prod-list-heading"><h3>📋 Produtos cadastrados</h3><span>Escolha “Editar” para preencher o formulário acima.</span></div>
+    <div class="raiz-prod-list-heading"><h3>📋 Produtos cadastrados</h3><span>Escolha “Editar” para preencher o formulário acima.</span><button type="button" id="raiz-prod-refresh-list" class="subtle" title="Recarregar somente a lista de produtos cadastrados" aria-label="Atualizar lista de produtos cadastrados">↻ Atualizar lista</button></div>
   <div id="raiz-prod-list"></div>
   <div class="actions"><button type="button" id="raiz-prod-prev" class="subtle">← Anterior</button><span id="raiz-prod-page" style="align-self:center">Página 1</span><button type="button" id="raiz-prod-next" class="subtle">Próxima →</button></div>
   </div>
@@ -2403,7 +2409,7 @@ async function api(method,data,query=''){
  return result;
 }
 function freeze(state){
- working=state;for(const id of ['raiz-prod-load','raiz-prod-new','raiz-prod-save','raiz-prod-prev','raiz-prod-next'])by(id).disabled=state;
+ working=state;for(const id of ['raiz-prod-load','raiz-prod-new','raiz-prod-save','raiz-prod-prev','raiz-prod-next','raiz-prod-refresh-list'])by(id).disabled=state;
 }
 async function load(){
  if(!token||working)return;
@@ -2452,6 +2458,8 @@ function show(product){
  form.hidden=false;updateReview();dupSchedule();form.scrollIntoView({behavior:'smooth',block:'start'});
 }
 by('raiz-prod-load').addEventListener('click',()=>{page=1;load()});
+// Recarrega somente os produtos cadastrados, preservando página, busca e situação.
+by('raiz-prod-refresh-list').addEventListener('click',()=>{void load()});
 by('raiz-prod-search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();page=1;load()}});
 by('raiz-prod-status-filter').addEventListener('change',()=>{page=1;form.hidden=true;editing=null;load()});
 window.addEventListener('raiz:admin-open-product',async event=>{
