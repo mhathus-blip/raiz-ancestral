@@ -1259,7 +1259,12 @@ a.raiz-botao-loja.raiz-botao-loja-claro {color:#202020 !important;text-shadow:no
     }
     function aplicarCorBotaoLoja(botao, produto) {
       botao.classList.add("raiz-botao-loja");
-      botao.style.setProperty("--raiz-cor-loja", corBotaoLoja(produto));
+      const cor = corBotaoLoja(produto);
+      botao.style.setProperty("--raiz-cor-loja", cor);
+      // Aplicar diretamente no elemento para prevalecer sobre temas e estilos legados.
+      botao.style.setProperty("background", "linear-gradient(155deg, rgba(255,255,255,.36) 0%, transparent 38%), linear-gradient(180deg, " + cor + ", " + cor + ")", "important");
+      botao.style.setProperty("background-color", cor, "important");
+      botao.style.setProperty("border-color", cor, "important");
       if (/mercado livre/.test(normalizarBusca(nomeLojaParceira(produto)))) botao.classList.add("raiz-botao-loja-claro");
     }
     function linkSeguro(produto) {
