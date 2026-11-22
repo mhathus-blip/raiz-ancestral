@@ -1112,6 +1112,14 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
    <button type="button" id="raiz-auto-backup-json" style="font-weight:700">💾 Baixar backup completo dos produtos (JSON)</button>
    <span id="raiz-auto-backup-status" role="status" aria-live="polite" style="font-size:12px;color:#385b3c">Exportação manual, somente após login; não altera o banco.</span>
  </div>
+ <section id="raiz-backup-monitor" hidden aria-label="Monitoramento dos backups" style="margin:12px 0 16px;padding:14px 16px;border:1px solid #9dbbad;border-radius:14px;background:#edf5ec;color:#254937">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+   <strong>🛡️ Monitoramento automático de backups</strong>
+   <button type="button" id="raiz-backup-monitor-refresh" style="padding:7px 12px">Atualizar status</button>
+  </div>
+  <p id="raiz-backup-monitor-status" role="status" aria-live="polite" style="margin:10px 0 5px">Aguardando verificação...</p>
+  <small id="raiz-backup-monitor-detail" style="display:block;line-height:1.6"></small>
+ </section>
  <div class="raiz-auto-grid">
   <article class="raiz-auto-card"><h3>📅 Calendário automático</h3><p>11 datas temáticas, incluindo Black Friday, Natal, Dia das Mães e aniversário da Raiz Ancestral, com decorações por data.</p><button type="button" id="raiz-auto-restaurar">Usar data atual e modo automático</button></article>
   <article class="raiz-auto-card"><h3>🎨 Simulador de campanhas</h3><p>Escolha uma comemoração e simule uma data na barra administrativa. Teste a contagem regressiva, a decoração e a vitrine temática.</p><button type="button" id="raiz-auto-simular">Abrir simulador de datas</button></article>
@@ -3173,6 +3181,52 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
    }catch(error){message.textContent='Erro ao exportar: '+(error?.message||'Tente novamente.');}
    finally{button.disabled=!token;}
  });
+})();
+</script>
+<script>
+/* Monitor de backup: apenas sessão admin com MFA; alerta visual se houver falha. */
+(function(){
+ 'use strict';
+ const root=document.getElementById('raiz-backup-monitor');
+ const status=document.getElementById('raiz-backup-monitor-status');
+ const details=document.getElementById('raiz-backup-monitor-detail');
+ const refresh=document.getElementById('raiz-backup-monitor-refresh');
+ if(!root||!status||!details||!refresh)return;
+ let token='',pending=false;
+ const format=d=>{
+  if(!d)return 'Ainda não disponível';
+  const date=new Date(d);
+  return Number.isFinite(date.getTime())?date.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):String(d);
+ };
+ async function check(){
+  if(!token||pending)return;
+  pending=true;refresh.disabled=true;status.textContent='Verificando cópias internas e externas...';
+  try{
+   const resp=await fetch('/api/backup-status',{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(18000)});
+   const x=await resp.json();
+   if(!resp.ok||!x.ok)throw Error(x.erro||'Falha na consulta de segurança.');
+   const warn=x.situacao==='atencao';
+   root.style.background=warn?'#fff2e8':'#edf5ec';
+   root.style.borderColor=warn?'#d59058':'#9dbbad';
+   root.style.color=warn?'#733716':'#254937';
+   status.textContent=warn?'⚠️ Atenção: '+x.alertas.join(' | '):'✅ Arquivos externos presentes; rotinas de backup ativas.';
+   details.textContent='R2 diário: '+(x.r2_diario?.dia||'não encontrado')+
+     ' · R2 quinzenal: '+(x.r2_quinzenal?.dia||'não encontrado')+
+     ' · Auditoria: '+(x.ultima_auditoria?(x.ultima_auditoria.status+' em '+x.ultima_auditoria.dia):'primeira execução prevista para 04h00')+
+     ' · Agendamentos ativos: '+x.agendamentos_ativos+'/4.';
+  }catch(e){
+   root.style.background='#fff2e8';root.style.borderColor='#d59058';root.style.color='#733716';
+   status.textContent='⚠️ Não foi possível verificar a saúde dos backups.';
+   details.textContent=(e.message||'Erro de rede')+' Verifique novamente ou consulte o Cloudflare e Supabase.';
+  }finally{pending=false;refresh.disabled=false}
+ }
+ window.addEventListener('raiz:admin-tests-unlocked',e=>{
+  token=String(e.detail?.accessToken||'');
+  if(!token)return;
+  root.hidden=false;check();
+ });
+ refresh.addEventListener('click',check);
+ setInterval(()=>{if(!document.hidden&&token)check()},10*60*1000);
 })();
 </script>
 <script defer src="/assets/raiz-oportunidades-admin.js"></script>
