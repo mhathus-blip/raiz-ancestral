@@ -1047,6 +1047,18 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
 @media(max-width:1100px){.site-header .menu .raiz-visitas-publicas{min-width:105px;padding:6px 8px}}
 @media(max-width:760px){.site-header .menu .raiz-visitas-publicas{width:100%;max-width:230px;flex-direction:row;align-items:center;justify-content:space-around;gap:10px;margin:4px auto 0;padding:7px 10px}.site-header .menu .raiz-visitas-numeros{gap:9px}}
 </style>
+<style>
+/* Identidade visual por afiliado: preservar o relevo e reflexo Liquid Glass. */
+a.raiz-botao-loja {
+  background: linear-gradient(160deg, rgba(255,255,255,.36) 0%, transparent 35%), linear-gradient(180deg, color-mix(in srgb, var(--raiz-cor-loja) 78%, white), var(--raiz-cor-loja) 62%, color-mix(in srgb, var(--raiz-cor-loja) 78%, black)) !important;
+  border: 1px solid color-mix(in srgb, var(--raiz-cor-loja) 72%, white) !important;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.45), inset 0 -3px 5px rgba(0,0,0,.13), 0 5px 14px color-mix(in srgb, var(--raiz-cor-loja) 30%, transparent) !important;
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+a.raiz-botao-loja:hover {filter:brightness(1.08);transform:translateY(-1px)}
+a.raiz-botao-loja.raiz-botao-loja-claro {color:#202020 !important;text-shadow:none}
+</style>
 </head>
 <body>
 <a href="#catalogo" class="raiz-pular-catalogo">Pular diretamente para os produtos</a>
@@ -1230,6 +1242,26 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
       if (identificador === "magalu" || identificador === "magazine luiza") return "Consultar preço no Magalu ↗";
       return "Consultar preço na loja ↗";
     }
+    // Cores automáticas dos botões de saída por loja parceira.
+    // Para novas afiliações, acrescente uma entrada no mapa; lojas desconhecidas usam verde.
+    function corBotaoLoja(produto) {
+      const nome = normalizarBusca(nomeLojaParceira(produto));
+      const cores = [
+        [/shopee/, "#ee4d2d"],
+        [/amazon/, "#176b46"],
+        [/magalu|magazine luiza/, "#087bd9"],
+        [/mercado livre/, "#ffe600"],
+        [/americanas/, "#e52b35"],
+        [/casas bahia/, "#2457c5"],
+        [/aliexpress/, "#e43225"]
+      ];
+      return (cores.find(([padrao]) => padrao.test(nome)) || [null, "#176b46"])[1];
+    }
+    function aplicarCorBotaoLoja(botao, produto) {
+      botao.classList.add("raiz-botao-loja");
+      botao.style.setProperty("--raiz-cor-loja", corBotaoLoja(produto));
+      if (/mercado livre/.test(normalizarBusca(nomeLojaParceira(produto)))) botao.classList.add("raiz-botao-loja-claro");
+    }
     function linkSeguro(produto) {
       try { const url = new URL(produto.link_afiliado); return url.protocol === "https:" ? url.href : null; }
       catch { return null; }
@@ -1322,6 +1354,7 @@ body[data-season="christmas"] .season-banner .season-inner {position:relative;z-
       const link = linkSeguro(produto);
       if (link) {
         const comprar = elemento("a", "primary", textoLinkParceiro(produto));
+        aplicarCorBotaoLoja(comprar, produto);
         comprar.href = link; comprar.target = "_blank"; comprar.rel = "sponsored noopener noreferrer";
         comprar.addEventListener("click", () => window.raizRegistrarSaidaLoja?.(produto.id));
         info.append(comprar);
@@ -1593,6 +1626,7 @@ conteudo.append(elemento("p", "price", textoPreco));
               const textoBotao = textoLinkParceiro(produto);
 
 const botao = elemento("a", "buy", textoBotao);
+              aplicarCorBotaoLoja(botao, produto);
               botao.href = url.href;
               botao.target = "_blank";
               botao.rel = "sponsored noopener noreferrer";
