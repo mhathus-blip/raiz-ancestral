@@ -254,5 +254,40 @@ app.addEventListener('pointermove',event=>{
   }
  });
 },{passive:true});
+/* V13.9 — tilt 3D rastreado com um único RAF, sem alterar o layout.
+   Nunca interfere em clique, digitação, rolagem ou dispositivos de toque. */
+const tiltQuery='.v131-product,.v13-kpi,.v13-quick,.v138-category-chips button';
+let tiltNode=null,tiltFrame=0,tiltRX=0,tiltRY=0;
+const tiltAvailable=()=>window.matchMedia('(hover:hover) and (pointer:fine)').matches&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+app.addEventListener('pointermove',event=>{
+ if(!tiltAvailable())return;
+ const target=event.target.closest(tiltQuery);
+ if(!target||!app.contains(target))return;
+ if(tiltNode&&tiltNode!==target){
+  tiltNode.style.removeProperty('--v139-rx');
+  tiltNode.style.removeProperty('--v139-ry');
+ }
+ tiltNode=target;
+ const rect=target.getBoundingClientRect();
+ if(!rect.width||!rect.height)return;
+ const x=(event.clientX-rect.left)/rect.width-.5;
+ const y=(event.clientY-rect.top)/rect.height-.5;
+ tiltRX=Math.max(-5,Math.min(5,-y*10));
+ tiltRY=Math.max(-6,Math.min(6,x*12));
+ if(tiltFrame)return;
+ tiltFrame=requestAnimationFrame(()=>{
+  tiltFrame=0;
+  if(tiltNode){
+   tiltNode.style.setProperty('--v139-rx',tiltRX.toFixed(2)+'deg');
+   tiltNode.style.setProperty('--v139-ry',tiltRY.toFixed(2)+'deg');
+  }
+ });
+},{passive:true});
+app.addEventListener('pointerout',event=>{
+ if(!tiltNode||tiltNode.contains(event.relatedTarget))return;
+ tiltNode.style.removeProperty('--v139-rx');
+ tiltNode.style.removeProperty('--v139-ry');
+ tiltNode=null;
+},{passive:true});
 window.addEventListener('keydown',e=>{if(e.key==='Escape')app.classList.remove('v13-menu-open')});
 })();
