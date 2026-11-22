@@ -29,20 +29,26 @@ export async function onRequest({request,env}){
  if(!["GET","POST","PATCH"].includes(request.method))return answer({erro:"Método não permitido."},405);
  const ctx=await context(request,env);if(ctx.error)return answer({erro:ctx.error},ctx.status);
  if(request.method==="GET"){
-  const result=await query(ctx,"raiz_oportunidades?select=id,origem,item_externo,nome,link_afiliado,imagem_url,preco_indicativo,preco_base,categoria_sugerida,status,produto_id,consultado_em,revisado_em&order=consultado_em.desc&limit=100");
+  const result=await query(ctx,"raiz_oportunidades?select=id,origem,loja,item_externo,nome,link_afiliado,imagem_url,preco_indicativo,preco_base,categoria_sugerida,status,produto_id,consultado_em,revisado_em&order=consultado_em.desc&limit=100");
   return result.error?answer({erro:result.error},result.status):answer({oportunidades:result.data||[]});
  }
  if(!String(request.headers.get("Content-Type")||"").includes("application/json"))return answer({erro:"Envie JSON."},415);
  let input;try{const raw=await request.text();if(raw.length>5500)return answer({erro:"Dados grandes demais."},413);input=JSON.parse(raw)}catch{return answer({erro:"JSON inválido."},400)}
  if(request.method==="POST"){
-  const id=String(input?.item_externo||"").trim();
+  const origem=input?.origem==="manual"?"manual":"shopee_api";
+  const loja=origem==="manual"?String(input?.loja||"").trim():"Shopee";
+  let id=String(input?.item_externo||"").trim();
   const nome=String(input?.nome||"").trim();
   const link=String(input?.link_afiliado||"").trim();
   const foto=String(input?.imagem_url||"").trim();
   const categoria=String(input?.categoria_sugerida||"").trim();
   const price=input?.preco_indicativo===null||input?.preco_indicativo===""?null:Number(input?.preco_indicativo);
-  if(!/^\d{3,20}$/.test(id)||nome.length<3||nome.length>250||categoria.length>100||!validHttps(link,true)||link.length>1800||(foto&&(!validHttps(foto)||foto.length>1800))||price!==null&&(!Number.isFinite(price)||price<=0||price>1000000))return answer({erro:"Dados inconsistentes. Confira ID, URL Shopee, nome e preço."},400);
-  const existing=await query(ctx,"raiz_oportunidades?select=id,status,preco_base,preco_indicativo&origem=eq.shopee_api&item_externo=eq."+id+"&limit=1");
+  if(origem==="manual"){
+   const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(link));
+   id="manual_"+[...new Uint8Array(digest)].slice(0,18).map(v=>v.toString(16).padStart(2,"0")).join("");
+  }
+  if((origem==="shopee_api"&&!/^\d{3,20}$/.test(id))||nome.length<3||nome.length>250||loja.length<2||loja.length>55||categoria.length>100||!validHttps(link,origem==="shopee_api")||link.length>1800||(foto&&(!validHttps(foto)||foto.length>1800))||price!==null&&(!Number.isFinite(price)||price<=0||price>1000000))return answer({erro:"Dados inconsistentes. Confira nome, loja, link HTTPS e preço."},400);
+  const existing=await query(ctx,"raiz_oportunidades?select=id,status,preco_base,preco_indicativo&origem=eq."+origem+"&item_externo=eq."+id+"&limit=1");
   if(existing.error)return answer({erro:existing.error},existing.status);
   if(existing.data?.length){
    const old=existing.data[0];
@@ -51,7 +57,7 @@ export async function onRequest({request,env}){
    const r=await query(ctx,"raiz_oportunidades?id=eq."+old.id+"&status=eq.pendente","PATCH",changes);
    return r.error?answer({erro:r.error},r.status):answer({ok:true,atualizada:true,oportunidade:r.data?.[0]});
   }
-  const item={origem:"shopee_api",item_externo:id,nome,link_afiliado:link,imagem_url:foto||null,preco_indicativo:price,preco_base:price,categoria_sugerida:categoria||"A classificar",status:"pendente"};
+  const item={origem,loja,item_externo:id,nome,link_afiliado:link,imagem_url:foto||null,preco_indicativo:price,preco_base:price,categoria_sugerida:categoria||"A classificar",status:"pendente"};
   const r=await query(ctx,"raiz_oportunidades","POST",item);
   return r.error?answer({erro:r.error},r.status):answer({ok:true,oportunidade:r.data?.[0]},201);
  }
