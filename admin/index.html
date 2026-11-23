@@ -2719,16 +2719,16 @@ function recommend(name){
  else if(has(/\b(vaso decorativo|arranjo artificial|buque artificial|decoracao|ornamento|arvore artificial)\b/))category='Decoração Natural e Artificial';
  else if(has(/\b(rosa natural|orquidea viva|flor natural|flores vivas)\b/))category='Flores';
  else if(has(/\b(shampoo|sabonete|creme corporal|hidratante|cosmetico|oleo para pele)\b/))category='Beleza e Cuidados Naturais';
- else if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/)&&!has(/\b(barra|barras|barrinha|barrinhas)\b/))category='Suplementos Naturais';
+ else if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/)&&!has(/\b(barra|barras|barrinha|barrinhas)\b/))category='Alimentos & Suplementos';
   else if(has(/\b(xicara|xicaras|caneca|canecas|copo|copos|garrafa|garrafas|bule|bules|chaleira|chaleiras|infusor|infusores|coador(?:es)? de cha|jarra|jarras|kit(?:s)? (?:de )?cha|conjunto(?:s)? (?:de )?(?:xicara|cha)|bandeja(?:s)? (?:para|de) cha|termica|termicas|termico|termicos)\b/))category='Acessórios para Chá e Bebidas';
  else if(has(/\b(cha|chas|camomila|hibisco|infusao|erva doce|hortela|capim limao)\b/))category='Chás e Ervas';
- else if(has(/\b(barra|barras|barrinha|barrinhas|cereal|granola|aveia|palha italiana|pasta de amendoim|amendoim|castanha|snack|farinha|chia|linhaca|mel puro|cookie|biscoito)\b/))category='Alimentos Naturais';
+ else if(has(/\b(barra|barras|barrinha|barrinhas|cereal|granola|aveia|palha italiana|pasta de amendoim|amendoim|castanha|snack|farinha|chia|linhaca|mel puro|cookie|biscoito)\b/))category='Alimentos & Suplementos';
  return categories.find(c=>normalized(c)===normalized(category))||(category?'':'A classificar');
 }
 async function loadCategories(){
  const r=await fetch('/api/produtos-admin?categories=1',{headers:{Authorization:'Bearer '+token},cache:'no-store'});
  const data=await r.json();if(!r.ok)throw Error(data.erro||'Não foi possível carregar categorias.');
- categories=data.categorias||[];
+ categories=[...new Set((data.categorias||[]).map(c=>['Alimentos e Bebidas'].includes(c)?'Bebidas':(['Alimentos Naturais','Suplementos Naturais'].includes(c)?'Alimentos & Suplementos':c)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  const field=form.elements.namedItem('categoria'), current=field.value;
  field.replaceChildren();
  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Detectar automaticamente pelo nome';field.append(placeholder);
