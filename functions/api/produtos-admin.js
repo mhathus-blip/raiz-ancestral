@@ -25,10 +25,10 @@ function suggestCategory(name){
  if(has(/\b(vaso decorativo|arranjo artificial|buque artificial|decoracao|ornamento|arvore artificial)\b/))return 'Decoração Natural e Artificial';
  if(has(/\b(rosa natural|orquidea viva|flor natural|flores vivas)\b/))return 'Flores';
  if(has(/\b(shampoo|sabonete|creme corporal|hidratante|cosmetico|oleo para pele)\b/))return 'Beleza e Cuidados Naturais';
- if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/) && !has(/\b(barra|barras|barrinha|barrinhas)\b/))return 'Suplementos Naturais';
+ if(has(/\b(capsulas|capsula|spirulina|chlorella|psyllium|suplemento alimentar|creatina)\b/) && !has(/\b(barra|barras|barrinha|barrinhas)\b/))return 'Alimentos & Suplementos';
  if(has(/\b(xicara|xicaras|caneca|canecas|copo|copos|garrafa|garrafas|bule|bules|chaleira|chaleiras|infusor|infusores|coador(?:es)? de cha|jarra|jarras|kit(?:s)? (?:de )?cha|conjunto(?:s)? (?:de )?(?:xicara|cha)|bandeja(?:s)? (?:para|de) cha|termica|termicas|termico|termicos)\b/))return 'Acessórios para Chá e Bebidas';
  if(has(/\b(cha|chas|camomila|hibisco|infusao|erva doce|hortela|capim limao)\b/))return 'Chás e Ervas';
- if(has(/\b(barra|barras|barrinha|barrinhas|cereal|granola|aveia|palha italiana|pasta de amendoim|amendoim|castanha|snack|farinha|chia|linhaca|mel puro|cookie|biscoito)\b/))return 'Alimentos Naturais';
+ if(has(/\b(barra|barras|barrinha|barrinhas|cereal|granola|aveia|palha italiana|pasta de amendoim|amendoim|castanha|snack|farinha|chia|linhaca|mel puro|cookie|biscoito)\b/))return 'Alimentos & Suplementos';
  return 'A classificar';
 }
 function https(value){try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!!u.hostname}catch{return false}}
@@ -209,7 +209,7 @@ export async function onRequest({request,env}){
   if(url.searchParams.get('categories')==='1'){
    const r=await readCatalogForAdmin(ctx,'id,categoria');
    if(r.error)return json({erro:r.error},r.status);
-   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean).map(c=>c==='Decoração Natural'?'Decoração Natural e Artificial':c)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
+   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean).map(c=>c==='Decoração Natural'?'Decoração Natural e Artificial':c==='Alimentos e Bebidas'?'Bebidas':['Alimentos Naturais','Suplementos Naturais'].includes(c)?'Alimentos & Suplementos':c)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
   const idParam=url.searchParams.get('id');
   if(idParam!==null){
