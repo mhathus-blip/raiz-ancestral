@@ -1954,6 +1954,13 @@ const botao = elemento("a", "buy", textoBotao);
   function validLink(value){try{const u=new URL(value);return u.protocol==='https:'?u.href:null}catch{return null}}
   function storeLabel(value){const s=norm(value);if(s==='shopee')return 'Ver na Shopee';if(s==='amazon')return 'Consultar preço na Amazon';if(s==='magalu'||s==='magazine luiza')return 'Consultar preço no Magalu';return 'Consultar preço na loja'}
   function clear(){grid.replaceChildren();section.hidden=true;if(notice)notice.hidden=true}
+  // Data civil de Brasília: todos os visitantes veem a mesma seleção durante o dia.
+  function dayIndex(){
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+    const value=Object.fromEntries(parts.filter(p=>p.type!=='literal').map(p=>[p.type,Number(p.value)]));
+    return Math.floor(Date.UTC(value.year,value.month-1,value.day)/86400000);
+  }
+  let renderedDay=null;
   function render(){
     const season=document.body.dataset.season||'normal';
     if(!criteria[season]){clear();previous=season;return}
@@ -1964,8 +1971,25 @@ const botao = elemento("a", "buy", textoBotao);
       const score=words.reduce((n,w)=>{const term=norm(w);return n+(name.includes(term)?5:0)+(category.includes(term)?3:0)+(description.includes(term)?1:0)},0);
       return {p,score};
     }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||String(b.p.id).localeCompare(String(a.p.id),'pt-BR'));
-    const seen=new Set();const selection=[];
-    for(const {p} of ranked){if(seen.has(String(p.id)))continue;const link=validLink(p.link_afiliado);if(!link)continue;selection.push({p,link});seen.add(String(p.id));if(selection.length===6)break}
+    // Rotação por dia, com ciclo determinístico e sem repetir produtos no mesmo dia.
+    // De um dia para o outro, conjuntos de seis não se sobrepõem se houver ao menos 12 elegíveis.
+    const eligible=[];
+    const seen=new Set();
+    for(const {p} of ranked){
+      const id=String(p.id);
+      if(seen.has(id))continue;
+      const link=validLink(p.link_afiliado);
+      if(!link)continue;
+      seen.add(id);
+      eligible.push({p,link});
+    }
+    const today=dayIndex();
+    renderedDay=today;
+    const selection=[];
+    if(eligible.length){
+      const start=((today*6)%eligible.length+eligible.length)%eligible.length;
+      for(let i=0;i<Math.min(6,eligible.length);i++)selection.push(eligible[(start+i)%eligible.length]);
+    }
     grid.replaceChildren();
     if(!selection.length){clear();if(unlocked){section.hidden=false;title.textContent='Vitrine temática: '+labels[season];notice.hidden=false;notice.textContent='Nenhum produto ativo com link válido corresponde aos critérios desta campanha. Nenhuma sugestão aleatória será exibida ao público.'}previous=season;return}
     title.textContent='Seleção especial: '+labels[season];
@@ -1993,6 +2017,8 @@ const botao = elemento("a", "buy", textoBotao);
   window.addEventListener('raiz:admin-tests-unlocked',()=>{unlocked=true;render()});
   const obs=new MutationObserver(()=>{if(document.body.dataset.season!==previous)render()});
   obs.observe(document.body,{attributes:true,attributeFilter:['data-season']});
+  // Atualiza a vitrine também se a página permanecer aberta após a virada do dia.
+  setInterval(()=>{if(renderedDay!==dayIndex())render()},60000);
   render();
 })();
 </script>
