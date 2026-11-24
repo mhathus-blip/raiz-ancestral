@@ -1065,6 +1065,31 @@ a.raiz-botao-loja.raiz-botao-loja-claro {color:#202020 !important;text-shadow:no
 @media(max-width:980px){#categorias.filters > button{flex-basis:calc((100% - 24px) / 3)}}
 @media(max-width:650px){#categorias.filters{gap:9px}#categorias.filters > button{flex-basis:calc((100% - 9px) / 2)}}
 @media(max-width:370px){#categorias.filters > button{flex-basis:100%}}
+
+/* V13 Black Friday: vitrine vertical suave de ofertas consultadas, 27/11. */
+.raiz-bf-live[hidden]{display:none!important}
+.raiz-bf-live{max-width:1100px;margin:20px auto 28px;padding:24px;border-radius:24px;border:1px solid #b38b44;background:linear-gradient(135deg,#0b211b,#214432 68%,#162e23);color:#fff7de;box-shadow:0 18px 35px #0d291a25}
+.raiz-bf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.raiz-bf-head h2{color:#f4dc9a;font:700 clamp(23px,3vw,33px) Georgia,serif;margin:5px 0 9px}
+.raiz-bf-head p{margin:0 0 15px;max-width:750px;font-size:13px;color:#e8e9d7}
+.raiz-bf-eyebrow{font-size:11px;letter-spacing:2px;color:#e8c073;font-weight:700}
+.raiz-bf-live-dot{font-size:10px;letter-spacing:1px;white-space:nowrap;color:#caeccc;border:1px solid #6b997d;padding:7px 10px;border-radius:30px}
+.raiz-bf-viewport{position:relative;overflow:hidden;height:410px;max-height:60vh;mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+.raiz-bf-track{display:flex;flex-direction:column;gap:12px;will-change:transform}
+.raiz-bf-track.raiz-bf-moving{animation:raizBfVertical 65s linear infinite}
+.raiz-bf-viewport:hover .raiz-bf-track,.raiz-bf-viewport:focus-within .raiz-bf-track{animation-play-state:paused}
+@keyframes raizBfVertical{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.raiz-bf-item{display:flex;align-items:center;gap:18px;background:rgba(255,255,255,.09);border:1px solid rgba(244,218,147,.3);padding:12px;border-radius:18px;min-height:110px}
+.raiz-bf-item img{width:92px;height:92px;flex:0 0 92px;object-fit:contain;background:#fff9ed;border-radius:11px}
+.raiz-bf-item-details{flex:1;min-width:0}
+.raiz-bf-item h3{margin:0 0 7px;font:700 16px/1.35 Georgia,serif;color:#fff7df}
+.raiz-bf-item-price{font-weight:700;color:#f4dd98}
+.raiz-bf-item small{display:block;font-size:11px;color:#e0e7d5}
+.raiz-bf-item a{display:inline-block;text-align:center;border-radius:25px;padding:10px 16px;background:linear-gradient(#ffb66a,#ec7231);color:#35210e;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
+.raiz-bf-item a:hover{filter:brightness(1.08)}
+.raiz-bf-status{color:#e9e0c9;font-size:12px;margin:15px 0 0}
+@media(max-width:650px){.raiz-bf-live{padding:15px}.raiz-bf-head{flex-direction:column;gap:5px}.raiz-bf-viewport{height:360px}.raiz-bf-item{gap:9px;flex-wrap:wrap}.raiz-bf-item img{width:70px;height:70px;flex-basis:70px}.raiz-bf-item a{width:100%}}
+@media(prefers-reduced-motion:reduce){.raiz-bf-track.raiz-bf-moving{animation:none}.raiz-bf-viewport{overflow:auto;mask-image:none;-webkit-mask-image:none}}
 </style>
 </head>
 <body>
@@ -1082,6 +1107,11 @@ a.raiz-botao-loja.raiz-botao-loja-claro {color:#202020 !important;text-shadow:no
   <div class="raiz-vitrine-grid"></div>
   <p class="raiz-vitrine-aviso">A compra acontece na loja parceira. Consulte preço, disponibilidade e condições no anúncio.</p>
   <p class="raiz-vitrine-admin-aviso" hidden></p>
+</section>
+<section id="raiz-bf-live" class="raiz-bf-live" aria-labelledby="raiz-bf-title" hidden>
+  <div class="raiz-bf-head"><div><span class="raiz-bf-eyebrow">OFERTAS CONSULTADAS NA SHOPEE</span><h2 id="raiz-bf-title">Black Friday • Ofertas verificadas</h2><p>Somente produtos já cadastrados. Os descontos são informados pela loja e podem mudar. Confira o anúncio antes de comprar.</p></div><span class="raiz-bf-live-dot" aria-hidden="true">● AO VIVO</span></div>
+  <div class="raiz-bf-viewport" aria-label="Produtos com desconto informado pela API da Shopee"><div class="raiz-bf-track"></div></div>
+  <p class="raiz-bf-status" role="status">Consultando a API da loja…</p>
 </section>
 <section class="season-garimpos" id="garimpos" aria-labelledby="garimpos-titulo"><div style="font:700 12px Arial,sans-serif;letter-spacing:1.4px;color:#986e3b">🌿 CURADORIA RAIZ ANCESTRAL</div><h2 id="garimpos-titulo">Garimpos da Raiz</h2><p>Uma seleção para facilitar sua busca por produtos naturais. Compare preços e confira as condições atuais nas lojas parceiras.</p><div class="garimpos-grid"><article class="garimpo"><div class="emoji" aria-hidden="true">🍵</div><h3>Chás e ervas</h3><p>Encontre infusões, ervas e opções para seu ritual diário.</p><button type="button" data-garimpo-category="Chás e Ervas">Ver chás e ervas</button></article><article class="garimpo"><div class="emoji" aria-hidden="true">🌱</div><h3>Suplementos naturais</h3><p>Compare produtos, apresentações e informações do fabricante.</p><button type="button" data-garimpo-category="Alimentos &amp; Suplementos">Ver suplementos</button></article><article class="garimpo"><div class="emoji" aria-hidden="true">🍯</div><h3>Alimentos naturais</h3><p>Explore ingredientes e alimentos para uma rotina variada.</p><button type="button" data-garimpo-category="Alimentos &amp; Suplementos">Ver alimentos</button></article></div><p class="disclaimer">Os itens desta seção não são necessariamente promocionais. Não anunciamos descontos sem confirmação. Preços, frete, disponibilidade e condições podem variar nas lojas parceiras.</p></section>
 </div>
@@ -2097,6 +2127,54 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
     today.textContent='—';month.textContent='—';
   }
   void start();
+})();
+</script>
+<script>
+/* V13: painel exclusivo da Black Friday — dados reais, sem preços anteriores simulados. */
+(()=>{
+ const box=document.getElementById('raiz-bf-live');
+ if(!box)return;
+ const track=box.querySelector('.raiz-bf-track');
+ const status=box.querySelector('.raiz-bf-status');
+ const fmt=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ let currentDay='',lastLoad=0,loading=false;
+ function day(){
+  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const x=Object.fromEntries(parts.filter(t=>t.type!=='literal').map(t=>[t.type,t.value]));
+  return x.year+'-'+x.month+'-'+x.day;
+ }
+ function build(p,duplicate=false){
+  const card=document.createElement('article');
+  card.className='raiz-bf-item';
+  if(duplicate){card.setAttribute('aria-hidden','true');card.inert=true;}
+  if(p.imagem&&/^https:\/\//.test(p.imagem)){const img=document.createElement('img');img.src=p.imagem;img.alt='';img.loading='lazy';card.append(img)}
+  const details=document.createElement('div');details.className='raiz-bf-item-details';
+  const title=document.createElement('h3');title.textContent=String(p.nome||'Produto');
+  const price=document.createElement('div');price.className='raiz-bf-item-price';price.textContent=fmt(p.preco);
+  const note=document.createElement('small');note.textContent='Desconto informado pela Shopee • preço sujeito a alteração';
+  details.append(title,price,note);
+  const a=document.createElement('a');a.href=p.link;a.target='_blank';a.rel='sponsored noopener noreferrer';a.textContent='Ver na Shopee';
+  if(!duplicate)a.addEventListener('click',()=>window.raizRegistrarSaidaLoja?.(p.id));
+  card.append(details,a);return card;
+ }
+ async function update(){
+  const today=day(),active=today==='2026-11-27';
+  box.hidden=!active;
+  if(!active){currentDay=today;track.replaceChildren();return}
+  if(loading||currentDay===today&&Date.now()-lastLoad<20*60*1000)return;
+  loading=true;currentDay=today;lastLoad=Date.now();
+  try{
+   const res=await fetch('/api/shopee?bf=1',{cache:'no-store',signal:AbortSignal.timeout(35000)});
+   const data=await res.json();if(!res.ok)throw Error('Consulta temporariamente indisponível');
+   const offers=Array.isArray(data.produtos)?data.produtos.filter(p=>p?.descontoInformado&&p.preco>0&&/^https:\/\//.test(p.link)): [];
+   track.classList.remove('raiz-bf-moving');track.replaceChildren();
+   for(const p of offers.slice(0,8))track.append(build(p));
+   if(offers.length>1){for(const p of offers.slice(0,8))track.append(build(p,true));track.classList.add('raiz-bf-moving')}
+   status.textContent=offers.length?'Ofertas consultadas na Shopee. Descontos e condições podem mudar; confirme na loja.':'Nenhuma promoção verificada nesta consulta. A vitrine será atualizada automaticamente.';
+  }catch{track.classList.remove('raiz-bf-moving');track.replaceChildren();status.textContent='Verificação de promoções indisponível no momento. Consulte o catálogo normal.'}
+  finally{loading=false}
+ }
+ void update();setInterval(update,60000);
 })();
 </script>
 </body></html>
