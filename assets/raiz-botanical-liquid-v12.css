@@ -226,3 +226,73 @@ html:not(.raiz-original-v12) .site-header{
   position:relative!important;
   top:auto!important;
 }
+
+
+/* Raiz V13.10 — paleta de folhagens #0F2A1D #375534 #6B9071 #AEC3B0 #E3EED4 */
+/* Camada de cores discreta para o público e a área legada do ADM.
+   Mantém ondas douradas, artes sazonais, folhas, botões por loja e Liquid Glass. */
+html:not(.raiz-original-v12){
+ --raiz-forest-deep:#0F2A1D;
+ --raiz-forest-soft:#375534;
+ --raiz-sage:#6B9071;
+ --raiz-sage-light:#AEC3B0;
+ --raiz-parchment:#E3EED4;
+ --raiz-green:#375534;
+ --raiz-emerald:#375534;
+}
+html:not(.raiz-original-v12) body{
+ background-color:#0F2A1D;
+ background-image:
+   url("/assets/folhagens-liquid-v12.svg"),
+   radial-gradient(ellipse at 11% 23%,rgba(107,144,113,.34),transparent 39%),
+   radial-gradient(ellipse at 86% 74%,rgba(174,195,176,.24),transparent 38%),
+   linear-gradient(155deg,#0F2A1D 0%,#375534 51%,#0F2A1D 100%);
+ background-size:min(100%,1440px) auto,cover,cover,cover;
+ background-position:center top,center,center,center;
+ background-repeat:repeat-y,no-repeat,no-repeat,no-repeat;
+}
+html:not(.raiz-original-v12) main.wrap::before{
+ background:
+   url("/assets/folhagens-liquid-v12.svg") center top / 100% auto repeat-y,
+   linear-gradient(145deg,rgba(242,249,235,.96),rgba(227,238,212,.91),rgba(174,195,176,.87))!important;
+}
+html:not(.raiz-original-v12) .site-header{
+ background:linear-gradient(120deg,rgba(246,251,240,.93),rgba(227,238,212,.87),rgba(234,243,223,.92))!important;
+ border-bottom:1px solid rgba(55,85,52,.38)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 5px 19px rgba(15,42,29,.14)!important;
+}
+html:not(.raiz-original-v12) .hero{
+ background:linear-gradient(112deg,rgba(246,251,240,.92),rgba(227,238,212,.91),rgba(174,195,176,.67))!important;
+ border-bottom:1px solid rgba(107,144,113,.38)!important;
+}
+html:not(.raiz-original-v12) :is(.hero h1,.section h2,.season-garimpos h2,.raiz-vitrine-campanha h2){
+ color:#0F2A1D!important;
+}
+html:not(.raiz-original-v12) :is(.product,.raiz-vitrine-campanha .raiz-vitrine-card,.season-garimpos .garimpo){
+ background:linear-gradient(158deg,rgba(255,255,251,.98),rgba(227,238,212,.88))!important;
+ border:1px solid rgba(107,144,113,.46)!important;
+ box-shadow:0 10px 25px rgba(15,42,29,.12),inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+html:not(.raiz-original-v12) :is(.product h3,.product .content h3,.raiz-vitrine-card h3){
+ color:#153725!important;
+}
+html:not(.raiz-original-v12) :is(.product img,.raiz-vitrine-card img){
+ background:#fffef8!important;
+}
+html:not(.raiz-original-v12) :is(.hero .primary,.garimpo button,.raiz-admin-atalhos a){
+ background:linear-gradient(170deg,#6B9071 0%,#375534 53%,#0F2A1D 100%)!important;
+ border:1px solid rgba(201,167,103,.78)!important;
+ color:#fffdf4!important;
+}
+html:not(.raiz-original-v12):root:not(.raiz-liquid-off) #categorias.filters button[aria-pressed="true"]{
+ background:linear-gradient(150deg,#6B9071,#375534 65%,#0F2A1D)!important;
+ border-color:#c9a767!important;
+ color:#fff!important;
+}
+html:not(.raiz-original-v12) .site-footer{
+ background:linear-gradient(125deg,#0F2A1D,#375534 75%,#0F2A1D)!important;
+ border-top:2px solid rgba(201,167,103,.72);
+}
+@media(prefers-reduced-motion:reduce){
+ html:not(.raiz-original-v12) :is(.product,.hero .primary,.garimpo button){transition:none!important}
+}
