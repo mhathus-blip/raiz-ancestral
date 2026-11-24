@@ -2712,6 +2712,7 @@ const normalized=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,''
 function recommend(name){
  const v=normalized(name),has=re=>re.test(v);
  let category='';
+ if(has(/\b(difusor|aromatizador|aromatizante|essencia aromatica|essencias aromaticas|vela aromatica|velas aromaticas|home spray|spray de ambiente|perfume de ambiente|perfumes de ambiente)\b/))category='Aromas & Bem-Estar';
  if(has(/\b(adubo|fertilizante|npk|bokashi|substrato|ureia|humus|calcario)\b/))category='Jardinagem e Fertilizantes';
  else if(has(/\b(tesoura de poda|pulverizador|regador|enxada|pa de jardim|ferramenta de jardinagem)\b/))category='Ferramentas para Jardinagem';
  else if(has(/\b(alpiste|painco|comedouro|bebedouro|poleiro|gaiola|viveiro|ninho para|casinha para|mistura para passaros)\b/) || (has(/\b(ave|aves|passaro|passaros|calopsita|periquito|canario|papagaio|pintassilgo|coleiro|agapornis|mandarim)\b/) && has(/\b(racao|alimento|alimentacao|mistura|sementes|semente|comedouro|bebedouro|ninho|casinha|poleiro|gaiola|viveiro)\b/)))category='Aves e Animais de Jardim';
@@ -2728,7 +2729,7 @@ function recommend(name){
 async function loadCategories(){
  const r=await fetch('/api/produtos-admin?categories=1',{headers:{Authorization:'Bearer '+token},cache:'no-store'});
  const data=await r.json();if(!r.ok)throw Error(data.erro||'Não foi possível carregar categorias.');
- categories=[...new Set((data.categorias||[]).map(c=>['Alimentos e Bebidas'].includes(c)?'Bebidas':(['Alimentos Naturais','Suplementos Naturais'].includes(c)?'Alimentos & Suplementos':c)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ categories=[...new Set(['Aromas & Bem-Estar',...(data.categorias||[])].map(c=>['Alimentos e Bebidas'].includes(c)?'Bebidas':(['Alimentos Naturais','Suplementos Naturais'].includes(c)?'Alimentos & Suplementos':c)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  const field=form.elements.namedItem('categoria'), current=field.value;
  field.replaceChildren();
  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Detectar automaticamente pelo nome';field.append(placeholder);
