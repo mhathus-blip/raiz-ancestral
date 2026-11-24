@@ -1102,6 +1102,41 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
 #raiz-central-automacoes .raiz-bf-preview-disclaimer{color:#f1d6a1}
 </style>
 <link rel="stylesheet" href="/assets/raiz-v13-dashboard.css">
+
+<!-- RAIZ V14 PALETA FINAL: sobreposição visual compatível com campanhas -->
+<style id="raiz-palette-final-v14">
+/* Aplicação final da paleta inspirada em #0F2A1D #375534 #6B9071 #AEC3B0 #E3EED4.
+   Preserva arte de datas comemorativas, ondas, folhagens e identidade dos marketplaces. */
+html:not(.raiz-original-v12) body{
+ background-color:#0F2A1D!important;
+ background-image:
+  url("/assets/folhagens-liquid-v12.svg"),
+  radial-gradient(ellipse at 15% 20%,rgba(107,144,113,.34),transparent 38%),
+  radial-gradient(ellipse at 88% 76%,rgba(174,195,176,.27),transparent 39%),
+  linear-gradient(155deg,#0F2A1D,#375534 52%,#0F2A1D)!important;
+ background-size:min(100%,1440px) auto,cover,cover,cover!important;
+ background-position:center top,center,center,center!important;
+ background-repeat:repeat-y,no-repeat,no-repeat,no-repeat!important;
+}
+html:not(.raiz-original-v12) .site-header{
+ background:linear-gradient(120deg,rgba(246,251,240,.95),rgba(227,238,212,.87),rgba(234,243,223,.93))!important;
+ border-bottom-color:rgba(55,85,52,.42)!important;
+}
+html:not(.raiz-original-v12) .hero{
+ background:linear-gradient(112deg,rgba(246,251,240,.93),rgba(227,238,212,.9),rgba(174,195,176,.68))!important;
+}
+html:not(.raiz-original-v12) :is(.product,.raiz-vitrine-campanha .raiz-vitrine-card,.season-garimpos .garimpo){
+ background:linear-gradient(155deg,#fffef8,#E3EED4)!important;
+ border-color:rgba(107,144,113,.47)!important;
+}
+html:not(.raiz-original-v12):root:not(.raiz-liquid-off) #categorias.filters button[aria-pressed="true"]{
+ background:linear-gradient(150deg,#6B9071,#375534 60%,#0F2A1D)!important;
+ color:#fffef5!important;
+}
+html:not(.raiz-original-v12) .site-footer{
+ background:linear-gradient(120deg,#0F2A1D,#375534,#0F2A1D)!important;
+}
+</style>
 </head>
 <body>
 <div id="inicio" aria-hidden="true" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none"></div>
