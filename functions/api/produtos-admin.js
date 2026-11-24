@@ -18,6 +18,7 @@ const fields=['nome','descricao','imagem_url','preco','loja','categoria','link_a
 function suggestCategory(name){
  const text=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  const has=re=>re.test(text);
+ if(has(/\b(difusor|aromatizador|aromatizante|essencia aromatica|essencias aromaticas|vela aromatica|velas aromaticas|home spray|spray de ambiente|perfume de ambiente|perfumes de ambiente)\b/))return 'Aromas & Bem-Estar';
  if(has(/\b(adubo|fertilizante|npk|bokashi|substrato|ureia|húmus|humus|calcario)\b/))return 'Jardinagem e Fertilizantes';
  if(has(/\b(tesoura de poda|pulverizador|regador|enxada|pa de jardim|ferramenta de jardinagem)\b/))return 'Ferramentas para Jardinagem';
  if(has(/\b(alpiste|painco|comedouro|bebedouro|poleiro|gaiola|viveiro|ninho para|casinha para|mistura para passaros)\b/) || (has(/\b(ave|aves|passaro|passaros|calopsita|periquito|canario|papagaio|pintassilgo|coleiro|agapornis|mandarim)\b/) && has(/\b(racao|alimento|alimentacao|mistura|sementes|semente|comedouro|bebedouro|ninho|casinha|poleiro|gaiola|viveiro)\b/)))return 'Aves e Animais de Jardim';
@@ -209,7 +210,7 @@ export async function onRequest({request,env}){
   if(url.searchParams.get('categories')==='1'){
    const r=await readCatalogForAdmin(ctx,'id,categoria');
    if(r.error)return json({erro:r.error},r.status);
-   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean).map(c=>c==='Decoração Natural'?'Decoração Natural e Artificial':c==='Alimentos e Bebidas'?'Bebidas':['Alimentos Naturais','Suplementos Naturais'].includes(c)?'Alimentos & Suplementos':c)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
+   return json({categorias:[...new Set(['Acessórios para Chá e Bebidas','Aves e Animais de Jardim','Aromas & Bem-Estar',...(r.data||[]).map(p=>String(p.categoria||'').trim()).filter(Boolean).map(c=>c==='Decoração Natural'?'Decoração Natural e Artificial':c==='Alimentos e Bebidas'?'Bebidas':['Alimentos Naturais','Suplementos Naturais'].includes(c)?'Alimentos & Suplementos':c)])].sort((a,b)=>a.localeCompare(b,'pt-BR'))});
   }
   const idParam=url.searchParams.get('id');
   if(idParam!==null){
