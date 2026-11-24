@@ -1072,6 +1072,34 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
 
 #raiz-gerenciar-produtos .raiz-prod-list-wrapper .actions{margin:10px 0!important}
 @media(max-width:650px){#raiz-gerenciar-produtos{padding:12px!important}#raiz-gerenciar-produtos #raiz-prod-form:not([hidden]){padding:10px!important}}
+/* V13 Black Friday: vitrine vertical suave de ofertas consultadas, 27/11. */
+.raiz-bf-live[hidden]{display:none!important}
+.raiz-bf-live{max-width:1100px;margin:20px auto 28px;padding:24px;border-radius:24px;border:1px solid #b38b44;background:linear-gradient(135deg,#0b211b,#214432 68%,#162e23);color:#fff7de;box-shadow:0 18px 35px #0d291a25}
+.raiz-bf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.raiz-bf-head h2{color:#f4dc9a;font:700 clamp(23px,3vw,33px) Georgia,serif;margin:5px 0 9px}
+.raiz-bf-head p{margin:0 0 15px;max-width:750px;font-size:13px;color:#e8e9d7}
+.raiz-bf-eyebrow{font-size:11px;letter-spacing:2px;color:#e8c073;font-weight:700}
+.raiz-bf-live-dot{font-size:10px;letter-spacing:1px;white-space:nowrap;color:#caeccc;border:1px solid #6b997d;padding:7px 10px;border-radius:30px}
+.raiz-bf-viewport{position:relative;overflow:hidden;height:410px;max-height:60vh;mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+.raiz-bf-track{display:flex;flex-direction:column;gap:12px;will-change:transform}
+.raiz-bf-track.raiz-bf-moving{animation:raizBfVertical 65s linear infinite}
+.raiz-bf-viewport:hover .raiz-bf-track,.raiz-bf-viewport:focus-within .raiz-bf-track{animation-play-state:paused}
+@keyframes raizBfVertical{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.raiz-bf-item{display:flex;align-items:center;gap:18px;background:rgba(255,255,255,.09);border:1px solid rgba(244,218,147,.3);padding:12px;border-radius:18px;min-height:110px}
+.raiz-bf-item img{width:92px;height:92px;flex:0 0 92px;object-fit:contain;background:#fff9ed;border-radius:11px}
+.raiz-bf-item-details{flex:1;min-width:0}
+.raiz-bf-item h3{margin:0 0 7px;font:700 16px/1.35 Georgia,serif;color:#fff7df}
+.raiz-bf-item-price{font-weight:700;color:#f4dd98}
+.raiz-bf-item small{display:block;font-size:11px;color:#e0e7d5}
+.raiz-bf-item a{display:inline-block;text-align:center;border-radius:25px;padding:10px 16px;background:linear-gradient(#ffb66a,#ec7231);color:#35210e;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
+.raiz-bf-item a:hover{filter:brightness(1.08)}
+.raiz-bf-status{color:#e9e0c9;font-size:12px;margin:15px 0 0}
+@media(max-width:650px){.raiz-bf-live{padding:15px}.raiz-bf-head{flex-direction:column;gap:5px}.raiz-bf-viewport{height:360px}.raiz-bf-item{gap:9px;flex-wrap:wrap}.raiz-bf-item img{width:70px;height:70px;flex-basis:70px}.raiz-bf-item a{width:100%}}
+@media(prefers-reduced-motion:reduce){.raiz-bf-track.raiz-bf-moving{animation:none}.raiz-bf-viewport{overflow:auto;mask-image:none;-webkit-mask-image:none}}
+
+/* Prévia administrativa: acessível somente após MFA, sem alegar promoções */
+#raiz-central-automacoes .raiz-bf-live{max-width:none;margin:20px 0}
+#raiz-central-automacoes .raiz-bf-preview-disclaimer{color:#f1d6a1}
 </style>
 <link rel="stylesheet" href="/assets/raiz-v13-dashboard.css">
 </head>
@@ -1123,11 +1151,17 @@ try{if(new URLSearchParams(location.search).get('tema')==='original')document.do
  <div class="raiz-auto-grid">
   <article class="raiz-auto-card"><h3>📅 Calendário automático</h3><p>11 datas temáticas, incluindo Black Friday, Natal, Dia das Mães e aniversário da Raiz Ancestral, com decorações por data.</p><button type="button" id="raiz-auto-restaurar">Usar data atual e modo automático</button></article>
   <article class="raiz-auto-card"><h3>🎨 Simulador de campanhas</h3><p>Escolha uma comemoração e simule uma data na barra administrativa. Teste a contagem regressiva, a decoração e a vitrine temática.</p><button type="button" id="raiz-auto-simular">Abrir simulador de datas</button></article>
+  <article class="raiz-auto-card"><h3>🖤 Prévia da Black Friday</h3><p>Veja hoje como ficará o painel vertical de 27/11, com produtos reais e valores do catálogo. Esta demonstração não confirma promoções.</p><button type="button" id="raiz-bf-preview-toggle">Visualizar painel da Black Friday</button></article>
   <article class="raiz-auto-card"><h3>🛍️ Vitrine sazonal</h3><p>Seleção visual de produtos ativos por afinidade com a campanha, sem inventar preço, descontos ou disponibilidade.</p><a href="#raiz-vitrine-campanha">Ver vitrine temática</a></article>
   <article class="raiz-auto-card"><h3>🔄 Diagnóstico Shopee</h3><p>Consulta autorizada de anúncios sem preço, em modo de leitura; depende da integração disponível e não altera produtos.</p><a href="#raiz-shopee-api-preview">Ver consultas Shopee</a></article>
   <article class="raiz-auto-card"><h3>📊 Conferência e relatórios</h3><p>Auditoria de preços, exportação CSV, validação dos resultados e estatísticas existentes.</p><a href="#raiz-auditoria-precos">Auditoria</a><a href="#raiz-estatisticas">Estatísticas</a></article>
   <article class="raiz-auto-card"><h3>📦 Cadastro de produtos</h3><p>Cadastro, rascunhos, edição, importação por link e ativação controlada com as verificações de acesso existentes.</p><a href="#raiz-gerenciar-produtos">Gerenciar catálogo</a></article>
  </div>
+<section id="raiz-bf-live" class="raiz-bf-live" aria-labelledby="raiz-bf-title" hidden>
+<div class="raiz-bf-head"><div><span class="raiz-bf-eyebrow">PRÉVIA EXCLUSIVA DO ADMINISTRADOR • SEM PUBLICAÇÃO</span><h2 id="raiz-bf-title">Black Friday • Painel vertical</h2><p>Visualização de exemplo usando produtos reais já cadastrados. Preços de catálogo NÃO comprovam promoção. Em 27/11, o painel público exibirá apenas ofertas verificadas pela API.</p></div><span class="raiz-bf-live-dot">● DEMONSTRAÇÃO</span></div>
+<div class="raiz-bf-viewport" aria-label="Exemplo de rolagem vertical para Black Friday"><div class="raiz-bf-track"></div></div>
+<p class="raiz-bf-status" role="status">Abra a prévia para carregar os produtos cadastrados.</p>
+</section>
  <p class="raiz-auto-note">Atenção: os botões deste painel não criam tarefas de execução agendada nem habilitam integrações externas. Eles dão acesso aos recursos já presentes na V12. Configurações de execução automática no servidor exigem implementação e autorização separadas.</p>
 </section>
 <section id="raiz-auditoria-precos" class="raiz-auditoria-precos" aria-labelledby="raiz-auditoria-titulo" hidden>
@@ -3234,4 +3268,52 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
 <script defer src="/assets/raiz-fantasmas-admin.js"></script>
 <script defer src="/assets/raiz-v13-dashboard.js"></script>
 <script defer src="/assets/raiz-v13-live-products.js"></script>
+<script>
+/* V13 — prévia visual local do painel BF, desbloqueada pelo evento de MFA do ADM.
+   Não consulta a API de promoções e não altera a data da campanha pública. */
+(()=>{
+ 'use strict';
+ const root=document.getElementById('raiz-central-automacoes');
+ const preview=document.getElementById('raiz-bf-live');
+ const button=document.getElementById('raiz-bf-preview-toggle');
+ if(!root||!preview||!button)return;
+ const track=preview.querySelector('.raiz-bf-track');
+ const status=preview.querySelector('.raiz-bf-status');
+ let authorized=false,opened=false,products=[];
+ const money=x=>Number(x).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ function card(p,copy=false){
+  const article=document.createElement('article');article.className='raiz-bf-item';
+  if(copy){article.inert=true;article.setAttribute('aria-hidden','true')}
+  const img=document.createElement('img');img.src=p.imagem_url;img.alt='';img.loading='lazy';
+  const detail=document.createElement('div');detail.className='raiz-bf-item-details';
+  const name=document.createElement('h3');name.textContent=p.nome;
+  const price=document.createElement('div');price.className='raiz-bf-item-price';
+  price.textContent=Number(p.preco)>0?'Preço cadastrado: '+money(p.preco):'Consultar preço na loja';
+  const note=document.createElement('small');note.textContent='Prévia visual • desconto não verificado';
+  detail.append(name,price,note);
+  const link=document.createElement('a');link.href=p.link_afiliado;link.target='_blank';link.rel='sponsored noopener noreferrer';link.textContent='Ver na '+p.loja;
+  article.append(img,detail,link);return article;
+ }
+ function render(){
+  track.classList.remove('raiz-bf-moving');track.replaceChildren();
+  const eligible=products.filter(p=>p&&p.nome&&/^https:\/\//.test(p.imagem_url||'')&&/^https:\/\//.test(p.link_afiliado||''));
+  // Diversidade de categorias na demonstração; não prometer descontos.
+  const used=new Set(),sample=[];
+  for(const p of eligible){if(sample.length===6)break;const cat=String(p.categoria||'');if(used.has(cat))continue;sample.push(p);used.add(cat)}
+  for(const p of eligible){if(sample.length===6)break;if(!sample.some(x=>x.id===p.id))sample.push(p)}
+  if(!sample.length){status.textContent='Catálogo ainda não carregado. Reabra a prévia depois da atualização.';return}
+  for(const p of sample)track.append(card(p));
+  if(sample.length>1){for(const p of sample)track.append(card(p,true));track.classList.add('raiz-bf-moving')}
+  status.textContent='Demonstração com '+sample.length+' produtos do catálogo. Nenhum desconto foi confirmado nesta prévia.';
+ }
+ window.addEventListener('raiz:catalogo-carregado',e=>{products=Array.isArray(e.detail?.produtos)?e.detail.produtos:[];if(opened)render()});
+ window.addEventListener('raiz:admin-tests-unlocked',()=>{authorized=true});
+ button.addEventListener('click',()=>{
+  if(!authorized||root.hidden)return;
+  opened=!opened;preview.hidden=!opened;
+  button.textContent=opened?'Ocultar painel de prévia':'Visualizar painel da Black Friday';
+  if(opened){render();preview.scrollIntoView({behavior:'smooth',block:'center'})}
+ });
+})();
+</script>
 </body></html>
