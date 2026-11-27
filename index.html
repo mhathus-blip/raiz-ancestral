@@ -2348,6 +2348,27 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
   catalog=Array.isArray(event.detail?.produtos)?event.detail.produtos:[];
   lastDay='';lastSeason='';render();
  });
+ // Se a vitrine iniciar depois do evento ou a primeira consulta demorar,
+ // recupera somente os produtos ativos via chave pública, sem dados administrativos.
+ async function recoverCatalog(){
+  if(catalog.length)return;
+  try{
+   if(typeof produtos!=='undefined'&&Array.isArray(produtos)&&produtos.length){
+    catalog=produtos.slice();lastDay='';lastSeason='';render();return;
+   }
+   if(typeof SUPABASE_URL!=='string'||typeof SUPABASE_KEY!=='string')return;
+   const url=SUPABASE_URL+'/rest/v1/produtos?select=id,nome,imagem_url,preco,loja,categoria,link_afiliado&ativo=eq.true&order=id.desc&limit=500';
+   const resp=await fetch(url,{headers:{apikey:SUPABASE_KEY},cache:'no-store',signal:AbortSignal.timeout(12000)});
+   if(!resp.ok)throw Error('Catálogo indisponível');
+   const rows=await resp.json();
+   if(!catalog.length&&Array.isArray(rows)&&rows.length){
+    catalog=rows;lastDay='';lastSeason='';render();
+   }
+  }catch{
+   if(!catalog.length)statusH.textContent='Catálogo temporariamente indisponível. Os produtos podem ser consultados na seção Produtos.';
+  }
+ }
+ setTimeout(()=>{void recoverCatalog()},4500);
  const observer=new MutationObserver(()=>render());
  observer.observe(document.body,{attributes:true,attributeFilter:['data-season']});
  render();setInterval(()=>{render();if(document.body.dataset.season==='black')void bfOffers('black')},60000);
