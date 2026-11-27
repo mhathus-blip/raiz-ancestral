@@ -1125,6 +1125,42 @@ html:not(.raiz-original-v12):root:not(.raiz-liquid-off) #categorias.filters butt
 html:not(.raiz-original-v12) .site-footer{
  background:linear-gradient(120deg,#0F2A1D,#375534,#0F2A1D)!important;
 }
+
+/* V14: painéis permanentes, sazonais e horizontais, leitura acessível. */
+.raiz-daily-section[hidden]{display:none!important}
+.raiz-daily-section{max-width:1100px;margin:22px auto 25px;padding:22px;border-radius:23px;background:linear-gradient(130deg,rgba(247,251,240,.98),rgba(227,238,212,.96));border:1px solid rgba(107,144,113,.6);box-shadow:0 12px 32px rgba(15,42,29,.14);color:#0F2A1D}
+.raiz-daily-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+.raiz-daily-header h2{font:700 clamp(22px,3vw,31px) Georgia,serif;margin:3px 0 7px;color:#0F2A1D}
+.raiz-daily-header p{font-size:12px;color:#46654b;margin:0}
+.raiz-daily-eyebrow{font-weight:800;letter-spacing:1.6px;font-size:10px;color:#375534}
+.raiz-daily-pause{font:700 12px Arial,sans-serif;border:1px solid #6B9071;border-radius:30px;padding:10px 15px;background:#fffef9;color:#375534;cursor:pointer;white-space:nowrap}
+.raiz-daily-viewport{overflow:hidden;border-radius:14px;mask-image:linear-gradient(to right,transparent,#000 3%,#000 97%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 3%,#000 97%,transparent)}
+.raiz-daily-track{display:flex;align-items:stretch;gap:12px;width:max-content;will-change:transform}
+.raiz-daily-track.raiz-daily-running{animation:raizDailyHorizontal 85s linear infinite}
+@keyframes raizDailyHorizontal{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.raiz-daily-viewport:hover .raiz-daily-track,.raiz-daily-viewport:focus-within .raiz-daily-track,.raiz-daily-section[data-paused="true"] .raiz-daily-track{animation-play-state:paused}
+.raiz-daily-item{width:220px;flex:0 0 220px;display:flex;flex-direction:column;gap:8px;border:1px solid rgba(107,144,113,.37);border-radius:16px;overflow:hidden;background:#fffef9;padding:11px;box-shadow:inset 0 1px #fff,0 4px 14px rgba(15,42,29,.08)}
+.raiz-daily-item img{width:100%;height:114px;object-fit:contain;background:white;border-radius:9px}
+.raiz-daily-item h3{font:700 14px/1.35 Georgia,serif;color:#193a25;margin:0;min-height:55px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.raiz-daily-item small{font-size:10px;font-weight:750;color:#46654b}
+.raiz-daily-item .raiz-daily-price{color:#244e31;font-size:13px;font-weight:800}
+.raiz-daily-item a{display:block;text-decoration:none;text-align:center;border-radius:24px;padding:10px 8px;margin-top:auto;font:800 11px Arial,sans-serif;background:linear-gradient(155deg,#6B9071,#375534 67%,#0F2A1D);color:#fffef5}
+.raiz-daily-item a[data-store="shopee"],.raiz-bf-item a[data-store="shopee"]{background:linear-gradient(#ffb66a,#eb722f);color:#331d0c}
+.raiz-daily-item a[data-store="amazon"],.raiz-bf-item a[data-store="amazon"]{background:linear-gradient(#75a97a,#245834);color:#fff}
+.raiz-daily-item a[data-store="magalu"],.raiz-bf-item a[data-store="magalu"]{background:linear-gradient(#5ca8ed,#2066b9);color:#fff}
+.raiz-daily-status{font-size:11px;color:#46654b;margin:12px 0 0}
+.raiz-bf-live[data-theme="christmas"]{background:linear-gradient(135deg,#0F2A1D,#375534 68%,#4d3030);border-color:#e2c68a}
+.raiz-bf-live[data-theme="easter"]{background:linear-gradient(130deg,#284934,#716347);border-color:#d5c69a}
+.raiz-bf-live[data-theme="mothers"],.raiz-bf-live[data-theme="valentine"]{background:linear-gradient(130deg,#274431,#754454)}
+.raiz-bf-live[data-theme="junina"]{background:linear-gradient(130deg,#21412b,#795632)}
+.raiz-bf-live[data-theme="newyear"]{background:linear-gradient(130deg,#0F2A1D,#4c5b4f)}
+.raiz-bf-live[data-theme="birthday"]{background:linear-gradient(130deg,#0F2A1D,#375534);border-color:#d7b86d}
+.raiz-bf-live .raiz-bf-track:not(.raiz-bf-moving){will-change:auto}
+.raiz-bf-item{min-width:0}
+.raiz-bf-item h3{overflow-wrap:anywhere}
+.raiz-bf-item .raiz-bf-item-price{font-variant-numeric:tabular-nums}
+@media(max-width:650px){.raiz-daily-section{padding:15px}.raiz-daily-header{flex-wrap:wrap}.raiz-daily-item{width:176px;flex-basis:176px}.raiz-daily-item img{height:90px}}
+@media(prefers-reduced-motion:reduce){.raiz-daily-track.raiz-daily-running,.raiz-bf-track.raiz-bf-moving{animation:none!important}.raiz-daily-viewport,.raiz-bf-viewport{overflow-x:auto;mask-image:none;-webkit-mask-image:none}}
 </style>
 </head>
 <body>
@@ -1144,9 +1180,17 @@ html:not(.raiz-original-v12) .site-footer{
   <p class="raiz-vitrine-admin-aviso" hidden></p>
 </section>
 <section id="raiz-bf-live" class="raiz-bf-live" aria-labelledby="raiz-bf-title" hidden>
-  <div class="raiz-bf-head"><div><span class="raiz-bf-eyebrow">OFERTAS CONSULTADAS NA SHOPEE</span><h2 id="raiz-bf-title">Black Friday • Ofertas verificadas</h2><p>Somente produtos já cadastrados. Os descontos são informados pela loja e podem mudar. Confira o anúncio antes de comprar.</p></div><span class="raiz-bf-live-dot" aria-hidden="true">● AO VIVO</span></div>
-  <div class="raiz-bf-viewport" aria-label="Produtos com desconto informado pela API da Shopee"><div class="raiz-bf-track"></div></div>
-  <p class="raiz-bf-status" role="status">Consultando a API da loja…</p>
+  <div class="raiz-bf-head"><div><span class="raiz-bf-eyebrow" id="raiz-campaign-eyebrow">SELEÇÃO DA CAMPANHA</span><h2 id="raiz-bf-title">Seleção especial da temporada</h2><p id="raiz-campaign-description">Produtos ativos do catálogo selecionados para a comemoração. Preços e condições devem ser confirmados na loja parceira.</p></div><span class="raiz-bf-live-dot" id="raiz-campaign-indicator">● SELEÇÃO TEMÁTICA</span></div>
+  <div class="raiz-bf-viewport" aria-label="Seleção de produtos para a comemoração atual"><div class="raiz-bf-track"></div></div>
+  <p class="raiz-bf-status" role="status">Preparando seleção da comemoração…</p>
+</section>
+<section class="raiz-daily-section" id="raiz-daily-panel" aria-labelledby="raiz-daily-heading" hidden>
+ <div class="raiz-daily-header">
+  <div><span class="raiz-daily-eyebrow">🌿 NOVIDADES PARA DESCOBRIR</span><h2 id="raiz-daily-heading">Descobertas do dia</h2><p>Uma seleção renovada diariamente entre produtos ativos. Não significa oferta ou desconto confirmado.</p></div>
+  <button type="button" class="raiz-daily-pause" aria-pressed="false">Pausar movimento</button>
+ </div>
+ <div class="raiz-daily-viewport" aria-label="Produtos selecionados para hoje"><div class="raiz-daily-track"></div></div>
+ <p class="raiz-daily-status" role="status">Carregando produtos do catálogo…</p>
 </section>
 <section class="season-garimpos" id="garimpos" aria-labelledby="garimpos-titulo"><div style="font:700 12px Arial,sans-serif;letter-spacing:1.4px;color:#986e3b">🌿 CURADORIA RAIZ ANCESTRAL</div><h2 id="garimpos-titulo">Garimpos da Raiz</h2><p>Uma seleção para facilitar sua busca por produtos naturais. Compare preços e confira as condições atuais nas lojas parceiras.</p><div class="garimpos-grid"><article class="garimpo"><div class="emoji" aria-hidden="true">🍵</div><h3>Chás e ervas</h3><p>Encontre infusões, ervas e opções para seu ritual diário.</p><button type="button" data-garimpo-category="Chás e Ervas">Ver chás e ervas</button></article><article class="garimpo"><div class="emoji" aria-hidden="true">🌱</div><h3>Suplementos naturais</h3><p>Compare produtos, apresentações e informações do fabricante.</p><button type="button" data-garimpo-category="Alimentos &amp; Suplementos">Ver suplementos</button></article><article class="garimpo"><div class="emoji" aria-hidden="true">🍯</div><h3>Alimentos naturais</h3><p>Explore ingredientes e alimentos para uma rotina variada.</p><button type="button" data-garimpo-category="Alimentos &amp; Suplementos">Ver alimentos</button></article></div><p class="disclaimer">Os itens desta seção não são necessariamente promocionais. Não anunciamos descontos sem confirmação. Preços, frete, disponibilidade e condições podem variar nas lojas parceiras.</p></section>
 </div>
@@ -2165,51 +2209,148 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
 })();
 </script>
 <script>
-/* V13: painel exclusivo da Black Friday — dados reais, sem preços anteriores simulados. */
+/* V14: calendário temático vertical + vitrine horizontal diária.
+ * Dados exclusivamente do catálogo aprovado, promoções somente quando confirmadas via API.
+ */
 (()=>{
- const box=document.getElementById('raiz-bf-live');
- if(!box)return;
- const track=box.querySelector('.raiz-bf-track');
- const status=box.querySelector('.raiz-bf-status');
- const fmt=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
- let currentDay='',lastLoad=0,loading=false;
- function day(){
+ 'use strict';
+ const seasonal=document.getElementById('raiz-bf-live'),daily=document.getElementById('raiz-daily-panel');
+ if(!seasonal||!daily)return;
+ const vertical=seasonal.querySelector('.raiz-bf-track'),horizontal=daily.querySelector('.raiz-daily-track');
+ const statusV=seasonal.querySelector('.raiz-bf-status'),statusH=daily.querySelector('.raiz-daily-status');
+ const pause=daily.querySelector('.raiz-daily-pause');
+ const formatMoney=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ const norm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const validUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'&&!u.username&&!u.password}catch{return false}};
+ const themes={
+  black:['Black Friday','🖤','cha;ervas;alimentos;sementes;jardim;difusor;presente'],
+  christmas:['Natal','🎄','presente;chocolate;cha;aroma;vela;decoracao;flor;livro'],
+  newyear:['Ano-Novo','✨','cha;aroma;flor;decoracao;bem estar;semente;livro'],
+  easter:['Páscoa','🐣','chocolate;cacau;mel;cha;presente;alimento'],
+  mothers:['Dia das Mães','💐','flor;rosa;aroma;presente;difusor;cha;livro'],
+  valentine:['Dia dos Namorados','❤️','chocolate;flor;rosa;aroma;presente;difusor'],
+  junina:['Festas Juninas','🌽','milho;amendoim;canela;cha;alimento;receita'],
+  fathers:['Dia dos Pais','🎁','cafe;cha;livro;moedor;presente;ferramenta'],
+  tree:['Dia da Árvore','🌳','arvore;muda;semente;jardim;fertilizante;adubo'],
+  spring:['Primavera','🌸','flor;rosa;muda;semente;jardim;horta'],
+  birthday:['Aniversário Raiz Ancestral','🌿','cha;planta;semente;flor;livro;aroma']
+ };
+ let catalog=[],lastDay='',lastSeason='',lastBfQuery=0,bfPending=false;
+ function brazilDay(){
   const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
-  const x=Object.fromEntries(parts.filter(t=>t.type!=='literal').map(t=>[t.type,t.value]));
-  return x.year+'-'+x.month+'-'+x.day;
+  const d=Object.fromEntries(parts.filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+  return d.year+'-'+d.month+'-'+d.day;
  }
- function build(p,duplicate=false){
-  const card=document.createElement('article');
-  card.className='raiz-bf-item';
-  if(duplicate){card.setAttribute('aria-hidden','true');card.inert=true;}
-  if(p.imagem&&/^https:\/\//.test(p.imagem)){const img=document.createElement('img');img.src=p.imagem;img.alt='';img.loading='lazy';card.append(img)}
-  const details=document.createElement('div');details.className='raiz-bf-item-details';
-  const title=document.createElement('h3');title.textContent=String(p.nome||'Produto');
-  const price=document.createElement('div');price.className='raiz-bf-item-price';price.textContent=fmt(p.preco);
-  const note=document.createElement('small');note.textContent='Desconto informado pela Shopee • preço sujeito a alteração';
-  details.append(title,price,note);
-  const a=document.createElement('a');a.href=p.link;a.target='_blank';a.rel='sponsored noopener noreferrer';a.textContent='Ver na Shopee';
+ function dayNumber(iso){return Math.floor(Date.parse(iso+'T12:00:00Z')/86400000)}
+ function pick(items,count,seed){
+  if(!items.length)return [];
+  const ordered=[...items].sort((a,b)=>Number(a.id)-Number(b.id));
+  const offset=((seed*7)%ordered.length+ordered.length)%ordered.length;
+  return Array.from({length:Math.min(count,ordered.length)},(_,i)=>ordered[(offset+i)%ordered.length]);
+ }
+ function storeKey(p){
+  const store=norm(p.loja);
+  return store.includes('shopee')?'shopee':store.includes('amazon')?'amazon':store.includes('magalu')?'magalu':'other';
+ }
+ function link(p,duplicate=false){
+  const a=document.createElement('a');a.href=p.link;a.target='_blank';a.rel='sponsored noopener noreferrer';
+  a.dataset.store=storeKey(p);a.textContent='Ver na '+String(p.loja||'loja');
   if(!duplicate)a.addEventListener('click',()=>window.raizRegistrarSaidaLoja?.(p.id));
-  card.append(details,a);return card;
+  return a;
  }
- async function update(){
-  const today=day(),active=today==='2026-11-27';
-  box.hidden=!active;
-  if(!active){currentDay=today;track.replaceChildren();return}
-  if(loading||currentDay===today&&Date.now()-lastLoad<20*60*1000)return;
-  loading=true;currentDay=today;lastLoad=Date.now();
+ function card(p,type,duplicate=false){
+  const a=document.createElement('article');a.className=type==='vertical'?'raiz-bf-item':'raiz-daily-item';
+  if(duplicate){a.setAttribute('aria-hidden','true');a.inert=true}
+  if(validUrl(p.imagem)){
+   const img=document.createElement('img');img.src=p.imagem;img.alt='';img.loading='lazy';a.append(img);
+  }
+  const details=document.createElement('div');details.className=type==='vertical'?'raiz-bf-item-details':'raiz-daily-details';
+  const title=document.createElement('h3');title.textContent=p.nome;
+  const price=document.createElement('div');price.className=type==='vertical'?'raiz-bf-item-price':'raiz-daily-price';
+  price.textContent=Number(p.preco)>0?formatMoney(p.preco):'Consultar preço na loja';
+  const note=document.createElement('small');note.textContent=p.confirmed?'Desconto indicado pela API • confirme na loja':String(p.loja||'Loja parceira')+' • preço sujeito a confirmação';
+  if(type==='vertical'){details.append(title,price,note);a.append(details,link(p,duplicate))}
+  else{details.append(title,price,note);a.append(details,link(p,duplicate))}
+  return a;
+ }
+ function runTrack(track,items,type){
+  track.classList.remove(type==='vertical'?'raiz-bf-moving':'raiz-daily-running');
+  track.replaceChildren();
+  for(const p of items)track.append(card(p,type));
+  if(items.length>1){
+   for(const p of items)track.append(card(p,type,true));
+   track.classList.add(type==='vertical'?'raiz-bf-moving':'raiz-daily-running');
+  }
+ }
+ function eligible(){return catalog.filter(p=>p&&p.id&&p.nome&&validUrl(p.link_afiliado)&&String(p.loja||'').trim())}
+ function asItem(p){return {id:p.id,nome:p.nome,imagem:p.imagem_url,loja:p.loja,link:p.link_afiliado,preco:p.preco,confirmed:false}}
+ function renderDaily(){
+  const items=pick(eligible(),8,dayNumber(brazilDay())).map(asItem);
+  daily.hidden=!items.length;
+  if(!items.length){statusH.textContent='Nenhum produto ativo disponível para a seleção de hoje.';horizontal.replaceChildren();return}
+  runTrack(horizontal,items,'horizontal');
+  statusH.textContent='Seleção atualizada por dia, pelo horário de Brasília. Consulte sempre o anúncio da loja.';
+ }
+ function themedSelection(season){
+  const items=eligible();
+  const keywords=themes[season]?.[2]?.split(';')||[];
+  const ranked=items.map(p=>{
+   const hay=norm(p.nome+' '+p.categoria+' '+(p.descricao||''));
+   const points=keywords.reduce((n,k)=>n+(hay.includes(norm(k))?1:0),0);
+   return {p,points};
+  }).filter(x=>x.points>0).sort((a,b)=>b.points-a.points||Number(a.p.id)-Number(b.p.id));
+  const strong=ranked.map(x=>x.p);
+  return pick(strong.length>=6?strong:strong.concat(items.filter(p=>!strong.some(x=>x.id===p.id))),6,dayNumber(brazilDay())).map(asItem);
+ }
+ function showCurated(season,message){
+  const items=themedSelection(season);
+  runTrack(vertical,items,'vertical');
+  seasonal.querySelector('#raiz-campaign-indicator').textContent='● SELEÇÃO TEMÁTICA';
+  statusV.textContent=items.length?(message||'Seleção temática renovada diariamente. Não há descontos confirmados nesta seleção.'):'Ainda não há produtos disponíveis para esta seleção.';
+ }
+ async function bfOffers(season){
+  if(season!=='black'||brazilDay()!=='2026-11-27'||bfPending||Date.now()-lastBfQuery<20*60*1000)return;
+  bfPending=true;lastBfQuery=Date.now();
   try{
-   const res=await fetch('/api/shopee?bf=1',{cache:'no-store',signal:AbortSignal.timeout(35000)});
-   const data=await res.json();if(!res.ok)throw Error('Consulta temporariamente indisponível');
-   const offers=Array.isArray(data.produtos)?data.produtos.filter(p=>p?.descontoInformado&&p.preco>0&&/^https:\/\//.test(p.link)): [];
-   track.classList.remove('raiz-bf-moving');track.replaceChildren();
-   for(const p of offers.slice(0,8))track.append(build(p));
-   if(offers.length>1){for(const p of offers.slice(0,8))track.append(build(p,true));track.classList.add('raiz-bf-moving')}
-   status.textContent=offers.length?'Ofertas consultadas na Shopee. Descontos e condições podem mudar; confirme na loja.':'Nenhuma promoção verificada nesta consulta. A vitrine será atualizada automaticamente.';
-  }catch{track.classList.remove('raiz-bf-moving');track.replaceChildren();status.textContent='Verificação de promoções indisponível no momento. Consulte o catálogo normal.'}
-  finally{loading=false}
+   const res=await fetch('/api/shopee?bf=1',{cache:'no-store',signal:AbortSignal.timeout(33000)});
+   const data=await res.json();if(!res.ok)throw Error('API indisponível');
+   if((document.body.dataset.season||'normal')!=='black')return;
+   const offers=(Array.isArray(data.produtos)?data.produtos:[]).filter(p=>p.descontoInformado&&Number(p.preco)>0&&validUrl(p.link)).map(p=>({...p,confirmed:true}));
+   if(offers.length){
+    runTrack(vertical,offers.slice(0,8),'vertical');
+    seasonal.querySelector('#raiz-campaign-indicator').textContent='● DESCONTOS INFORMADOS PELA API';
+    statusV.textContent='Produtos consultados na Shopee. Os descontos e preços podem mudar; confirme tudo na loja.';
+   }else showCurated('black','A API não confirmou descontos neste lote. Exibindo seleção temática sem promessa de promoção.');
+  }catch{showCurated('black','Consulta a descontos indisponível. Exibindo produtos do catálogo sem alegação de promoção.')}
+  finally{bfPending=false}
  }
- void update();setInterval(update,60000);
+ function render(){
+  const season=document.body.dataset.season||'normal',day=brazilDay(),changed=lastDay!==day||lastSeason!==season;
+  if(changed){lastDay=day;lastSeason=season;renderDaily()}
+  seasonal.hidden=!themes[season];
+  if(!themes[season]){vertical.replaceChildren();return}
+  if(!changed)return;
+  seasonal.dataset.theme=season;
+  const [title,emoji]=themes[season];
+  seasonal.querySelector('#raiz-bf-title').textContent=emoji+' '+title+' • Vitrine da campanha';
+  seasonal.querySelector('#raiz-campaign-eyebrow').textContent='SELEÇÃO ESPECIAL RAIZ ANCESTRAL';
+  seasonal.querySelector('#raiz-campaign-description').textContent='Produtos existentes no catálogo, escolhidos por afinidade com a comemoração. Desconto só é anunciado quando confirmado pela loja.';
+  showCurated(season);
+  void bfOffers(season);
+ }
+ pause.addEventListener('click',()=>{
+  const isPaused=daily.dataset.paused==='true';
+  daily.dataset.paused=String(!isPaused);
+  pause.setAttribute('aria-pressed',String(!isPaused));
+  pause.textContent=isPaused?'Pausar movimento':'Retomar movimento';
+ });
+ window.addEventListener('raiz:catalogo-carregado',event=>{
+  catalog=Array.isArray(event.detail?.produtos)?event.detail.produtos:[];
+  lastDay='';lastSeason='';render();
+ });
+ const observer=new MutationObserver(()=>render());
+ observer.observe(document.body,{attributes:true,attributeFilter:['data-season']});
+ render();setInterval(()=>{render();if(document.body.dataset.season==='black')void bfOffers('black')},60000);
 })();
 </script>
 </body></html>
