@@ -2368,7 +2368,8 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
    if(!catalog.length)statusH.textContent='Catálogo temporariamente indisponível. Os produtos podem ser consultados na seção Produtos.';
   }
  }
- setTimeout(()=>{void recoverCatalog()},4500);
+ // Primeira tentativa independente imediatamente; o evento do catálogo pode chegar depois.
+ void recoverCatalog();
  const observer=new MutationObserver(()=>render());
  observer.observe(document.body,{attributes:true,attributeFilter:['data-season']});
  render();setInterval(()=>{render();if(document.body.dataset.season==='black')void bfOffers('black')},60000);
