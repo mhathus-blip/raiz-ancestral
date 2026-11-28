@@ -1161,6 +1161,38 @@ html:not(.raiz-original-v12) .site-footer{
 .raiz-bf-item .raiz-bf-item-price{font-variant-numeric:tabular-nums}
 @media(max-width:650px){.raiz-daily-section{padding:15px}.raiz-daily-header{flex-wrap:wrap}.raiz-daily-item{width:176px;flex-basis:176px}.raiz-daily-item img{height:90px}}
 @media(prefers-reduced-motion:reduce){.raiz-daily-track.raiz-daily-running,.raiz-bf-track.raiz-bf-moving{animation:none!important}.raiz-daily-viewport,.raiz-bf-viewport{overflow-x:auto;mask-image:none;-webkit-mask-image:none}}
+
+/* V14.1 — janela ampliada para 5–8 cartões visíveis em telas grandes.
+   A quantidade de promoções distintas depende exclusivamente da API. */
+.raiz-bf-live .raiz-bf-viewport{
+  height:870px!important;
+  max-height:none!important;
+  mask-image:linear-gradient(transparent,#000 3%,#000 97%,transparent)!important;
+  -webkit-mask-image:linear-gradient(transparent,#000 3%,#000 97%,transparent)!important;
+}
+.raiz-bf-live .raiz-bf-item{
+  min-height:110px;
+  gap:15px;
+  padding:10px 13px;
+  box-sizing:border-box;
+}
+.raiz-bf-live .raiz-bf-item img{height:88px;width:88px;flex-basis:88px}
+.raiz-bf-live .raiz-bf-item h3{font-size:15px;line-height:1.28}
+.raiz-bf-live .raiz-bf-status{margin-top:17px;line-height:1.6}
+@media(max-width:850px){
+ .raiz-bf-live .raiz-bf-viewport{height:760px!important}
+}
+@media(max-width:650px){
+ .raiz-bf-live .raiz-bf-viewport{height:590px!important}
+ .raiz-bf-live .raiz-bf-item{padding:9px;gap:10px}
+ .raiz-bf-live .raiz-bf-item img{width:66px;height:66px;flex-basis:66px}
+ .raiz-bf-live .raiz-bf-item h3{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .raiz-bf-live .raiz-bf-viewport{
+  overflow-y:auto!important;mask-image:none!important;-webkit-mask-image:none!important;
+ }
+}
 </style>
 </head>
 <body>
@@ -2319,7 +2351,7 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
    if(offers.length){
     runTrack(vertical,offers.slice(0,8),'vertical');
     seasonal.querySelector('#raiz-campaign-indicator').textContent='● DESCONTOS INFORMADOS PELA API';
-    statusV.textContent='Produtos consultados na Shopee. Os descontos e preços podem mudar; confirme tudo na loja.';
+    statusV.textContent=offers.length+' oferta(s) distinta(s) com desconto indicado pela API Shopee. A rolagem repete os produtos para manter o movimento contínuo. Confira valores e condições na loja.';
    }else showCurated('black','A API não confirmou descontos neste lote. Exibindo seleção temática sem promessa de promoção.');
   }catch{showCurated('black','Consulta a descontos indisponível. Exibindo produtos do catálogo sem alegação de promoção.')}
   finally{bfPending=false}
