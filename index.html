@@ -1989,29 +1989,35 @@ const botao = elemento("a", "buy", textoBotao);
     black:blackFridayDate(year),christmas:new Date(year,11,25)
   };}
   function automaticSeason(now){
-    const y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
-    // Preservar as janelas já aprovadas: Black Friday em novembro e Natal até 25/12.
-    if(m===10)return 'black';
-    if(m===11&&d<=25)return 'christmas';
-    const today=new Date(y,m,d);
+    // Calendário oficial pelo dia civil de Brasília, independente do fuso do visitante.
+    // A prévia administrativa é calculada com a data simulada, quando explicitamente ativada.
+    const usePreview=typeof adminTestsUnlocked!=='undefined' && adminTestsUnlocked &&
+      typeof selector!=='undefined' && selector.value==='auto' &&
+      document.getElementById('season-test-date')?.value;
+    let y,m,d;
+    if(usePreview){y=now.getFullYear();m=now.getMonth();d=now.getDate();}
+    else{
+      const pieces=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(now);
+      const parts=Object.fromEntries(pieces.filter(p=>p.type!=='literal').map(p=>[p.type,Number(p.value)]));
+      y=parts.year;m=parts.month-1;d=parts.day;
+    }
+    const dayStamp=(year,month,day)=>Date.UTC(year,month,day)/86400000;
+    const today=dayStamp(y,m,d);
     const dates=calendarDates(y);
-    // Ano-Novo começa depois do Natal, e continua até 1/1.
-    const newyearPrev=new Date(y-1,0,1);
-    const newyearNext=new Date(y+1,0,1);
-    const inWindow=(date,days=10)=>{
-      const start=new Date(date.getFullYear(),date.getMonth(),date.getDate()-days);
-      const end=new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
-      return today>=start&&today<end;
-    };
-    // Virada do ano: 26-31 de dezembro e preparação para 1º de janeiro.
-    if(m===11&&d>=26)return 'newyear';
-    if(inWindow(dates.newyear)||inWindow(newyearNext)||inWindow(newyearPrev))return 'newyear';
-    // Sem sobreposição: Dia da Árvore até 21/9 e Primavera de 22/9 em diante.
-    if(m===8&&d>=12&&d<=21)return 'tree';
-    if(m===8&&d>=22&&d<=23)return 'spring';
-    const order=['easter','mothers','valentine','junina','fathers','birthday'];
-    for(const key of order){if(inWindow(dates[key]))return key;}
-    return 'normal';
+    const stamp=date=>dayStamp(date.getFullYear(),date.getMonth(),date.getDate());
+    const during=(date,advance=10)=>today>=stamp(date)-advance && today<=stamp(date);
+    // Natal e Ano-Novo não se sobrepõem: a virada assume o visual em 26/12.
+    if(m===11 && d>=26)return 'newyear';
+    if(m===0 && d===1)return 'newyear';
+    if(during(dates.christmas,10))return 'christmas';
+    // Black Friday: de 10 dias antes até 23h59 do próprio dia.
+    if(during(dates.black,10))return 'black';
+    // Demais eventos: abrem 10 dias antes, encerram na virada do seu dia.
+    // Para datas próximas (Árvore e Primavera), prioriza o evento mais próximo.
+    const order=['easter','mothers','valentine','junina','fathers','tree','spring','birthday'];
+    const candidates=order.filter(key=>during(dates[key],10))
+      .sort((a,b)=>stamp(dates[a])-stamp(dates[b]));
+    return candidates[0]||'normal';
   }
   function apply(value,now=new Date()){
     const season=value==='auto'?automaticSeason(now):value;
