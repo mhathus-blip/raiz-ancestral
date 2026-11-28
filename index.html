@@ -2352,12 +2352,13 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
  function link(p,duplicate=false){
   const a=document.createElement('a');a.href=p.link;a.target='_blank';a.rel='sponsored noopener noreferrer';
   a.dataset.store=storeKey(p);a.textContent='Ver na '+String(p.loja||'loja');
-  if(!duplicate)a.addEventListener('click',()=>window.raizRegistrarSaidaLoja?.(p.id));
+  if(duplicate)a.tabIndex=-1; // Cópia visual: não duplicar na navegação por teclado.
+  a.addEventListener('click',()=>window.raizRegistrarSaidaLoja?.(p.id));
   return a;
  }
  function card(p,type,duplicate=false){
   const a=document.createElement('article');a.className=type==='vertical'?'raiz-bf-item':'raiz-daily-item';
-  if(duplicate){a.setAttribute('aria-hidden','true');a.inert=true}
+  if(duplicate)a.setAttribute('aria-hidden','true'); // Mantém clique por mouse sem duplicar leitura assistiva.
   if(validUrl(p.imagem)){
    const img=document.createElement('img');img.src=p.imagem;img.alt='';img.loading='lazy';a.append(img);
   }
