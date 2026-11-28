@@ -2154,7 +2154,19 @@ const botao = elemento("a", "buy", textoBotao);
     }
     section.hidden=false;if(notice)notice.hidden=true;previous=season;
   }
-  window.addEventListener('raiz:catalogo-carregado',event=>{items=Array.isArray(event.detail?.produtos)?event.detail.produtos:[];render()});
+  async function loadSignals(){
+  try{
+   const r=await fetch('/api/vitrine-sinais',{cache:'default',signal:AbortSignal.timeout(9000)});
+   if(!r.ok)throw Error('Sinais indisponíveis');
+   const data=await r.json();
+   if(!Array.isArray(data.sinais))return;
+   signals=new Map(data.sinais.filter(x=>Number.isSafeInteger(Number(x.id))&&Number(x.id)>0).map(x=>[Number(x.id),x]));
+   // A API é agregada e anônima. Não há cookies nem perfis individuais.
+   lastDay='';lastSeason='';render();
+  }catch{/* Sem sinais, seleciona normalmente por tema, variedade e dia. */}
+ }
+ void loadSignals();
+ window.addEventListener('raiz:catalogo-carregado',event=>{items=Array.isArray(event.detail?.produtos)?event.detail.produtos:[];render()});
   window.addEventListener('raiz:admin-tests-unlocked',()=>{unlocked=true;render()});
   const obs=new MutationObserver(()=>{if(document.body.dataset.season!==previous)render()});
   obs.observe(document.body,{attributes:true,attributeFilter:['data-season']});
@@ -2267,18 +2279,71 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
   spring:['Primavera','🌸','flor;rosa;muda;semente;jardim;horta'],
   birthday:['Aniversário Raiz Ancestral','🌿','cha;planta;semente;flor;livro;aroma']
  };
- let catalog=[],lastDay='',lastSeason='',lastBfQuery=0,bfPending=false;
+ let catalog=[],lastDay='',lastSeason='',lastBfQuery=0,bfPending=false,signals=new Map();
  function brazilDay(){
   const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
   const d=Object.fromEntries(parts.filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
   return d.year+'-'+d.month+'-'+d.day;
  }
  function dayNumber(iso){return Math.floor(Date.parse(iso+'T12:00:00Z')/86400000)}
- function pick(items,count,seed){
+ /* Curadoria transparente: popularidade agregada (peso limitado), pertinência
+    temática, variação diária e diversidade de categoria e loja.
+    Não classifica como desconto nem cria informações sobre o anúncio. */
+ function hash32(value){
+  let h=2166136261;
+  for(const c of String(value)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}
+  return (h>>>0)/4294967296;
+ }
+ function scoreProduct(p,season,seed){
+  const id=Number(p.id),m=signals.get(id)||{cliques_7d:0,cliques_30d:0};
+  const recent=Math.min(3,Math.max(0,Number(m.cliques_7d)||0));
+  const month=Math.min(10,Math.max(0,Number(m.cliques_30d)||0));
+  const popularity=Math.min(2.4,Math.log2(1+recent)*.7+Math.log2(1+month)*.32);
+  const keywords=themes[season]?.[2]?.split(';')||[];
+  const hay=norm(p.nome+' '+p.categoria+' '+(p.descricao||''));
+  const matches=keywords.reduce((acc,k)=>acc+(hay.includes(norm(k))?1:0),0);
+  const relevance=season==='normal'?0:Math.min(2,matches)*3.3;
+  const exploration=hash32(seed+':'+id+':raiz-v14')*4.4;
+  return {p,matches,score:relevance+popularity+exploration};
+ }
+ function chooseSmart(items,count,season,seed,exclude=new Set()){
   if(!items.length)return [];
-  const ordered=[...items].sort((a,b)=>Number(a.id)-Number(b.id));
-  const offset=((seed*7)%ordered.length+ordered.length)%ordered.length;
-  return Array.from({length:Math.min(count,ordered.length)},(_,i)=>ordered[(offset+i)%ordered.length]);
+  const scored=items.map(p=>scoreProduct(p,season,seed));
+  const relevant=season==='normal'?scored:scored.filter(x=>x.matches>0);
+  // Produtos fora do tema só complementam a seleção quando há poucos pertinentes.
+  const pool=(relevant.length>=count?relevant:scored).sort((a,b)=>b.score-a.score||Number(a.p.id)-Number(b.p.id));
+  const chosen=[],seen=new Set(),byCategory=new Map(),byShop=new Map();
+  const categoryLimit=count>=6?2:1;
+  const storeLimit=Math.max(2,Math.ceil(count*.5));
+  const passes=[
+   {skip:true,limits:true},{skip:true,limits:false},
+   {skip:false,limits:true},{skip:false,limits:false}
+  ];
+  for(const pass of passes){
+   for(const x of pool){
+    const p=x.p,id=String(p.id);
+    if(seen.has(id)||pass.skip&&exclude.has(id))continue;
+    const category=norm(p.categoria)||'outras';
+    const store=norm(p.loja)||'loja';
+    if(pass.limits&&((byCategory.get(category)||0)>=categoryLimit||(byShop.get(store)||0)>=storeLimit))continue;
+    chosen.push(p);seen.add(id);
+    byCategory.set(category,(byCategory.get(category)||0)+1);
+    byShop.set(store,(byShop.get(store)||0)+1);
+    if(chosen.length>=count)return chosen;
+   }
+  }
+  return chosen;
+ }
+ function rotatingSelection(items,count,season){
+  const today=dayNumber(brazilDay());
+  const yesterday=chooseSmart(items,count,season,today-1);
+  const candidates=season==='normal'?items:items.filter(p=>{
+   const keys=themes[season]?.[2]?.split(';')||[];
+   const hay=norm(p.nome+' '+p.categoria+' '+(p.descricao||''));
+   return keys.some(k=>hay.includes(norm(k)));
+  });
+  const skip=candidates.length>=count*2?new Set(yesterday.map(p=>String(p.id))):new Set();
+  return chooseSmart(items,count,season,today,skip);
  }
  function storeKey(p){
   const store=norm(p.loja);
@@ -2317,28 +2382,20 @@ try{if(new URLSearchParams(location.search).get('liquid')==='off')document.docum
  function eligible(){return catalog.filter(p=>p&&p.id&&p.nome&&validUrl(p.link_afiliado)&&String(p.loja||'').trim())}
  function asItem(p){return {id:p.id,nome:p.nome,imagem:p.imagem_url,loja:p.loja,link:p.link_afiliado,preco:p.preco,confirmed:false}}
  function renderDaily(){
-  const items=pick(eligible(),8,dayNumber(brazilDay())).map(asItem);
+  const items=rotatingSelection(eligible(),8,'normal').map(asItem);
   daily.hidden=!items.length;
   if(!items.length){statusH.textContent='Nenhum produto ativo disponível para a seleção de hoje.';horizontal.replaceChildren();return}
   runTrack(horizontal,items,'horizontal');
-  statusH.textContent='Seleção atualizada por dia, pelo horário de Brasília. Consulte sempre o anúncio da loja.';
+  statusH.textContent='Curadoria diária com variedade de categorias e lojas. A popularidade considera cliques agregados, quando disponíveis. Preços devem ser confirmados na loja.';
  }
  function themedSelection(season){
-  const items=eligible();
-  const keywords=themes[season]?.[2]?.split(';')||[];
-  const ranked=items.map(p=>{
-   const hay=norm(p.nome+' '+p.categoria+' '+(p.descricao||''));
-   const points=keywords.reduce((n,k)=>n+(hay.includes(norm(k))?1:0),0);
-   return {p,points};
-  }).filter(x=>x.points>0).sort((a,b)=>b.points-a.points||Number(a.p.id)-Number(b.p.id));
-  const strong=ranked.map(x=>x.p);
-  return pick(strong.length>=6?strong:strong.concat(items.filter(p=>!strong.some(x=>x.id===p.id))),6,dayNumber(brazilDay())).map(asItem);
+  return rotatingSelection(eligible(),8,season).map(asItem);
  }
  function showCurated(season,message){
   const items=themedSelection(season);
   runTrack(vertical,items,'vertical');
   seasonal.querySelector('#raiz-campaign-indicator').textContent='● SELEÇÃO TEMÁTICA';
-  statusV.textContent=items.length?(message||'Seleção temática renovada diariamente. Não há descontos confirmados nesta seleção.'):'Ainda não há produtos disponíveis para esta seleção.';
+  statusV.textContent=items.length?(message||'Curadoria temática com variedade e renovação diária. A seleção não comprova descontos.'):'Ainda não há produtos disponíveis para esta seleção.';
  }
  async function bfOffers(season){
   if(season!=='black'||brazilDay()!=='2026-11-27'||bfPending||Date.now()-lastBfQuery<20*60*1000)return;
