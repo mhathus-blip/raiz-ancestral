@@ -1,0 +1,40 @@
+/* Raiz Ancestral V14.3 — central operacional premium, isolada do layout público.
+   Paleta oficial verde-floresta / sálvia / creme, sem alteração de navegação. */
+.raiz-operational-card{margin:20px 0;padding:clamp(15px,2.4vw,23px);border:1px solid rgba(107,144,113,.52);border-radius:22px;background:linear-gradient(135deg,rgba(255,255,251,.97),rgba(227,238,212,.94));color:#0F2A1D;box-shadow:inset 0 1px rgba(255,255,255,.95),0 13px 30px rgba(15,42,29,.12)}
+.raiz-operational-card .raiz-op-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:17px}
+.raiz-operational-card .raiz-op-heading small{font:800 10px Arial,sans-serif;letter-spacing:1.9px;color:#537b5e}
+.raiz-operational-card h3{font:700 clamp(21px,2.5vw,28px) Georgia,serif!important;margin:6px 0!important;color:#0F2A1D!important}
+.raiz-operational-card h4{font:700 16px Georgia,serif;color:#21462e;margin:0 0 10px}
+.raiz-operational-card p{font:13px/1.55 Arial,sans-serif;color:#46654b;margin:5px 0}
+.raiz-operational-card button{border:1px solid #375534!important;border-radius:13px!important;background:linear-gradient(155deg,#6B9071,#375534 60%,#0F2A1D)!important;color:#fffef4!important;padding:9px 15px!important;font:700 12px Arial,sans-serif!important;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.24),0 5px 12px rgba(15,42,29,.11)}
+.raiz-operational-card button:disabled{opacity:.45!important;cursor:default!important}
+.raiz-operational-card .raiz-op-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 17px}
+.raiz-operational-card .raiz-op-metrics>div{display:flex;flex-direction:column;gap:6px;min-width:0;padding:13px 14px;border:1px solid rgba(107,144,113,.35);border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.91),rgba(174,195,176,.28));box-shadow:inset 0 1px white}
+.raiz-operational-card .raiz-op-metrics b{font:750 clamp(19px,2.6vw,30px) Georgia,serif;color:#0F2A1D}
+.raiz-operational-card .raiz-op-metrics span{font:600 11px/1.4 Arial,sans-serif;color:#526c55}
+.raiz-operational-card .raiz-op-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:12px 0}
+.raiz-operational-card .raiz-op-toolbar input{flex:1;min-width:180px}
+.raiz-operational-card :is(input,select,textarea){border:1px solid rgba(107,144,113,.49)!important;background:rgba(255,255,255,.96)!important;border-radius:11px!important;padding:9px 11px!important;color:#24452e!important;font:500 12px Arial,sans-serif!important;max-width:100%;min-height:37px}
+.raiz-operational-card :is(input,select,textarea):focus-visible{outline:2px solid #375534;outline-offset:2px}
+.raiz-operational-card .raiz-op-info{margin:12px 0!important;font-size:12px!important}
+.raiz-operational-card .raiz-op-list{max-height:580px;overflow-y:auto;scrollbar-color:#6B9071 #E3EED4;border-radius:15px}
+.raiz-operational-card .raiz-op-entry{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 12px;border:1px solid rgba(107,144,113,.3);background:rgba(255,255,253,.83);border-radius:14px;margin:0 0 9px}
+.raiz-operational-card .raiz-op-entry-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:5px}
+.raiz-operational-card .raiz-op-entry-main strong{overflow-wrap:anywhere;font:700 13px/1.45 Georgia,serif;color:#153725}
+.raiz-operational-card .raiz-op-entry-main small{font:11px/1.4 Arial,sans-serif;color:#506b54}
+.raiz-operational-card .raiz-op-entry-main a{font-size:11px;color:#225b35;text-decoration:underline}
+.raiz-operational-card .raiz-op-entry-controls{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.raiz-operational-card .raiz-op-entry-controls select{max-width:180px}
+.raiz-operational-card .raiz-op-entry-controls input{max-width:170px}
+.raiz-operational-card .raiz-op-pages{display:flex;align-items:center;justify-content:center;gap:15px;margin:15px 0 0}
+.raiz-operational-card .raiz-op-pages span{font:700 12px Arial,sans-serif;color:#375534}
+.raiz-operational-card .raiz-op-triple{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.raiz-operational-card .raiz-op-triple>div{border:1px solid rgba(107,144,113,.36);background:rgba(255,255,255,.8);border-radius:15px;padding:15px;min-width:0}
+.raiz-operational-card .raiz-op-triple ol{margin:0;padding-left:19px}
+.raiz-operational-card .raiz-op-triple li{font:12px/1.45 Arial,sans-serif;margin:0 0 11px;overflow-wrap:anywhere}
+.raiz-operational-card .raiz-op-triple li strong{color:#0F2A1D}
+.raiz-operational-card .raiz-op-bar{display:block;background:linear-gradient(90deg,#375534,#AEC3B0);border-radius:4px;height:5px;min-width:3px;margin-top:5px}
+.raiz-operational-card .raiz-op-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.raiz-operational-card .raiz-op-actions span{font:11px Arial,sans-serif;color:#506950}
+@media(max-width:850px){.raiz-operational-card .raiz-op-triple{grid-template-columns:1fr}.raiz-operational-card .raiz-op-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.raiz-operational-card .raiz-op-entry{flex-direction:column;align-items:stretch}.raiz-operational-card .raiz-op-entry-controls{justify-content:flex-start}.raiz-operational-card .raiz-op-toolbar select{flex:1}.raiz-operational-card .raiz-op-toolbar input{flex-basis:100%}}
